@@ -76,11 +76,11 @@ const HostelDetailPage = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 pt-20 sm:pt-24 md:pt-28 pb-8">
+      <div className="container mx-auto px-4 pt-20 sm:pt-24 md:pt-28 pb-8 text-zinc-100">
         {/* Back Button */}
         <button 
           onClick={() => navigate(-1)} 
-          className="flex items-center text-primary-900 mb-6 hover:underline"
+          className="flex items-center text-orange-500 hover:text-orange-400 mb-6 font-medium transition-colors"
         >
           <ArrowLeft className="h-4 w-4 mr-1" /> Back to results
         </button>
@@ -89,7 +89,7 @@ const HostelDetailPage = () => {
           {/* Gallery and Details Section */}
           <div className="lg:col-span-2">
             {/* Main Image */}
-            <div className="relative h-64 md:h-96 rounded-xl overflow-hidden mb-2">
+            <div className="relative h-64 md:h-96 rounded-xl overflow-hidden mb-2 border border-zinc-800">
               <img 
                 src={hostel.imageUrls[activeImageIndex]} 
                 alt={hostel.name}
@@ -97,10 +97,10 @@ const HostelDetailPage = () => {
               />
               
               {/* Rating Badge */}
-              <div className="absolute top-4 right-4 flex items-center bg-secondary-600 text-white px-3 py-1 rounded-full">
-                <Star className="h-4 w-4 fill-white text-white mr-1" />
-                <span className="font-bold">{hostel.rating}</span>
-                <span className="text-sm ml-1">({hostel.reviewCount} reviews)</span>
+              <div className="absolute top-4 right-4 flex items-center bg-orange-500 text-black px-3 py-1 rounded-full font-bold shadow-md">
+                <Star className="h-4 w-4 fill-black text-black mr-1" />
+                <span>{hostel.rating}</span>
+                <span className="text-xs ml-1 font-normal text-zinc-900">({hostel.reviewCount} reviews)</span>
               </div>
             </div>
             
@@ -109,7 +109,7 @@ const HostelDetailPage = () => {
               {hostel.imageUrls.map((image, index) => (
                 <div 
                   key={index}
-                  className={`w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden cursor-pointer border-2 ${index === activeImageIndex ? 'border-primary-900' : 'border-transparent'}`}
+                  className={`w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden cursor-pointer border-2 transition-colors ${index === activeImageIndex ? 'border-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)]' : 'border-zinc-800'}`}
                   onClick={() => setActiveImageIndex(index)}
                 >
                   <img 
@@ -123,23 +123,23 @@ const HostelDetailPage = () => {
             
             {/* Hostel Details */}
             <div className="mb-8">
-              <h1 className="text-3xl font-display font-bold mb-2">{hostel.name}</h1>
+              <h1 className="text-3xl font-display font-bold mb-2 text-white">{hostel.name}</h1>
               
-              <div className="flex items-center text-sm text-gray-600 mb-4">
-                <MapPin className="h-4 w-4 mr-1" />
+              <div className="flex items-center text-sm text-zinc-400 mb-4">
+                <MapPin className="h-4 w-4 mr-1 text-orange-500" />
                 <span>{hostel.location.address} • {hostel.location.distance} km from {hostel.university}</span>
               </div>
               
-              <p className="text-gray-700 mb-6">{hostel.description}</p>
+              <p className="text-zinc-300 mb-6">{hostel.description}</p>
               
               {/* Amenities */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-3">Amenities</h3>
+                <h3 className="text-lg font-semibold mb-3 text-orange-500">Amenities</h3>
                 <div className="flex flex-wrap gap-2">
                   {hostel.amenities.map((amenity, index) => (
                     <span 
                       key={index} 
-                      className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm"
+                      className="bg-zinc-900 border border-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm"
                     >
                       {amenity}
                     </span>
@@ -149,13 +149,13 @@ const HostelDetailPage = () => {
               
               {/* Rooms */}
               <div>
-                <h3 className="text-lg font-semibold mb-3">Available Rooms</h3>
+                <h3 className="text-lg font-semibold mb-3 text-orange-500">Available Rooms</h3>
                 <div className="space-y-6">
                   {hostel.rooms.map((room) => (
                     <motion.div 
                       key={room.id}
-                      className={`bg-white rounded-xl overflow-hidden shadow-lg transition-all ${
-                        selectedRoomId === room.id ? 'ring-2 ring-primary-900' : ''
+                      className={`bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-xl transition-all ${
+                        selectedRoomId === room.id ? 'ring-2 ring-orange-500 border-orange-500/50' : ''
                       }`}
                       whileHover={{ scale: 1.01 }}
                     >
@@ -175,7 +175,7 @@ const HostelDetailPage = () => {
                                 e.stopPropagation();
                                 handlePrevRoomImage(room.id, room.imageUrls.length);
                               }}
-                              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+                              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/70 text-white p-2 rounded-full hover:bg-orange-500 hover:text-black transition-colors"
                             >
                               <ChevronLeft className="h-5 w-5" />
                             </button>
@@ -184,7 +184,7 @@ const HostelDetailPage = () => {
                                 e.stopPropagation();
                                 handleNextRoomImage(room.id, room.imageUrls.length);
                               }}
-                              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+                              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/70 text-white p-2 rounded-full hover:bg-orange-500 hover:text-black transition-colors"
                             >
                               <ChevronRight className="h-5 w-5" />
                             </button>
@@ -192,7 +192,7 @@ const HostelDetailPage = () => {
                         )}
                         
                         {/* Image Counter */}
-                        <div className="absolute bottom-2 right-2 bg-black/50 text-white px-2 py-1 rounded-full text-sm">
+                        <div className="absolute bottom-2 right-2 bg-black/80 text-white px-2 py-1 rounded-full text-sm">
                           {(activeRoomImageIndex[room.id] || 0) + 1} / {room.imageUrls.length}
                         </div>
                       </div>
@@ -200,24 +200,24 @@ const HostelDetailPage = () => {
                       <div className="p-6">
                         <div className="flex justify-between items-start mb-4">
                           <div>
-                            <h4 className="text-xl font-semibold">{room.type} Room</h4>
-                            <p className="text-gray-600">
+                            <h4 className="text-xl font-semibold text-white">{room.type} Room</h4>
+                            <p className="text-zinc-400">
                               Capacity: {room.capacity} {room.capacity === 1 ? 'person' : 'people'}
                             </p>
                           </div>
-                          <div className="text-2xl font-bold text-primary-900">
+                          <div className="text-2xl font-extrabold text-orange-500">
                             {formatPrice(room.price)}
-                            <span className="text-sm font-normal">/semester</span>
+                            <span className="text-xs text-zinc-400 font-normal">/semester</span>
                           </div>
                         </div>
                         
                         <div className="mb-4">
-                          <h5 className="font-medium mb-2">Room Features</h5>
+                          <h5 className="font-medium mb-2 text-zinc-300">Room Features</h5>
                           <div className="flex flex-wrap gap-2">
                             {room.amenities.map((amenity, index) => (
                               <span 
                                 key={index} 
-                                className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
+                                className="bg-zinc-950 border border-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm"
                               >
                                 {amenity}
                               </span>
@@ -228,13 +228,13 @@ const HostelDetailPage = () => {
                         <div className="flex justify-between items-center">
                           <div className="flex items-center">
                             {room.available ? (
-                              <span className="text-green-600 font-medium flex items-center">
-                                <span className="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
+                              <span className="text-emerald-400 font-medium flex items-center">
+                                <span className="w-2 h-2 bg-emerald-400 rounded-full mr-2 animate-pulse"></span>
                                 Available
                               </span>
                             ) : (
-                              <span className="text-red-500 font-medium flex items-center">
-                                <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                              <span className="text-red-400 font-medium flex items-center">
+                                <span className="w-2 h-2 bg-red-400 rounded-full mr-2"></span>
                                 Currently Full
                               </span>
                             )}
@@ -258,60 +258,60 @@ const HostelDetailPage = () => {
             
             {/* Reviews Section */}
             <div>
-              <h3 className="text-xl font-semibold mb-4">
+              <h3 className="text-xl font-semibold mb-4 text-orange-500">
                 Reviews ({hostelReviews.length})
               </h3>
               
               {hostelReviews.length > 0 ? (
                 <div className="space-y-4">
                   {hostelReviews.map((review) => (
-                    <div key={review.id} className="border border-gray-200 rounded-lg p-4">
+                    <div key={review.id} className="border border-zinc-800 bg-zinc-900/80 rounded-xl p-4">
                       <div className="flex justify-between mb-2">
-                        <div className="font-medium">{review.userName}</div>
-                        <div className="text-gray-500 text-sm">{review.date}</div>
+                        <div className="font-medium text-white">{review.userName}</div>
+                        <div className="text-zinc-500 text-sm">{review.date}</div>
                       </div>
                       <div className="flex items-center mb-3">
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
                             className={`h-4 w-4 ${
-                              i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                              i < review.rating ? 'fill-orange-500 text-orange-500' : 'text-zinc-700'
                             }`}
                           />
                         ))}
                       </div>
-                      <p className="text-gray-700">{review.comment}</p>
+                      <p className="text-zinc-300">{review.comment}</p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500">No reviews yet.</p>
+                <p className="text-zinc-500">No reviews yet.</p>
               )}
             </div>
           </div>
           
           {/* Booking Section */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-lg p-6 sticky top-24">
-              <h3 className="text-xl font-semibold mb-4">Book Your Stay</h3>
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl p-6 sticky top-24">
+              <h3 className="text-xl font-semibold mb-4 text-white">Book Your Stay</h3>
               
               {selectedRoomId ? (
-                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                  <h4 className="font-medium mb-2">Selected Room</h4>
+                <div className="mb-6 p-4 bg-zinc-950 border border-orange-500/30 rounded-lg">
+                  <h4 className="font-medium mb-2 text-zinc-300">Selected Room</h4>
                   {hostel.rooms.find(room => room.id === selectedRoomId) && (
                     <>
-                      <p className="font-bold">
+                      <p className="font-bold text-white">
                         {hostel.rooms.find(room => room.id === selectedRoomId)?.type} Room
                       </p>
-                      <p className="text-primary-900 font-bold mt-1">
+                      <p className="text-orange-500 font-extrabold mt-1">
                         {formatPrice(hostel.rooms.find(room => room.id === selectedRoomId)?.price || 0)}
-                        <span className="text-sm font-normal">/semester</span>
+                        <span className="text-xs text-zinc-400 font-normal">/semester</span>
                       </p>
                     </>
                   )}
                 </div>
               ) : (
-                <div className="mb-6 p-4 bg-gray-50 rounded-lg text-gray-500 text-center">
+                <div className="mb-6 p-4 bg-zinc-950 border border-zinc-800 rounded-lg text-zinc-500 text-center text-sm">
                   Please select a room from the options above
                 </div>
               )}
@@ -329,12 +329,12 @@ const HostelDetailPage = () => {
                 Book Now
               </Button>
               
-              <div className="text-center text-sm text-gray-500 mb-6">
+              <div className="text-center text-sm text-zinc-500 mb-6">
                 No payment required to book
               </div>
               
-              <div className="border-t border-gray-200 pt-4">
-                <h4 className="font-medium mb-3">Contact Hostel</h4>
+              <div className="border-t border-zinc-800 pt-4">
+                <h4 className="font-medium mb-3 text-zinc-300">Contact Hostel</h4>
                 <Button
                   variant="outline"
                   fullWidth

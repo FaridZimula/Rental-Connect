@@ -51,19 +51,19 @@ const LoginForm = () => {
 
   return (
     <motion.div 
-      className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full"
+      className="bg-zinc-900 border border-zinc-800 p-8 rounded-2xl shadow-2xl max-w-md w-full text-white"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center h-16 w-16 bg-primary-50 text-primary-900 rounded-full mb-4">
+        <div className="inline-flex items-center justify-center h-16 w-16 bg-orange-500/10 border border-orange-500/30 text-orange-500 rounded-full mb-4 shadow-[0_0_15px_rgba(249,115,22,0.2)]">
           <User className="h-8 w-8" />
         </div>
-        <h2 className="text-2xl font-display font-bold">
+        <h2 className="text-2xl font-display font-bold text-white">
           {location.pathname === '/hostel-owner/login' ? 'Owner Login' : 'Login'}
         </h2>
-        <p className="text-gray-600 mt-2">
+        <p className="text-zinc-400 mt-2 text-sm">
           {location.pathname === '/hostel-owner/login'
             ? 'Sign in to your hostel owner account'
             : 'Sign in to your account'}
@@ -71,24 +71,24 @@ const LoginForm = () => {
       </div>
       
       {error && (
-        <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-6 text-sm">
+        <div className="bg-red-500/10 border border-red-500/30 text-red-400 p-3 rounded-lg mb-6 text-sm text-center">
           {error}
         </div>
       )}
       
       <form onSubmit={handleSubmit}>
         <div className="mb-6">
-          <label htmlFor="email" className="block text-gray-700 text-sm font-medium mb-2">
+          <label htmlFor="email" className="block text-zinc-300 text-sm font-medium mb-2">
             Email
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Mail className="h-5 w-5 text-gray-400" />
+              <Mail className="h-5 w-5 text-orange-500" />
             </div>
             <input
               id="email"
               type="email"
-              className="pl-10 w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-900 focus:border-transparent"
+              className="pl-10 w-full p-3 bg-zinc-950 border border-zinc-800 text-white placeholder-zinc-500 rounded-xl focus:outline-none focus:border-orange-500 transition-colors"
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -99,23 +99,23 @@ const LoginForm = () => {
         
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
-            <label htmlFor="password" className="block text-gray-700 text-sm font-medium">
+            <label htmlFor="password" className="block text-zinc-300 text-sm font-medium">
               Password
             </label>
             {location.pathname !== '/hostel-owner/login' && (
-              <a href="#" className="text-sm text-primary-900 hover:text-primary-700">
+              <a href="#" className="text-sm text-orange-500 hover:text-orange-400 transition-colors">
                 Forgot password?
               </a>
             )}
           </div>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Lock className="h-5 w-5 text-gray-400" />
+              <Lock className="h-5 w-5 text-orange-500" />
             </div>
             <input
               id="password"
               type="password"
-              className="pl-10 w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-900 focus:border-transparent"
+              className="pl-10 w-full p-3 bg-zinc-950 border border-zinc-800 text-white placeholder-zinc-500 rounded-xl focus:outline-none focus:border-orange-500 transition-colors"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -128,7 +128,7 @@ const LoginForm = () => {
           variant="primary"
           fullWidth
           size="lg"
-          icon={<ArrowRight className="h-5 w-5" />}
+          icon={<ArrowRight className="h-5 w-5 text-black" />}
           iconPosition="right"
           disabled={isLoading}
           className="mb-4"
@@ -137,17 +137,17 @@ const LoginForm = () => {
         </Button>
         
         {location.pathname !== '/hostel-owner/login' && (
-          <p className="text-center text-gray-600 mt-6">
+          <p className="text-center text-zinc-400 text-sm mt-6">
             Don't have an account?{' '}
-            <Link to="/signup" className="text-primary-900 hover:underline font-medium">
+            <Link to="/signup" className="text-orange-500 hover:text-orange-400 font-semibold transition-colors">
               Sign up
             </Link>
           </p>
         )}
         {location.pathname === '/hostel-owner/login' && (
-          <p className="text-center text-gray-600 mt-6">
+          <p className="text-center text-zinc-400 text-sm mt-6">
             Don't have an owner account?{' '}
-            <Link to="/hostel-owner/signup" className="text-primary-900 hover:underline font-medium">
+            <Link to="/hostel-owner/signup" className="text-orange-500 hover:text-orange-400 font-semibold transition-colors">
               Sign up as owner
             </Link>
           </p>

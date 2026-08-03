@@ -107,6 +107,8 @@ export const hostels: Hostel[] = [
   {
     id: '1',
     name: 'Olympia Hostel',
+    category: 'hostels',
+    pricePeriod: '/semester',
     description: 'Modern accommodation with excellent facilities for students. Located just 5 minutes from campus.',
     ownerId: 'owner1',
     location: {
@@ -149,6 +151,8 @@ export const hostels: Hostel[] = [
   {
     id: '2',
     name: 'Livingstone Hostel',
+    category: 'hostels',
+    pricePeriod: '/semester',
     description: 'Affordable and comfortable accommodation for students with all essential amenities.',
     ownerId: 'owner2',
     location: {
@@ -186,6 +190,126 @@ export const hostels: Hostel[] = [
     imageUrls: [
       'https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
       'https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    ]
+  },
+  {
+    id: '101',
+    name: 'Executive 2-Bedroom Apartment',
+    category: 'rentals',
+    pricePeriod: '/month',
+    description: 'Fully furnished luxury apartment in Kololo with high-speed WiFi, fitted kitchen, and secure parking.',
+    ownerId: 'owner3',
+    location: {
+      address: 'Plot 12 Kololo Terrace, Kampala',
+      distance: 1.5,
+    },
+    university: 'Kampala Central',
+    rating: 4.8,
+    reviewCount: 42,
+    amenities: ['Furnished', 'WiFi', 'CCTV Security', 'Balcony', 'Parking', 'Backup Generator'],
+    rooms: [
+      {
+        id: 'rental_r1',
+        type: '2 Bedroom Flat',
+        price: 1500000,
+        available: true,
+        capacity: 4,
+        amenities: ['Master Suite', 'Modern Kitchen', 'Air Conditioning'],
+        imageUrls: ['https://images.pexels.com/photos/276724/pexels-photo-276724.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1']
+      }
+    ],
+    imageUrls: [
+      'https://images.pexels.com/photos/276724/pexels-photo-276724.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    ]
+  },
+  {
+    id: '201',
+    name: 'Toyota Land Cruiser Prado V8',
+    category: 'vehicles',
+    pricePeriod: '/day',
+    description: 'Reliable 4x4 SUV available for self-drive or chauffeur rental across Uganda.',
+    ownerId: 'owner4',
+    location: {
+      address: 'Entebbe Road, Kampala',
+      distance: 2.0,
+    },
+    university: 'Kampala Central',
+    rating: 4.9,
+    reviewCount: 64,
+    amenities: ['Automatic', 'AC', '4WD', 'GPS', 'Leather Interior', 'Unlimited Mileage'],
+    rooms: [
+      {
+        id: 'veh_r1',
+        type: 'SUV Rental',
+        price: 250000,
+        available: true,
+        capacity: 7,
+        amenities: ['Full Tank Option', 'Comprehensive Insurance'],
+        imageUrls: ['https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1']
+      }
+    ],
+    imageUrls: [
+      'https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    ]
+  },
+  {
+    id: '301',
+    name: 'Commercial Prime Land (50x100ft)',
+    category: 'land',
+    pricePeriod: '/month',
+    description: 'Prime commercial plot suitable for event hosting, pop-up markets, storage, or temporary business setup.',
+    ownerId: 'owner5',
+    location: {
+      address: 'Ntinda Bypass Road, Kampala',
+      distance: 3.0,
+    },
+    university: 'Kyambogo Area',
+    rating: 4.6,
+    reviewCount: 18,
+    amenities: ['Fenced', 'Water Access', 'Power Line', 'Road Frontage', '24/7 Guarded'],
+    rooms: [
+      {
+        id: 'land_r1',
+        type: 'Plot Lease',
+        price: 800000,
+        available: true,
+        capacity: 100,
+        amenities: ['Level Ground', 'Gated Entry'],
+        imageUrls: ['https://images.pexels.com/photos/440731/pexels-photo-440731.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1']
+      }
+    ],
+    imageUrls: [
+      'https://images.pexels.com/photos/440731/pexels-photo-440731.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    ]
+  },
+  {
+    id: '401',
+    name: 'Heavy Duty 50kVA Power Generator & Sound System',
+    category: 'equipment',
+    pricePeriod: '/day',
+    description: 'Professional industrial power generator and full concert sound system available for events and construction.',
+    ownerId: 'owner6',
+    location: {
+      address: 'Industrial Area, Kampala',
+      distance: 2.5,
+    },
+    university: 'Kampala Industrial Zone',
+    rating: 4.7,
+    reviewCount: 31,
+    amenities: ['Silent Operation', 'Operator Included', 'Fuel Tank', 'Wireless Mics', 'Stage Speakers'],
+    rooms: [
+      {
+        id: 'eq_r1',
+        type: 'Equipment Package',
+        price: 350000,
+        available: true,
+        capacity: 1,
+        amenities: ['Delivery Included', 'Technical Support'],
+        imageUrls: ['https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1']
+      }
+    ],
+    imageUrls: [
+      'https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
     ]
   },
   {

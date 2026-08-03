@@ -27,8 +27,8 @@ const Dashboard = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-display font-bold mb-8">Your Dashboard</h1>
+      <div className="container mx-auto px-4 py-8 text-zinc-100">
+        <h1 className="text-3xl font-display font-bold mb-8 text-white">Your <span className="text-orange-500">Dashboard</span></h1>
         {getDashboardContentByRole()}
       </div>
     </Layout>
@@ -40,9 +40,9 @@ const StudentDashboard = () => {
   
   return (
     <div>
-      <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl shadow-xl p-6 mb-8 text-white">
         <div className="flex flex-col md:flex-row md:items-center">
-          <div className="w-20 h-20 rounded-full overflow-hidden mb-4 md:mb-0 md:mr-6">
+          <div className="w-20 h-20 rounded-full overflow-hidden mb-4 md:mb-0 md:mr-6 border-2 border-orange-500">
             <img 
               src={user?.avatar || 'https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'} 
               alt={user?.name}
@@ -50,51 +50,51 @@ const StudentDashboard = () => {
             />
           </div>
           <div>
-            <h2 className="text-2xl font-semibold">{user?.name}</h2>
-            <p className="text-gray-600">{user?.university}</p>
+            <h2 className="text-2xl font-semibold text-white">{user?.name}</h2>
+            <p className="text-zinc-400">{user?.university}</p>
           </div>
         </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl shadow-xl p-6">
           <div className="flex items-center mb-4">
-            <div className="p-2 bg-primary-50 text-primary-900 rounded-lg">
+            <div className="p-2 bg-orange-500/10 text-orange-500 rounded-lg border border-orange-500/30">
               <Home className="h-6 w-6" />
             </div>
-            <h3 className="text-lg font-semibold ml-3">Your Bookings</h3>
+            <h3 className="text-lg font-semibold ml-3 text-white">Your Bookings</h3>
           </div>
-          <p className="text-gray-500">You have no active bookings.</p>
-          <button className="mt-4 text-primary-900 font-medium hover:underline">Find a hostel</button>
+          <p className="text-zinc-400">You have no active bookings.</p>
+          <button className="mt-4 text-orange-500 font-semibold hover:text-orange-400 hover:underline">Find a hostel</button>
         </div>
         
-        <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl shadow-xl p-6">
           <div className="flex items-center mb-4">
-            <div className="p-2 bg-primary-50 text-primary-900 rounded-lg">
+            <div className="p-2 bg-orange-500/10 text-orange-500 rounded-lg border border-orange-500/30">
               <MessageSquare className="h-6 w-6" />
             </div>
-            <h3 className="text-lg font-semibold ml-3">Reviews</h3>
+            <h3 className="text-lg font-semibold ml-3 text-white">Reviews</h3>
           </div>
-          <p className="text-gray-500">You haven't written any reviews yet.</p>
+          <p className="text-zinc-400">You haven't written any reviews yet.</p>
         </div>
         
-        <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl shadow-xl p-6">
           <div className="flex items-center mb-4">
-            <div className="p-2 bg-primary-50 text-primary-900 rounded-lg">
+            <div className="p-2 bg-orange-500/10 text-orange-500 rounded-lg border border-orange-500/30">
               <Settings className="h-6 w-6" />
             </div>
-            <h3 className="text-lg font-semibold ml-3">Preferences</h3>
+            <h3 className="text-lg font-semibold ml-3 text-white">Preferences</h3>
           </div>
-          <p className="text-gray-500">Update your hostel preferences here.</p>
+          <p className="text-zinc-400">Update your hostel preferences here.</p>
         </div>
       </div>
       
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h3 className="text-xl font-semibold mb-4">Recommended Hostels</h3>
-        <p className="text-gray-500">Based on your university and preferences.</p>
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl shadow-xl p-6">
+        <h3 className="text-xl font-semibold mb-4 text-white">Recommended Hostels</h3>
+        <p className="text-zinc-400">Based on your university and preferences.</p>
         
         <div className="mt-4">
-          <p className="text-center py-8 text-gray-500">Personalized recommendations will appear here.</p>
+          <p className="text-center py-8 text-zinc-500">Personalized recommendations will appear here.</p>
         </div>
       </div>
     </div>

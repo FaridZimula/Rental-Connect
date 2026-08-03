@@ -24,13 +24,13 @@ const Card = ({
     lg: 'shadow-lg',
   };
 
-  const baseClasses = 'bg-white rounded-xl overflow-hidden';
-  const interactiveClasses = interactive ? 'cursor-pointer transition-transform duration-300' : '';
+  const baseClasses = 'bg-white border border-zinc-200 text-zinc-900 rounded-2xl overflow-hidden';
+  const interactiveClasses = interactive ? 'cursor-pointer transition-transform duration-300 hover:border-[#f06023]' : '';
 
   return interactive ? (
     <motion.div
       className={clsx(baseClasses, elevationClasses[elevation], interactiveClasses, className)}
-      whileHover={{ y: -5, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
+      whileHover={{ y: -5, boxShadow: '0 10px 25px -5px rgba(240, 96, 35, 0.15)' }}
       onClick={onClick}
     >
       {children}

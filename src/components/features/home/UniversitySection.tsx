@@ -10,26 +10,26 @@ const popularUniversities = [...universities]
 
 const UniversitySection = () => {
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-white border-t border-zinc-200">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <motion.h2 
-            className="text-3xl md:text-4xl font-display font-bold mb-4"
+            className="text-3xl md:text-4xl font-display font-extrabold mb-4 text-zinc-900"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            Popular Universities
+            Popular <span className="text-[#f06023]">Rental Locations</span>
           </motion.h2>
           <motion.p 
-            className="text-gray-600 max-w-2xl mx-auto text-lg"
+            className="text-zinc-900 max-w-2xl mx-auto text-lg font-medium leading-relaxed"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            Find hostels near Uganda's top universities with our extensive network of accommodations
+            Explore available hostels, property, and vehicle rentals near major Ugandan university hubs.
           </motion.p>
         </div>
 
@@ -37,33 +37,33 @@ const UniversitySection = () => {
           {popularUniversities.map((university, index) => (
             <motion.div
               key={university.id}
-              className="group relative overflow-hidden rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 bg-gray-100"
+              className="group relative overflow-hidden rounded-2xl shadow-md transition-all duration-300 bg-white border border-zinc-200 hover:border-[#f06023]"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               whileHover={{ y: -5 }}
             >
-              <div className="relative w-full" style={{ paddingBottom: '100%' }}>
+              <div className="relative w-full" style={{ paddingBottom: '75%' }}>
                 <div className="absolute inset-0">
                   <img
                     src={university.imageUrl}
                     alt={university.name}
                     className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                 </div>
               </div>
               
               <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                <h3 className="text-xl font-semibold mb-2">{university.name}</h3>
+                <h3 className="text-xl font-bold mb-2 group-hover:text-[#f06023] transition-colors">{university.name}</h3>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <MapPin className="h-4 w-4" />
-                    <span className="text-sm">{university.location}</span>
+                  <div className="flex items-center space-x-2 text-zinc-200">
+                    <MapPin className="h-4 w-4 text-[#f06023]" />
+                    <span className="text-sm font-medium">{university.location}</span>
                   </div>
-                  <span className="text-sm bg-white/20 px-3 py-1 rounded-full">
-                    {university.hostelCount} hostels
+                  <span className="text-xs bg-[#f06023] text-white font-bold px-3 py-1 rounded-full shadow-md">
+                    {university.hostelCount} rentals
                   </span>
                 </div>
               </div>
@@ -80,9 +80,9 @@ const UniversitySection = () => {
         >
           <Link
             to="/universities"
-            className="inline-flex items-center justify-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-300"
+            className="inline-flex items-center justify-center px-6 py-3 bg-[#f06023] hover:bg-[#d94b12] text-white font-bold rounded-xl transition-all duration-300 shadow-md"
           >
-            View All Universities
+            View All Locations
             <svg
               className="ml-2 h-5 w-5"
               fill="none"

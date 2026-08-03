@@ -1,3 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Poppins', sans-serif;
+    @apply bg-white text-zinc-900 antialiased selection:bg-[#f06023] selection:text-white;
+  }
+}
+
+/* Custom scrollbar for light orange theme */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f4f4f5;
+}
+::-webkit-scrollbar-thumb {
+  background: #f06023;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d94b12;
+}
+

@@ -1,3 +1,5 @@
+export type RentalCategory = 'all' | 'hostels' | 'rentals' | 'vehicles' | 'land' | 'equipment';
+
 export type User = {
   id: string;
   name: string;
@@ -28,11 +30,13 @@ export type Room = {
 export type Hostel = {
   id: string;
   name: string;
+  category?: RentalCategory;
+  pricePeriod?: string; // e.g. '/semester', '/month', '/day'
   description: string;
   ownerId: string;
   location: {
     address: string;
-    distance: number; // distance from university in km
+    distance: number; // distance in km
     coordinates?: {
       lat: number;
       lng: number;
@@ -69,6 +73,7 @@ export type Booking = {
 };
 
 export type FilterOptions = {
+  category?: RentalCategory;
   university?: string;
   priceRange?: {
     min: number;

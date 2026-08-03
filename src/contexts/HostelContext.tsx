@@ -11,6 +11,7 @@ interface HostelContextType {
   searchHostels: (searchTerm: string) => void;
   filterHostels: (options: FilterOptions) => void;
   resetFilters: () => void;
+  addRentalItem: (item: Partial<Hostel>) => void;
 }
 
 const HostelContext = createContext<HostelContextType | undefined>(undefined);
@@ -35,6 +36,13 @@ export function HostelProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Add new uploaded rental item
+  const addRentalItem = (item: Partial<Hostel>) => {
+    const fullItem = item as Hostel;
+    setHostels((prev) => [fullItem, ...prev]);
+    setFilteredHostels((prev) => [fullItem, ...prev]);
+  };
+
   // Get hostel by ID
   const getHostelById = (id: string) => {
     return hostels.find((hostel) => hostel.id === id);
@@ -56,11 +64,17 @@ export function HostelProvider({ children }: { children: ReactNode }) {
   const applyFiltersAndSearch = (term: string, options: FilterOptions) => {
     let result = [...hostels];
 
+    // Apply category filter
+    if (options.category && options.category !== 'all') {
+      result = result.filter((item) => (item.category || 'hostels') === options.category);
+    }
+
     // Apply search term
     if (term) {
       result = result.filter(
         (hostel) =>
           hostel.name.toLowerCase().includes(term.toLowerCase()) ||
+          hostel.description.toLowerCase().includes(term.toLowerCase()) ||
           hostel.university.toLowerCase().includes(term.toLowerCase())
       );
     }

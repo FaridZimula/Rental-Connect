@@ -32,9 +32,9 @@ const Universities = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-black text-white">
         {/* Hero Section */}
-        <div className="bg-primary-900 text-white pt-20 sm:pt-24 md:pt-28 pb-24">
+        <div className="bg-gradient-to-b from-black via-zinc-950 to-black text-white pt-20 sm:pt-24 md:pt-28 pb-20 border-b border-zinc-900">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -42,10 +42,10 @@ const Universities = () => {
               transition={{ duration: 0.5 }}
               className="max-w-3xl mx-auto text-center"
             >
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">
-                Ugandan Universities
+              <h1 className="text-4xl md:text-5xl font-extrabold mb-6">
+                Ugandan <span className="text-orange-500">Universities</span>
               </h1>
-              <p className="text-lg text-gray-300 mb-8">
+              <p className="text-lg text-zinc-400 mb-8">
                 Explore our network of partner universities across Uganda and find the perfect accommodation for your academic journey.
               </p>
               
@@ -53,22 +53,22 @@ const Universities = () => {
               <div className="relative max-w-2xl mx-auto">
                 <div className="flex gap-4">
                   <div className="relative flex-grow">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-orange-500 h-5 w-5" />
                     <input
                       type="text"
                       placeholder="Search universities..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 rounded-full bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/30 focus:bg-white/20 transition-all"
+                      className="w-full pl-12 pr-4 py-3 rounded-full bg-zinc-900 border border-zinc-800 text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 transition-all"
                     />
                   </div>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setIsFilterOpen(!isFilterOpen)}
-                    className="px-4 py-3 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-colors flex items-center gap-2"
+                    className="px-4 py-3 rounded-full bg-zinc-900 border border-zinc-800 text-white hover:border-orange-500/50 transition-colors flex items-center gap-2"
                   >
-                    <Filter className="h-5 w-5" />
+                    <Filter className="h-5 w-5 text-orange-500" />
                     <span>Filter</span>
                   </motion.button>
                 </div>
@@ -80,14 +80,14 @@ const Universities = () => {
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg p-4 z-10"
+                      className="absolute right-0 mt-2 w-64 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl p-4 z-10 text-left"
                     >
-                      <h3 className="font-semibold text-gray-900 mb-3">Location</h3>
+                      <h3 className="font-semibold text-orange-500 mb-3">Location</h3>
                       <div className="space-y-2">
                         <button
                           onClick={() => setSelectedLocation('')}
-                          className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
-                            !selectedLocation ? 'bg-primary-100 text-primary-900' : 'text-gray-700 hover:bg-gray-100'
+                          className={`w-full text-left px-3 py-2 rounded-md transition-colors text-sm ${
+                            !selectedLocation ? 'bg-orange-500 text-black font-bold' : 'text-zinc-300 hover:bg-zinc-800'
                           }`}
                         >
                           All Locations
@@ -96,8 +96,8 @@ const Universities = () => {
                           <button
                             key={location}
                             onClick={() => setSelectedLocation(location)}
-                            className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
-                              selectedLocation === location ? 'bg-primary-100 text-primary-900' : 'text-gray-700 hover:bg-gray-100'
+                            className={`w-full text-left px-3 py-2 rounded-md transition-colors text-sm ${
+                              selectedLocation === location ? 'bg-orange-500 text-black font-bold' : 'text-zinc-300 hover:bg-zinc-800'
                             }`}
                           >
                             {location}
@@ -124,40 +124,40 @@ const Universities = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.3 }}
-                  className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden group"
+                  className="bg-zinc-900 border border-zinc-800 rounded-xl shadow-lg hover:border-orange-500/50 transition-all overflow-hidden group"
                 >
-                  <div className="relative h-48 overflow-hidden bg-gray-100">
+                  <div className="relative h-48 overflow-hidden bg-zinc-950">
                     <img
                       src={imageErrors[university.id] ? FALLBACK_IMAGE : university.imageUrl}
                       alt={university.name}
                       onError={() => handleImageError(university.id)}
                       className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <h2 className="text-xl font-bold text-white mb-1">{university.name}</h2>
-                      <div className="flex items-center text-white/90">
-                        <MapPin className="h-4 w-4 mr-1" />
+                      <h2 className="text-xl font-bold text-white mb-1 group-hover:text-orange-400 transition-colors">{university.name}</h2>
+                      <div className="flex items-center text-zinc-300">
+                        <MapPin className="h-4 w-4 mr-1 text-orange-500" />
                         <span className="text-sm">{university.location}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="p-6">
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                  <div className="p-6 text-zinc-100">
+                    <p className="text-zinc-400 text-sm mb-4 line-clamp-2">
                       {university.description}
                     </p>
                     
                     <div className="grid grid-cols-2 gap-4 mb-6">
-                      <div className="text-center">
-                        <Users className="h-5 w-5 text-primary-600 mx-auto mb-1" />
-                        <p className="text-sm text-gray-600">
+                      <div className="text-center p-3 bg-zinc-950/60 rounded-lg border border-zinc-800">
+                        <Users className="h-5 w-5 text-orange-500 mx-auto mb-1" />
+                        <p className="text-xs text-zinc-400">
                           {university.studentCount?.toLocaleString()} Students
                         </p>
                       </div>
-                      <div className="text-center">
-                        <Building2 className="h-5 w-5 text-primary-600 mx-auto mb-1" />
-                        <p className="text-sm text-gray-600">
+                      <div className="text-center p-3 bg-zinc-950/60 rounded-lg border border-zinc-800">
+                        <Building2 className="h-5 w-5 text-orange-500 mx-auto mb-1" />
+                        <p className="text-xs text-zinc-400">
                           {university.hostelCount} Hostels
                         </p>
                       </div>
@@ -166,7 +166,7 @@ const Universities = () => {
                     <div className="flex gap-3">
                       <Link
                         to={`/hostels?university=${encodeURIComponent(university.name)}`}
-                        className="flex-1 bg-primary-600 text-white text-center py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors"
+                        className="flex-1 bg-orange-500 hover:bg-orange-600 text-black font-bold text-center py-2 px-4 rounded-lg transition-all shadow-md"
                       >
                         View Hostels
                       </Link>
@@ -174,7 +174,7 @@ const Universities = () => {
                         href={university.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 border border-primary-600 text-primary-600 text-center py-2 px-4 rounded-lg hover:bg-primary-50 transition-colors flex items-center justify-center gap-2"
+                        className="flex-1 border border-orange-500/60 text-orange-500 hover:bg-orange-500/10 text-center py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm font-semibold"
                       >
                         <Globe className="h-4 w-4" />
                         Website
@@ -193,8 +193,8 @@ const Universities = () => {
               animate={{ opacity: 1 }}
               className="text-center py-12"
             >
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No universities found</h3>
-              <p className="text-gray-600">Try adjusting your search or filter criteria</p>
+              <h3 className="text-xl font-semibold text-white mb-2">No universities found</h3>
+              <p className="text-zinc-400">Try adjusting your search or filter criteria</p>
             </motion.div>
           )}
         </div>

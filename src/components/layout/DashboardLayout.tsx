@@ -16,9 +16,9 @@ const DashboardLayout = ({ children, sidebar }: DashboardLayoutProps) => {
   });
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex bg-[#09090b] text-zinc-100">
       {/* --- Desktop Sidebar (Visible on lg screens and up) --- */}
-      <aside className="w-64 flex-shrink-0 bg-white shadow-md hidden lg:flex lg:flex-col">
+      <aside className="w-64 flex-shrink-0 bg-zinc-950 border-r border-zinc-800 hidden lg:flex lg:flex-col">
         {sidebarWithClickHandler}
       </aside>
 
@@ -32,7 +32,7 @@ const DashboardLayout = ({ children, sidebar }: DashboardLayoutProps) => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 lg:hidden"
               onClick={() => setIsMobileSidebarOpen(false)}
             />
             
@@ -42,7 +42,7 @@ const DashboardLayout = ({ children, sidebar }: DashboardLayoutProps) => {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="fixed top-0 left-0 w-80 max-w-[90vw] h-full bg-white z-50 lg:hidden flex flex-col"
+              className="fixed top-0 left-0 w-80 max-w-[90vw] h-full bg-zinc-950 border-r border-zinc-800 z-50 lg:hidden flex flex-col"
             >
               <div className="flex-1 overflow-y-auto">
                 {sidebarWithClickHandler}
@@ -55,21 +55,21 @@ const DashboardLayout = ({ children, sidebar }: DashboardLayoutProps) => {
       {/* --- Main Content --- */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile Header */}
-        <header className="lg:hidden bg-white shadow-sm border-b border-gray-200 p-4 sticky top-0 z-30">
+        <header className="lg:hidden bg-black border-b border-zinc-800 p-4 sticky top-0 z-30">
           <div className="flex items-center">
             <button
               onClick={() => setIsMobileSidebarOpen(true)}
-              className="text-gray-500 hover:text-gray-700 mr-4"
+              className="text-zinc-400 hover:text-orange-500 mr-4"
               aria-label="Open sidebar"
             >
               <Menu className="h-6 w-6" />
             </button>
-            <h1 className="text-lg font-semibold text-gray-800">HostelConnect</h1>
+            <h1 className="text-lg font-semibold text-white">Hostel<span className="text-orange-500">Connect</span></h1>
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-grow overflow-auto">
+        <main className="flex-grow overflow-auto bg-[#09090b]">
           {children}
         </main>
       </div>

@@ -21,7 +21,6 @@ import ReportGeneration from './components/features/dashboard/hostelBroker/Repor
 import RoomManagement from './components/features/dashboard/hostelOwner/RoomManagement';
 import ReviewManagement from './components/features/dashboard/hostelOwner/ReviewManagement';
 import BookingManagement from './components/features/dashboard/hostelOwner/BookingManagement';
-import MessagingSystem from './components/features/dashboard/common/MessagingSystem';
 import AnalyticsDashboard from './components/features/dashboard/common/AnalyticsDashboard';
 import HostelManagement from './components/features/dashboard/hostelOwner/HostelManagement';
 import OwnerSettings from './components/features/dashboard/hostelOwner/OwnerSettings';

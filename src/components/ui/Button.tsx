@@ -28,10 +28,10 @@ const Button = ({
   const baseClasses = 'rounded-full font-medium transition-all duration-300 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2';
   
   const variantClasses = {
-    primary: 'bg-primary-900 hover:bg-primary-800 text-white focus:ring-primary-900',
-    secondary: 'bg-secondary-600 hover:bg-secondary-700 text-white focus:ring-secondary-600',
-    outline: 'border border-primary-900 text-primary-900 hover:bg-primary-50 focus:ring-primary-900',
-    ghost: 'text-primary-900 hover:bg-primary-50 focus:ring-primary-900',
+    primary: 'bg-[#f06023] hover:bg-[#d94b12] text-white font-bold shadow-[0_0_12px_rgba(240,96,35,0.35)] focus:ring-[#f06023]',
+    secondary: 'bg-zinc-800 hover:bg-zinc-700 text-[#f06023] border border-zinc-700 focus:ring-[#f06023]',
+    outline: 'border border-[#f06023]/60 text-[#f06023] hover:bg-[#f06023]/10 focus:ring-[#f06023]',
+    ghost: 'text-[#f06023] hover:bg-zinc-800/60 focus:ring-[#f06023]',
   };
   
   const sizeClasses = {

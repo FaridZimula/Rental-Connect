@@ -12,10 +12,14 @@ const SignupForm = () => {
     name: '',
     email: '',
     phone: '',
+    role: 'broker' as 'student' | 'owner' | 'broker',
+    businessName: '',
+    licenseNumber: '',
+    operatingCity: 'Kampala',
+    specialization: 'rentals',
     university: '',
     password: '',
     confirmPassword: '',
-    role: 'student' as 'student' | 'owner' | 'broker'
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +40,7 @@ const SignupForm = () => {
     }
   }, [isAuthenticated, user, navigate]);
 
-  // Set role based on the current route
+  // Set role based on route
   useEffect(() => {
     if (location.pathname === '/hostel-owner/signup') {
       setFormData(prev => ({ ...prev, role: 'owner' }));
@@ -45,8 +49,6 @@ const SignupForm = () => {
 
   const updateFormData = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
-    // Clear error for this field if exists
     if (errors[field]) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -59,13 +61,17 @@ const SignupForm = () => {
   const validateStep1 = () => {
     const newErrors: Record<string, string> = {};
     
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
+    if (!formData.name.trim()) newErrors.name = 'Full name is required';
     if (!formData.email.trim()) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
     
     if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
-    if (!formData.role) newErrors.role = 'Role is required';
-    if (formData.role === 'student' && !formData.university) newErrors.university = 'University is required';
+    if (!formData.role) newErrors.role = 'Role selection is required';
+    
+    if (formData.role === 'broker' || formData.role === 'owner') {
+      if (!formData.businessName.trim()) newErrors.businessName = 'Business/Agency name is required';
+      if (!formData.licenseNumber.trim()) newErrors.licenseNumber = 'National ID (NIN) or License No. is required';
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -75,7 +81,7 @@ const SignupForm = () => {
     const newErrors: Record<string, string> = {};
     
     if (!formData.password) newErrors.password = 'Password is required';
-    else if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
+    else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
     
     if (!formData.confirmPassword) newErrors.confirmPassword = 'Please confirm your password';
     else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
@@ -96,7 +102,6 @@ const SignupForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!validateStep2()) return;
     
     setIsLoading(true);
@@ -106,14 +111,13 @@ const SignupForm = () => {
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
-          university: formData.university,
+          university: formData.university || formData.operatingCity,
           role: formData.role
         }, 
         formData.password
       );
-      // Navigation is now handled by the useEffect hook
     } catch (err) {
-      setErrors({ submit: 'Failed to create account' });
+      setErrors({ submit: 'Failed to create account. Please try again.' });
     } finally {
       setIsLoading(false);
     }
@@ -121,173 +125,234 @@ const SignupForm = () => {
 
   return (
     <motion.div 
-      className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full"
+      className="bg-white border border-zinc-200 p-8 rounded-2xl shadow-xl max-w-lg w-full text-zinc-900"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center h-16 w-16 bg-primary-50 text-primary-900 rounded-full mb-4">
+        <div className="inline-flex items-center justify-center h-16 w-16 bg-[#f06023]/10 border border-[#f06023]/30 text-[#f06023] rounded-full mb-4 shadow-sm">
           <UserPlus className="h-8 w-8" />
         </div>
-        <h2 className="text-2xl font-display font-bold">
-          {location.pathname === '/hostel-owner/signup' ? 'Create Owner Account' : 'Create Account'}
+        <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-zinc-900">
+          {formData.role === 'broker' ? 'Broker Verification Signup' : formData.role === 'owner' ? 'Property Owner Account' : 'Renter Account'}
         </h2>
-        <p className="text-gray-600 mt-2">
-          {location.pathname === '/hostel-owner/signup' 
-            ? 'Join HostelConnect as a hostel owner' 
-            : 'Join HostelConnect to find your perfect accommodation'}
+        <p className="text-zinc-600 mt-2 text-sm">
+          Join <span className="text-[#f06023] font-bold">Rental Connect</span> to list, manage, or rent properties, vehicles & equipment.
         </p>
       </div>
       
       {errors.submit && (
-        <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-6 text-sm">
+        <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-xl mb-6 text-sm text-center font-medium">
           {errors.submit}
         </div>
       )}
       
       {/* Progress Steps */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-8 px-4">
         <div className="flex items-center">
-          <div className="flex items-center justify-center w-8 h-8 bg-primary-900 text-white rounded-full">
+          <div className="flex items-center justify-center w-8 h-8 bg-[#f06023] text-white font-bold rounded-full shadow-sm">
             1
           </div>
-          <div className="ml-2 text-sm font-medium">
-            Personal Info
+          <div className="ml-2 text-xs sm:text-sm font-semibold text-zinc-800">
+            Profile & Business
           </div>
         </div>
-        <div className="w-16 h-1 bg-gray-200">
-          <div className={`h-full ${step > 1 ? 'bg-primary-900' : 'bg-gray-200'}`}></div>
+        <div className="w-16 h-1 bg-zinc-200">
+          <div className={`h-full ${step > 1 ? 'bg-[#f06023]' : 'bg-zinc-200'}`}></div>
         </div>
         <div className="flex items-center">
-          <div className={`flex items-center justify-center w-8 h-8 ${step > 1 ? 'bg-primary-900 text-white' : 'bg-gray-200 text-gray-500'} rounded-full`}>
+          <div className={`flex items-center justify-center w-8 h-8 ${step > 1 ? 'bg-[#f06023] text-white font-bold shadow-sm' : 'bg-zinc-100 text-zinc-400 border border-zinc-300'} rounded-full`}>
             2
           </div>
-          <div className={`ml-2 text-sm font-medium ${step > 1 ? 'text-gray-900' : 'text-gray-400'}`}>
+          <div className={`ml-2 text-xs sm:text-sm font-semibold ${step > 1 ? 'text-zinc-800' : 'text-zinc-400'}`}>
             Security
           </div>
         </div>
       </div>
       
-      <form onSubmit={step === 1 ? handleNextStep : handleSubmit}>
+      <form onSubmit={step === 1 ? (e) => { e.preventDefault(); handleNextStep(); } : handleSubmit}>
         {step === 1 && (
           <>
-            {/* Step 1: Personal Information */}
-            <div className="mb-4">
-              <label htmlFor="name" className="block text-gray-700 text-sm font-medium mb-2">
-                Full Name
+            {/* Account Role Selector */}
+            <div className="mb-5">
+              <label className="block text-zinc-700 text-sm font-semibold mb-2">
+                I want to register as a
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="name"
-                  type="text"
-                  className="pl-10 w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-900 focus:border-transparent"
-                  placeholder="Your full name"
-                  value={formData.name}
-                  onChange={(e) => updateFormData('name', e.target.value)}
-                />
-                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => updateFormData('role', 'broker')}
+                  className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold border transition-all ${
+                    formData.role === 'broker'
+                      ? 'bg-[#f06023] text-white border-[#f06023] shadow-md'
+                      : 'bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100'
+                  }`}
+                >
+                  Broker / Agent
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateFormData('role', 'owner')}
+                  className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold border transition-all ${
+                    formData.role === 'owner'
+                      ? 'bg-[#f06023] text-white border-[#f06023] shadow-md'
+                      : 'bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100'
+                  }`}
+                >
+                  Property Owner
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateFormData('role', 'student')}
+                  className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold border transition-all ${
+                    formData.role === 'student'
+                      ? 'bg-[#f06023] text-white border-[#f06023] shadow-md'
+                      : 'bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100'
+                  }`}
+                >
+                  Renter / Client
+                </button>
               </div>
             </div>
-            
+
+            {/* Step 1: Personal & Broker Info */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label htmlFor="name" className="block text-zinc-700 text-sm font-semibold mb-1.5">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#f06023]" />
+                  <input
+                    id="name"
+                    type="text"
+                    className="pl-10 w-full p-3 bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-xl focus:outline-none focus:border-[#f06023] focus:bg-white text-sm"
+                    placeholder="John Musisi"
+                    value={formData.name}
+                    onChange={(e) => updateFormData('name', e.target.value)}
+                  />
+                </div>
+                {errors.name && <p className="text-red-500 text-xs mt-1 font-medium">{errors.name}</p>}
+              </div>
+
+              <div>
+                <label htmlFor="phone" className="block text-zinc-700 text-sm font-semibold mb-1.5">
+                  Phone Number
+                </label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#f06023]" />
+                  <input
+                    id="phone"
+                    type="tel"
+                    className="pl-10 w-full p-3 bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-xl focus:outline-none focus:border-[#f06023] focus:bg-white text-sm"
+                    placeholder="+256 781 234 567"
+                    value={formData.phone}
+                    onChange={(e) => updateFormData('phone', e.target.value)}
+                  />
+                </div>
+                {errors.phone && <p className="text-red-500 text-xs mt-1 font-medium">{errors.phone}</p>}
+              </div>
+            </div>
+
             <div className="mb-4">
-              <label htmlFor="email" className="block text-gray-700 text-sm font-medium mb-2">
+              <label htmlFor="email" className="block text-zinc-700 text-sm font-semibold mb-1.5">
                 Email Address
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
-                </div>
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#f06023]" />
                 <input
                   id="email"
                   type="email"
-                  className="pl-10 w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-900 focus:border-transparent"
-                  placeholder="your.email@example.com"
+                  className="pl-10 w-full p-3 bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-xl focus:outline-none focus:border-[#f06023] focus:bg-white text-sm"
+                  placeholder="broker@rentalconnect.ug"
                   value={formData.email}
                   onChange={(e) => updateFormData('email', e.target.value)}
                 />
-                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
               </div>
+              {errors.email && <p className="text-red-500 text-xs mt-1 font-medium">{errors.email}</p>}
             </div>
-            
-            <div className="mb-4">
-              <label htmlFor="phone" className="block text-gray-700 text-sm font-medium mb-2">
-                Phone Number
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Phone className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="phone"
-                  type="tel"
-                  className="pl-10 w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-900 focus:border-transparent"
-                  placeholder="Your phone number"
-                  value={formData.phone}
-                  onChange={(e) => updateFormData('phone', e.target.value)}
-                />
-                {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
-              </div>
-            </div>
-            
-            {location.pathname !== '/hostel-owner/signup' && (
-              <div className="mb-4">
-                <label htmlFor="role" className="block text-gray-700 text-sm font-medium mb-2">
-                  I am a
-                </label>
-                <select
-                  id="role"
-                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-900 focus:border-transparent"
-                  value={formData.role}
-                  onChange={(e) => updateFormData('role', e.target.value as 'student' | 'owner' | 'broker')}
-                >
-                  <option value="student">Student</option>
-                  <option value="owner">Hostel Owner</option>
-                  <option value="broker">Hostel Broker</option>
-                </select>
-                {errors.role && <p className="text-red-500 text-xs mt-1">{errors.role}</p>}
-              </div>
-            )}
-            
-            {formData.role === 'student' && (
-              <div className="mb-6">
-                <label htmlFor="university" className="block text-gray-700 text-sm font-medium mb-2">
-                  University
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <School className="h-5 w-5 text-gray-400" />
+
+            {/* Broker & Owner Detailed Fields */}
+            {(formData.role === 'broker' || formData.role === 'owner') && (
+              <div className="p-4 bg-orange-50/60 border border-orange-200 rounded-xl mb-6 space-y-4">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#f06023]">
+                  {formData.role === 'broker' ? 'Brokerage & Verification Details' : 'Owner Property Details'}
+                </h4>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-zinc-700 text-xs font-semibold mb-1">
+                      Business / Agency Name
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full p-2.5 bg-white border border-zinc-200 text-zinc-900 rounded-lg text-sm focus:border-[#f06023] focus:outline-none"
+                      placeholder="e.g. Musisi Real Estate & Rentals"
+                      value={formData.businessName}
+                      onChange={(e) => updateFormData('businessName', e.target.value)}
+                    />
+                    {errors.businessName && <p className="text-red-500 text-xs mt-1">{errors.businessName}</p>}
                   </div>
-                  <select
-                    id="university"
-                    className="pl-10 w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-900 focus:border-transparent"
-                    value={formData.university}
-                    onChange={(e) => updateFormData('university', e.target.value)}
-                  >
-                    <option value="">Select your university</option>
-                    {universities.map((uni) => (
-                      <option key={uni.id} value={uni.name}>
-                        {uni.name}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.university && <p className="text-red-500 text-xs mt-1">{errors.university}</p>}
+
+                  <div>
+                    <label className="block text-zinc-700 text-xs font-semibold mb-1">
+                      NIN / License Number
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full p-2.5 bg-white border border-zinc-200 text-zinc-900 rounded-lg text-sm focus:border-[#f06023] focus:outline-none"
+                      placeholder="CM890234821XXXX"
+                      value={formData.licenseNumber}
+                      onChange={(e) => updateFormData('licenseNumber', e.target.value)}
+                    />
+                    {errors.licenseNumber && <p className="text-red-500 text-xs mt-1">{errors.licenseNumber}</p>}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-zinc-700 text-xs font-semibold mb-1">
+                      Operating City / District
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full p-2.5 bg-white border border-zinc-200 text-zinc-900 rounded-lg text-sm focus:border-[#f06023] focus:outline-none"
+                      placeholder="Kampala, Entebbe, Jinja..."
+                      value={formData.operatingCity}
+                      onChange={(e) => updateFormData('operatingCity', e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-zinc-700 text-xs font-semibold mb-1">
+                      Primary Rental Specialization
+                    </label>
+                    <select
+                      className="w-full p-2.5 bg-white border border-zinc-200 text-zinc-900 rounded-lg text-sm focus:border-[#f06023] focus:outline-none"
+                      value={formData.specialization}
+                      onChange={(e) => updateFormData('specialization', e.target.value)}
+                    >
+                      <option value="rentals">Apartments & Houses</option>
+                      <option value="hostels">Student Hostels</option>
+                      <option value="vehicles">Vehicles & Cars</option>
+                      <option value="land">Commercial Land & Plots</option>
+                      <option value="equipment">Equipments & Tools</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             )}
-            
+
             <Button
               variant="primary"
               fullWidth
               size="lg"
-              icon={<ArrowRight className="h-5 w-5" />}
+              icon={<ArrowRight className="h-5 w-5 text-white" />}
               iconPosition="right"
               onClick={handleNextStep}
             >
-              Continue
+              Continue to Security Setup
             </Button>
           </>
         )}
@@ -296,42 +361,38 @@ const SignupForm = () => {
           <>
             {/* Step 2: Security Information */}
             <div className="mb-4">
-              <label htmlFor="password" className="block text-gray-700 text-sm font-medium mb-2">
-                Password
+              <label htmlFor="password" className="block text-zinc-700 text-sm font-semibold mb-2">
+                Create Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#f06023]" />
                 <input
                   id="password"
                   type="password"
-                  className="pl-10 w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-900 focus:border-transparent"
+                  className="pl-10 w-full p-3 bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-xl focus:outline-none focus:border-[#f06023] focus:bg-white text-sm"
                   placeholder="Create a strong password"
                   value={formData.password}
                   onChange={(e) => updateFormData('password', e.target.value)}
                 />
-                {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                {errors.password && <p className="text-red-500 text-xs mt-1 font-medium">{errors.password}</p>}
               </div>
             </div>
             
             <div className="mb-6">
-              <label htmlFor="confirmPassword" className="block text-gray-700 text-sm font-medium mb-2">
+              <label htmlFor="confirmPassword" className="block text-zinc-700 text-sm font-semibold mb-2">
                 Confirm Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#f06023]" />
                 <input
                   id="confirmPassword"
                   type="password"
-                  className="pl-10 w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-900 focus:border-transparent"
-                  placeholder="Confirm your password"
+                  className="pl-10 w-full p-3 bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-xl focus:outline-none focus:border-[#f06023] focus:bg-white text-sm"
+                  placeholder="Confirm password"
                   value={formData.confirmPassword}
                   onChange={(e) => updateFormData('confirmPassword', e.target.value)}
                 />
-                {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
+                {errors.confirmPassword && <p className="text-red-500 text-xs mt-1 font-medium">{errors.confirmPassword}</p>}
               </div>
             </div>
             
@@ -349,21 +410,21 @@ const SignupForm = () => {
                 variant="primary"
                 fullWidth
                 size="lg"
-                icon={<ArrowRight className="h-5 w-5" />}
+                icon={<ArrowRight className="h-5 w-5 text-white" />}
                 iconPosition="right"
                 disabled={isLoading}
               >
-                {isLoading ? 'Creating account...' : 'Create Account'}
+                {isLoading ? 'Registering Account...' : 'Complete Broker Registration'}
               </Button>
             </div>
           </>
         )}
         
-        <p className="text-center text-gray-600 mt-6">
-          Already have an account?{' '}
+        <p className="text-center text-zinc-600 text-sm mt-6 font-medium">
+          Already registered as a broker or owner?{' '}
           <Link 
-            to={location.pathname === '/hostel-owner/signup' ? '/hostel-owner/login' : '/login'} 
-            className="text-primary-900 hover:underline font-medium"
+            to={formData.role === 'owner' ? '/hostel-owner/login' : '/hostel-broker/login'} 
+            className="text-[#f06023] hover:text-[#d94b12] font-bold transition-colors"
           >
             Sign in
           </Link>

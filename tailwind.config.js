@@ -5,28 +5,37 @@ export default {
     extend: {
       colors: {
         primary: {
-          50: '#e6ecf8',
-          100: '#c3d2f0',
-          200: '#9db6e8',
-          300: '#7699e0',
-          400: '#5985d9',
-          500: '#3b71d2',
-          600: '#2a60c7',
-          700: '#2250b1',
-          800: '#1a409b',
-          900: '#003594', // Main primary color
+          50: '#fff5f0',
+          100: '#ffe6dc',
+          200: '#ffccb8',
+          300: '#ffaa8a',
+          400: '#f78354',
+          500: '#f06023', // Requested primary color code
+          600: '#d94b12',
+          700: '#b3380c',
+          800: '#8e2b0d',
+          900: '#73250f',
+          950: '#3e1005',
         },
         secondary: {
-          50: '#fff8e6',
-          100: '#ffebcc',
-          200: '#ffdeaa',
-          300: '#ffd088',
-          400: '#ffc266',
-          500: '#ffb444',
-          600: '#ffa500', // Main secondary color
-          700: '#e69500',
-          800: '#cc8400',
-          900: '#b37300',
+          50: '#f4f4f5',
+          100: '#e4e4e7',
+          200: '#a1a1aa',
+          300: '#71717a',
+          400: '#52525b',
+          500: '#3f3f46',
+          600: '#27272a',
+          700: '#18181b',
+          800: '#121212',
+          900: '#09090b',
+          950: '#050505',
+        },
+        brandOrange: '#f06023',
+        dark: {
+          bg: '#09090b',
+          card: '#121215',
+          surface: '#18181b',
+          border: '#27272a',
         },
         success: {
           500: '#22c55e',
@@ -39,7 +48,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Poppins', 'system-ui', 'sans-serif'],
         display: ['Poppins', 'system-ui', 'sans-serif'],
       },
       animation: {

@@ -1,12 +1,31 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import HostelCard from './HostelCard';
 import { useHostels } from '../../../contexts/HostelContext';
 import { Building } from 'lucide-react';
 
 const HostelGrid = () => {
-  const { filteredHostels, loading, error } = useHostels();
+  const { filteredHostels, filterHostels, searchHostels, loading, error } = useHostels();
   const [visibleCount, setVisibleCount] = useState(6);
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const category = searchParams.get('category');
+    const search = searchParams.get('search');
+    const university = searchParams.get('university');
+
+    if (category || university) {
+      filterHostels({
+        category: (category as any) || 'all',
+        university: university || undefined
+      });
+    }
+
+    if (search) {
+      searchHostels(search);
+    }
+  }, [searchParams]);
 
   const loadMore = () => {
     setVisibleCount((prev) => prev + 6);
@@ -20,14 +39,14 @@ const HostelGrid = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-900"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#f06023]"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center text-red-500 p-4">
+      <div className="text-center text-red-400 p-4">
         Error: {error}
       </div>
     );
@@ -35,11 +54,11 @@ const HostelGrid = () => {
 
   if (filteredHostels.length === 0) {
     return (
-      <div className="text-center p-8">
-        <Building className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-        <h3 className="text-xl font-semibold text-gray-700 mb-2">No hostels found</h3>
-        <p className="text-gray-500">
-          Try adjusting your search or filter criteria to find more hostels.
+      <div className="text-center p-8 bg-zinc-900 border border-zinc-800 rounded-xl my-6">
+        <Building className="h-16 w-16 mx-auto text-[#f06023] mb-4" />
+        <h3 className="text-xl font-semibold text-white mb-2">No rentals found</h3>
+        <p className="text-zinc-400">
+          Try adjusting your search or category filter criteria to find available rentals.
         </p>
       </div>
     );
@@ -67,9 +86,9 @@ const HostelGrid = () => {
         <div className="flex justify-center mt-8">
           <button
             onClick={loadMore}
-            className="bg-white hover:bg-gray-50 text-primary-900 font-medium px-6 py-2 rounded-full border border-primary-900 transition-colors duration-300"
+            className="bg-[#f06023] hover:bg-[#d94b12] text-white font-bold px-6 py-2.5 rounded-full transition-all duration-300 shadow-[0_0_12px_rgba(240,96,35,0.3)]"
           >
-            Load More Hostels
+            Load More Rental Items
           </button>
         </div>
       )}

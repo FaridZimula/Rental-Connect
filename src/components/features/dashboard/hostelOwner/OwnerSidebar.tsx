@@ -27,10 +27,10 @@ const OwnerSidebar: React.FC<OwnerSidebarProps> = ({ onLinkClick }) => {
   ];
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-zinc-950 text-zinc-100 border-r border-zinc-800">
       {/* Logo/Brand Section */}
-      <div className="p-4 border-b border-gray-200 flex items-center justify-center">
-        <img src="/images/logo2.png" alt="HostelConnect Logo" className="h-12" />
+      <div className="p-4 border-b border-zinc-800 flex items-center justify-center">
+        <img src="/images/logo2.png" alt="HostelConnect Logo" className="h-12 filter drop-shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
       </div>
 
       {/* Navigation Menu */}
@@ -41,10 +41,10 @@ const OwnerSidebar: React.FC<OwnerSidebarProps> = ({ onLinkClick }) => {
             to={to}
             onClick={onLinkClick}
             className={({ isActive }) =>
-              `flex items-center px-3 py-3 rounded-lg text-sm font-medium transition-colors ${
+              `flex items-center px-3 py-3 rounded-xl text-sm font-medium transition-all ${
                 isActive 
-                  ? 'bg-primary-100 text-primary-900 font-semibold shadow-sm' 
-                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-orange-500/10 text-orange-500 border border-orange-500/30 font-semibold shadow-md' 
+                  : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'
               }`
             }
           >
@@ -55,10 +55,10 @@ const OwnerSidebar: React.FC<OwnerSidebarProps> = ({ onLinkClick }) => {
       </nav>
 
       {/* Logout Section */}
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-zinc-800">
         <button
           onClick={handleLogout}
-          className="flex items-center w-full px-3 py-3 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors"
+          className="flex items-center w-full px-3 py-3 text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-xl transition-colors"
         >
           <LogOut className="w-5 h-5 mr-3" />
           <span>Logout</span>
