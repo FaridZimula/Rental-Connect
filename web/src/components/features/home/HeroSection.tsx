@@ -38,7 +38,7 @@ const HeroSection = () => {
       {/* Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center relative z-10 pt-24 sm:pt-28 md:pt-32 pb-12 sm:pb-16 md:pb-20">
         <motion.div
-          className="max-w-4xl mx-auto text-center mt-6 sm:mt-10 md:mt-12"
+          className="max-w-4xl mr-auto text-left mt-6 sm:mt-10 md:mt-12"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
@@ -46,12 +46,12 @@ const HeroSection = () => {
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-extrabold text-zinc-900 mb-4 sm:mb-6 leading-tight tracking-tight">
             Rent <span className="text-[#f06023]">Hostels, Property, Vehicles, Land & Equipments</span>
           </h1>
-          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-zinc-600 mb-8 max-w-2xl mx-auto px-2 sm:px-4">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-zinc-600 mb-8 max-w-2xl mr-auto text-left">
             Connecting verified property & item owners with people ready to rent. Safe, fast, and transparent rentals in one seamless platform.
           </p>
 
           {/* Category Tabs */}
-          <div className="flex flex-wrap justify-center gap-2 mb-6 max-w-2xl mx-auto">
+          <div className="flex flex-wrap justify-start gap-2 mb-6 max-w-3xl mr-auto">
             {categories.map((cat) => (
               <button
                 key={cat.id}
@@ -69,7 +69,7 @@ const HeroSection = () => {
           </div>
           
           <motion.div 
-            className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl border border-zinc-200 shadow-xl max-w-3xl mx-auto"
+            className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl border border-zinc-200 shadow-xl max-w-3xl mr-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
@@ -111,7 +111,7 @@ const HeroSection = () => {
           </motion.div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mt-8 sm:mt-12 md:mt-16 max-w-4xl mx-auto px-2 sm:px-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mt-8 sm:mt-12 md:mt-16 max-w-4xl mr-auto">
             {[
               { label: 'Hostels & Houses', value: '1,200+' },
               { label: 'Vehicles', value: '350+' },
@@ -120,7 +120,7 @@ const HeroSection = () => {
             ].map((stat, index) => (
               <motion.div
                 key={stat.label}
-                className="text-center bg-white border border-zinc-200 hover:border-[#f06023]/40 shadow-sm rounded-xl p-3 sm:p-4 transition-all"
+                className="text-left bg-white border border-zinc-200 hover:border-[#f06023]/40 shadow-sm rounded-xl p-3 sm:p-4 transition-all"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}

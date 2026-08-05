@@ -31,28 +31,28 @@ const Navbar = () => {
       <div className="container mx-auto px-3 sm:px-4 h-full">
         <div className="flex items-center justify-between h-full">
           {/* Logo & Brand Name */}
-          <NavLink to="/" className="flex items-center space-x-3 flex-shrink-0 group">
+          <NavLink to="/" className="flex items-center space-x-3 flex-shrink-0 group whitespace-nowrap">
             <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-[#f06023] p-0.5 shadow-[0_0_15px_rgba(240,96,35,0.3)]">
               <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
                 <span className="text-[#f06023] font-black text-xl tracking-tighter">RC</span>
               </div>
             </div>
-            <span className="text-xl sm:text-2xl font-display font-extrabold tracking-tight text-zinc-900 group-hover:text-[#f06023] transition-colors">
+            <span className="text-xl sm:text-2xl font-display font-extrabold tracking-tight text-zinc-900 group-hover:text-[#f06023] transition-colors whitespace-nowrap">
               Rental <span className="text-[#f06023]">Connect</span>
             </span>
           </NavLink>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center flex-grow">
-            {/* Navigation Links - Centered */}
-            <div className="flex items-center space-x-4 lg:space-x-8 mx-auto">
+          <div className="hidden md:flex items-center flex-grow justify-between ml-4 lg:ml-8 min-w-0">
+            {/* Navigation Links */}
+            <div className="flex items-center space-x-2 lg:space-x-5 xl:space-x-7 whitespace-nowrap">
               <NavLink 
                 to="/" 
                 className={({ isActive }) =>
                   clsx(
-                    'text-sm lg:text-base font-medium transition-all duration-200',
+                    'text-xs lg:text-sm xl:text-base font-medium transition-all duration-200 whitespace-nowrap flex-shrink-0',
                     'text-zinc-700 hover:text-[#f06023]',
-                    isActive && 'text-white bg-[#f06023] rounded-full px-4 py-1.5 font-semibold shadow-md'
+                    isActive && 'text-white bg-[#f06023] rounded-full px-3 lg:px-4 py-1.5 font-semibold shadow-md'
                   )
                 }
               >
@@ -62,9 +62,9 @@ const Navbar = () => {
                 to="/hostels" 
                 className={({ isActive }) =>
                   clsx(
-                    'text-sm lg:text-base font-medium transition-all duration-200',
+                    'text-xs lg:text-sm xl:text-base font-medium transition-all duration-200 whitespace-nowrap flex-shrink-0',
                     'text-zinc-700 hover:text-[#f06023]',
-                    isActive && 'text-white bg-[#f06023] rounded-full px-4 py-1.5 font-semibold shadow-md'
+                    isActive && 'text-white bg-[#f06023] rounded-full px-3 lg:px-4 py-1.5 font-semibold shadow-md'
                   )
                 }
               >
@@ -72,50 +72,50 @@ const Navbar = () => {
               </NavLink>
               <NavLink 
                 to="/hostels?category=hostels" 
-                className="text-sm lg:text-base font-medium text-zinc-700 hover:text-[#f06023] transition-colors"
+                className="text-xs lg:text-sm xl:text-base font-medium text-zinc-700 hover:text-[#f06023] transition-colors whitespace-nowrap flex-shrink-0"
               >
                 Hostels
               </NavLink>
               <NavLink 
                 to="/hostels?category=rentals" 
-                className="text-sm lg:text-base font-medium text-zinc-700 hover:text-[#f06023] transition-colors"
+                className="text-xs lg:text-sm xl:text-base font-medium text-zinc-700 hover:text-[#f06023] transition-colors whitespace-nowrap flex-shrink-0"
               >
                 Apartments
               </NavLink>
               <NavLink 
                 to="/hostels?category=vehicles" 
-                className="text-sm lg:text-base font-medium text-zinc-700 hover:text-[#f06023] transition-colors"
+                className="text-xs lg:text-sm xl:text-base font-medium text-zinc-700 hover:text-[#f06023] transition-colors whitespace-nowrap flex-shrink-0"
               >
                 Vehicles
               </NavLink>
               <NavLink 
                 to="/hostels?category=land" 
-                className="text-sm lg:text-base font-medium text-zinc-700 hover:text-[#f06023] transition-colors"
+                className="text-xs lg:text-sm xl:text-base font-medium text-zinc-700 hover:text-[#f06023] transition-colors whitespace-nowrap flex-shrink-0"
               >
                 Land
               </NavLink>
               <NavLink 
                 to="/hostels?category=equipment" 
-                className="text-sm lg:text-base font-medium text-zinc-700 hover:text-[#f06023] transition-colors"
+                className="text-xs lg:text-sm xl:text-base font-medium text-zinc-700 hover:text-[#f06023] transition-colors whitespace-nowrap flex-shrink-0"
               >
                 Equipments
               </NavLink>
             </div>
 
             {/* Search Bar - Right Aligned */}
-            <div className="relative flex items-center flex-shrink-0 bg-zinc-100 rounded-full px-3 lg:px-4 py-1.5 lg:py-2 border border-zinc-200 focus-within:border-[#f06023] focus-within:bg-white w-full max-w-xs transition-all group">
+            <div className="relative flex items-center flex-shrink-0 bg-zinc-100 rounded-full px-3 lg:px-4 py-1.5 border border-zinc-200 focus-within:border-[#f06023] focus-within:bg-white w-36 lg:w-48 xl:w-60 transition-all group ml-3">
               <Search className="h-4 w-4 text-zinc-500 mr-2 flex-shrink-0 group-hover:text-[#f06023]" />
               <input
                 type="text"
                 placeholder="Search rentals..."
-                className="bg-transparent border-none focus:ring-0 outline-none flex-grow text-xs lg:text-sm text-zinc-900 placeholder-zinc-400"
+                className="bg-transparent border-none focus:ring-0 outline-none w-full text-xs lg:text-sm text-zinc-900 placeholder-zinc-400"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm('')}
-                  className="text-zinc-400 hover:text-[#f06023] transition-colors"
+                  className="text-zinc-400 hover:text-[#f06023] transition-colors ml-1"
                 >
                   <X className="h-3 w-3" />
                 </button>
