@@ -12,7 +12,7 @@ const SignupForm = () => {
     name: '',
     email: '',
     phone: '',
-    role: 'broker' as 'student' | 'owner' | 'broker',
+    role: 'owner' as 'buyer' | 'owner',
     businessName: '',
     licenseNumber: '',
     operatingCity: 'Kampala',
@@ -32,20 +32,19 @@ const SignupForm = () => {
     if (isAuthenticated && user) {
       if (user.role === 'owner') {
         navigate('/hostel-owner', { replace: true });
-      } else if (user.role === 'broker') {
-        navigate('/hostel-broker', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });
       }
     }
   }, [isAuthenticated, user, navigate]);
 
-  // Set role based on route
   useEffect(() => {
     if (location.pathname === '/hostel-owner/signup') {
       setFormData(prev => ({ ...prev, role: 'owner' }));
+    } else {
+      setFormData(prev => ({ ...prev, role: 'buyer' }));
     }
-  }, [location]);
+  }, [location.pathname]);
 
   const updateFormData = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -60,19 +59,16 @@ const SignupForm = () => {
 
   const validateStep1 = () => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.name.trim()) newErrors.name = 'Full name is required';
     if (!formData.email.trim()) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
-    
     if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
-    if (!formData.role) newErrors.role = 'Role selection is required';
-    
-    if (formData.role === 'broker' || formData.role === 'owner') {
+
+    if (formData.role === 'owner') {
       if (!formData.businessName.trim()) newErrors.businessName = 'Business/Agency name is required';
-      if (!formData.licenseNumber.trim()) newErrors.licenseNumber = 'National ID (NIN) or License No. is required';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -103,20 +99,17 @@ const SignupForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateStep2()) return;
-    
+
     setIsLoading(true);
     try {
-      await register(
-        {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          university: formData.university || formData.operatingCity,
-          role: formData.role
-        }, 
-        formData.password
-      );
-    } catch (err) {
+      await register({
+        full_name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        role: formData.role,
+      });
+    } catch {
       setErrors({ submit: 'Failed to create account. Please try again.' });
     } finally {
       setIsLoading(false);
@@ -135,7 +128,7 @@ const SignupForm = () => {
           <UserPlus className="h-8 w-8" />
         </div>
         <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-zinc-900">
-          {formData.role === 'broker' ? 'Broker Verification Signup' : formData.role === 'owner' ? 'Property Owner Account' : 'Renter Account'}
+          {formData.role === 'owner' ? 'Property Owner Account' : 'Buyer / Renter Account'}
         </h2>
         <p className="text-zinc-600 mt-2 text-sm">
           Join <span className="text-[#f06023] font-bold">Rental Connect</span> to list, manage, or rent properties, vehicles & equipment.
@@ -179,18 +172,7 @@ const SignupForm = () => {
               <label className="block text-zinc-700 text-sm font-semibold mb-2">
                 I want to register as a
               </label>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => updateFormData('role', 'broker')}
-                  className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold border transition-all ${
-                    formData.role === 'broker'
-                      ? 'bg-[#f06023] text-white border-[#f06023] shadow-md'
-                      : 'bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100'
-                  }`}
-                >
-                  Broker / Agent
-                </button>
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => updateFormData('role', 'owner')}
@@ -204,14 +186,14 @@ const SignupForm = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => updateFormData('role', 'student')}
+                  onClick={() => updateFormData('role', 'buyer')}
                   className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold border transition-all ${
-                    formData.role === 'student'
+                    formData.role === 'buyer'
                       ? 'bg-[#f06023] text-white border-[#f06023] shadow-md'
                       : 'bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100'
                   }`}
                 >
-                  Renter / Client
+                  Buyer / Renter
                 </button>
               </div>
             </div>
@@ -273,11 +255,11 @@ const SignupForm = () => {
               {errors.email && <p className="text-red-500 text-xs mt-1 font-medium">{errors.email}</p>}
             </div>
 
-            {/* Broker & Owner Detailed Fields */}
-            {(formData.role === 'broker' || formData.role === 'owner') && (
+            {/* Owner-specific fields */}
+            {formData.role === 'owner' && (
               <div className="p-4 bg-orange-50/60 border border-orange-200 rounded-xl mb-6 space-y-4">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-[#f06023]">
-                  {formData.role === 'broker' ? 'Brokerage & Verification Details' : 'Owner Property Details'}
+                  Owner Property Details
                 </h4>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -421,9 +403,9 @@ const SignupForm = () => {
         )}
         
         <p className="text-center text-zinc-600 text-sm mt-6 font-medium">
-          Already registered as a broker or owner?{' '}
-          <Link 
-            to={formData.role === 'owner' ? '/hostel-owner/login' : '/hostel-broker/login'} 
+          Already have an account?{' '}
+          <Link
+            to="/hostel-owner/login"
             className="text-[#f06023] hover:text-[#d94b12] font-bold transition-colors"
           >
             Sign in

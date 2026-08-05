@@ -1,0 +1,312 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  buyer
+  owner
+  admin
+}
+
+enum ListingType {
+  rent
+  sale
+}
+
+enum PropertyType {
+  apartment
+  house
+  studio
+  hostel
+  land
+  commercial
+}
+
+enum PropertyStatus {
+  pending_review
+  published
+  rejected
+  suspended
+}
+
+enum FeaturedTier {
+  standard  // 7-day boost
+  premium   // 30-day boost
+}
+
+enum LeadStatus {
+  pending_payment
+  unlocked
+  expired
+}
+
+enum PaymentType {
+  connection_unlock
+  credit_purchase
+  featured_boost
+}
+
+enum PaymentStatus {
+  pending
+  successful
+  failed
+}
+
+enum CreditTransactionType {
+  purchase
+  spend
+  refund
+}
+
+enum NotificationType {
+  listing_approved
+  listing_rejected
+  listing_suspended
+  new_lead
+  lead_unlocked
+  boost_expiring
+  boost_expired
+  payment_successful
+  payment_failed
+}
+
+// ─── Tables ───────────────────────────────────────────────────────────────────
+
+model User {
+  id              String    @id @default(uuid())
+  full_name       String
+  email           String    @unique
+  phone           String?
+  password_hash   String
+  role            UserRole  @default(buyer)
+  profile_image   String?
+  is_verified     Boolean   @default(false)
+  tos_accepted_at DateTime?
+  tos_version     String?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  // Relations
+  properties        Property[]
+  favorites         Favorite[]
+  leads_as_buyer    Lead[]           @relation("LeadBuyer")
+  leads_as_owner    Lead[]           @relation("LeadOwner")
+  credit_wallet     CreditWallet?
+  payments          Payment[]
+  notifications     Notification[]
+  reviews           Review[]
+
+  @@map("users")
+}
+
+model Property {
+  id            String         @id @default(uuid())
+  owner_id      String
+  owner         User           @relation(fields: [owner_id], references: [id])
+
+  title         String
+  description   String
+  property_type PropertyType
+  listing_type  ListingType
+
+  price         Decimal        @db.Decimal(14, 2)
+
+  // Address — real values are private, only exposed to connected parties
+  real_address  String
+  display_zone  String         // neighbourhood/zone name shown publicly
+  display_lat   Float          // fuzzed lat for public map
+  display_lng   Float          // fuzzed lng for public map
+  real_lat      Float
+  real_lng      Float
+
+  bedrooms      Int            @default(0)
+  bathrooms     Int            @default(0)
+  area_sqft     Float?
+
+  status        PropertyStatus @default(pending_review)
+  rejection_reason String?
+
+  is_featured   Boolean        @default(false)
+  featured_tier FeaturedTier?
+  featured_until DateTime?
+
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+
+  // Relations
+  images        PropertyImage[]
+  amenities     PropertyAmenity[]
+  favorites     Favorite[]
+  leads         Lead[]
+  payments      Payment[]
+  reviews       Review[]
+
+  @@index([owner_id])
+  @@index([status])
+  @@index([is_featured])
+  @@index([listing_type])
+  @@index([property_type])
+  @@index([display_zone])
+  @@map("properties")
+}
+
+model PropertyImage {
+  id          String   @id @default(uuid())
+  property_id String
+  property    Property @relation(fields: [property_id], references: [id], onDelete: Cascade)
+  image_url   String   // watermarked URL (Cloudinary)
+  is_primary  Boolean  @default(false)
+  created_at  DateTime @default(now())
+
+  @@index([property_id])
+  @@map("property_images")
+}
+
+model Amenity {
+  id         String            @id @default(uuid())
+  name       String            @unique
+  properties PropertyAmenity[]
+
+  @@map("amenities")
+}
+
+model PropertyAmenity {
+  property_id String
+  amenity_id  String
+  property    Property @relation(fields: [property_id], references: [id], onDelete: Cascade)
+  amenity     Amenity  @relation(fields: [amenity_id], references: [id])
+
+  @@id([property_id, amenity_id])
+  @@map("property_amenities")
+}
+
+model Favorite {
+  id          String   @id @default(uuid())
+  user_id     String
+  property_id String
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  property    Property @relation(fields: [property_id], references: [id], onDelete: Cascade)
+  created_at  DateTime @default(now())
+
+  @@unique([user_id, property_id])
+  @@index([user_id])
+  @@map("favorites")
+}
+
+model Lead {
+  id              String     @id @default(uuid())
+  property_id     String
+  buyer_id        String
+  owner_id        String
+
+  property        Property   @relation(fields: [property_id], references: [id])
+  buyer           User       @relation("LeadBuyer", fields: [buyer_id], references: [id])
+  owner           User       @relation("LeadOwner", fields: [owner_id], references: [id])
+
+  status          LeadStatus @default(pending_payment)
+  payment_amount  Decimal?   @db.Decimal(14, 2)
+  credit_used     Boolean    @default(false)
+  transaction_ref String?
+
+  buyer_message   String?    // contact-scrubbed before save
+  created_at      DateTime   @default(now())
+  unlocked_at     DateTime?
+
+  credit_transactions CreditTransaction[]
+  payments            Payment[]
+
+  @@index([property_id])
+  @@index([buyer_id])
+  @@index([owner_id])
+  @@index([status])
+  @@map("leads")
+}
+
+model CreditWallet {
+  id         String   @id @default(uuid())
+  user_id    String   @unique
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  balance    Int      @default(0)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  transactions CreditTransaction[]
+
+  @@map("credit_wallets")
+}
+
+model CreditTransaction {
+  id              String                @id @default(uuid())
+  wallet_id       String
+  wallet          CreditWallet          @relation(fields: [wallet_id], references: [id])
+  type            CreditTransactionType
+  amount          Int
+  related_lead_id String?
+  lead            Lead?                 @relation(fields: [related_lead_id], references: [id])
+  transaction_ref String?
+  created_at      DateTime              @default(now())
+
+  @@index([wallet_id])
+  @@map("credit_transactions")
+}
+
+model Payment {
+  id              String        @id @default(uuid())
+  user_id         String
+  user            User          @relation(fields: [user_id], references: [id])
+  property_id     String?
+  property        Property?     @relation(fields: [property_id], references: [id])
+  lead_id         String?
+  lead            Lead?         @relation(fields: [lead_id], references: [id])
+  type            PaymentType
+  amount          Decimal       @db.Decimal(14, 2)
+  currency        String        @default("UGX")
+  status          PaymentStatus @default(pending)
+  transaction_ref String?       @unique
+  gateway_ref     String?       // Flutterwave transaction ID
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+
+  @@index([user_id])
+  @@index([status])
+  @@index([type])
+  @@map("payments")
+}
+
+model Review {
+  id          String   @id @default(uuid())
+  property_id String
+  user_id     String
+  property    Property @relation(fields: [property_id], references: [id])
+  user        User     @relation(fields: [user_id], references: [id])
+  rating      Int      // 1-5
+  comment     String?
+  created_at  DateTime @default(now())
+
+  @@unique([property_id, user_id])
+  @@index([property_id])
+  @@map("reviews")
+}
+
+model Notification {
+  id         String           @id @default(uuid())
+  user_id    String
+  user       User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  type       NotificationType
+  content    String
+  data       Json?
+  is_read    Boolean          @default(false)
+  created_at DateTime         @default(now())
+
+  @@index([user_id])
+  @@index([is_read])
+  @@map("notifications")
+}

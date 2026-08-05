@@ -22,4 +22,16 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Env files — all .env files with secrets are ignored
 .env
+.env.*
+!.env.example
+
+# Prisma generated client
+backend/generated/
+
+# Mobile build artefacts
+mobile/android/.gradle
+mobile/android/app/build
+mobile/ios/Pods

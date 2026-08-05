@@ -19,7 +19,7 @@ const LoginForm = () => {
     if (isAuthenticated && user) {
       if (user.role === 'owner') {
         navigate('/hostel-owner', { replace: true });
-      } else if (user.role === 'broker') {
+      } else if (user.role === 'admin') {
         navigate('/hostel-broker', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });
@@ -31,18 +31,9 @@ const LoginForm = () => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-    
     try {
-      let userRole: 'owner' | 'broker' | 'student' = 'student';
-      if (location.pathname.includes('/hostel-owner')) {
-        userRole = 'owner';
-      } else if (location.pathname.includes('/hostel-broker')) {
-        userRole = 'broker';
-      }
-
-      await login(email, password, userRole);
-      // Navigation is now handled by the useEffect hook
-    } catch (err) {
+      await login(email, password);
+    } catch {
       setError('Invalid email or password');
     } finally {
       setIsLoading(false);
