@@ -4,6 +4,9 @@ import SplashScreen from './components/common/SplashScreen';
 import Home from './pages/Home';
 import HostelsPage from './pages/HostelsPage';
 import HostelDetailPage from './pages/HostelDetailPage';
+import PropertiesPage from './pages/PropertiesPage';
+import PropertyDetailPage from './pages/PropertyDetailPage';
+import MyLeadsPage from './pages/MyLeadsPage';
 import SignupPage from './pages/SignupPage';
 import Dashboard from './pages/Dashboard';
 import BrokerLoginPage from './pages/BrokerLoginPage';
@@ -53,6 +56,10 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/hostels" element={<HostelsPage />} />
               <Route path="/hostels/:id" element={<HostelDetailPage />} />
+              {/* Rental Connect marketplace routes */}
+              <Route path="/properties" element={<PropertiesPage />} />
+              <Route path="/properties/:id" element={<PropertyDetailPage />} />
+              <Route path="/leads" element={<MyLeadsPage />} />
               <Route path="/universities" element={<Universities />} />
               <Route path="/signup" element={<SignupPage />} />
               
