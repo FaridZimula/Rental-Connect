@@ -98,28 +98,28 @@ const HeroSection = () => {
 
           {/* Right Column: Hero Banner Carousel area (6Valley Style) */}
           <div className="col-span-1 lg:col-span-3 flex flex-col gap-6">
-            <div className="relative bg-gradient-to-r from-orange-500 via-[#f06023] to-[#e04f12] rounded-3xl p-8 md:p-12 text-white shadow-lg overflow-hidden min-h-[380px] flex items-center">
+            <div className="relative bg-gradient-to-r from-orange-500 via-[#f06023] to-[#e04f12] rounded-3xl p-6 sm:p-8 md:p-12 text-white shadow-lg overflow-hidden flex items-center aspect-[16/9] sm:aspect-[16/7] min-h-[240px]">
               
               {/* Dynamic Abstract Shapes / Background Elements */}
               <div className="absolute right-0 bottom-0 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none -mr-20 -mb-20" />
               <div className="absolute top-10 left-1/3 w-40 h-40 bg-orange-400/20 rounded-full blur-2xl pointer-events-none" />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-8 relative z-10 w-full">
+              <div className="grid grid-cols-2 items-center gap-4 sm:gap-8 relative z-10 w-full h-full">
                 
                 {/* Banner Text Side */}
-                <div className="text-left space-y-4">
+                <div className="text-left space-y-2 sm:space-y-4 flex flex-col justify-center">
                   <motion.div
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                   >
-                    <span className="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                    <span className="bg-white/20 backdrop-blur-sm text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider">
                       Verified Rental Assets
                     </span>
                   </motion.div>
 
                   <motion.h2
-                    className="text-3xl sm:text-4xl md:text-5xl font-display font-extrabold text-white leading-tight"
+                    className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-display font-extrabold text-white leading-tight"
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.1 }}
@@ -129,7 +129,7 @@ const HeroSection = () => {
                   </motion.h2>
 
                   <motion.p
-                    className="text-sm md:text-base text-orange-50 font-medium max-w-md leading-relaxed"
+                    className="hidden sm:block text-xs md:text-sm lg:text-base text-orange-50 font-medium max-w-md leading-relaxed"
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.2 }}
@@ -141,41 +141,43 @@ const HeroSection = () => {
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.3 }}
-                    className="pt-2"
+                    className="pt-1 sm:pt-2"
                   >
                     <button
                       onClick={() => navigate('/properties')}
-                      className="bg-white hover:bg-zinc-100 text-[#f06023] font-bold px-6 py-3 rounded-xl transition-all shadow-md flex items-center gap-2 text-sm hover:scale-105"
+                      className="bg-white hover:bg-zinc-100 text-[#f06023] font-bold px-3 sm:px-6 py-2 sm:py-3 rounded-xl transition-all shadow-md flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-sm hover:scale-105"
                     >
-                      Browse Listings <ArrowRight className="h-4 w-4" />
+                      Browse Listings <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
                     </button>
                   </motion.div>
                 </div>
 
-                {/* Banner Image Side (Showcase Product Collage) */}
-                <div className="hidden md:flex justify-center items-center relative h-64">
+                {/* Banner Image Side — visible on all screen sizes, scaled proportionally */}
+                <div className="flex justify-center items-center relative h-full py-4 overflow-hidden">
                   <motion.div
                     className="relative w-full h-full flex items-center justify-center"
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.8 }}
                   >
-                    {/* Centered Premium Rental Asset Montage (collage style) */}
-                    <div className="w-56 h-56 rounded-2xl overflow-hidden border-4 border-white shadow-xl rotate-3 absolute z-20 hover:rotate-0 transition-transform duration-300">
+                    {/* Main image */}
+                    <div className="w-[55%] sm:w-56 aspect-square rounded-xl sm:rounded-2xl overflow-hidden border-2 sm:border-4 border-white shadow-xl rotate-3 absolute z-20 hover:rotate-0 transition-transform duration-300">
                       <img 
                         src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=400" 
                         alt="Real Estate"
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="w-40 h-40 rounded-xl overflow-hidden border-4 border-white shadow-lg -rotate-12 absolute left-4 z-10 hover:rotate-0 transition-transform duration-300">
+                    {/* Back-left image */}
+                    <div className="hidden sm:block w-40 h-40 rounded-xl overflow-hidden border-4 border-white shadow-lg -rotate-12 absolute left-4 z-10 hover:rotate-0 transition-transform duration-300">
                       <img 
                         src="https://images.pexels.com/photos/9735300/pexels-photo-9735300.jpeg?auto=compress&cs=tinysrgb&w=300" 
                         alt="Safari Prado"
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="w-44 h-44 rounded-xl overflow-hidden border-4 border-white shadow-lg rotate-12 absolute right-4 z-10 hover:rotate-0 transition-transform duration-300">
+                    {/* Back-right image */}
+                    <div className="hidden sm:block w-44 h-44 rounded-xl overflow-hidden border-4 border-white shadow-lg rotate-12 absolute right-4 z-10 hover:rotate-0 transition-transform duration-300">
                       <img 
                         src="https://images.pexels.com/photos/1078884/pexels-photo-1078884.jpeg?auto=compress&cs=tinysrgb&w=300" 
                         alt="Machinery"

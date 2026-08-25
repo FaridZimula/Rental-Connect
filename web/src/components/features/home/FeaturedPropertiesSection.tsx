@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { ShieldCheck, Timer, ArrowRight, Eye } from 'lucide-react';
+import { Timer, ArrowRight, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { mockProperties } from '../../../data/mockData';
 
 export default function FeaturedPropertiesSection() {
-  // Countdown Timer State
   const [timeLeft, setTimeLeft] = useState({
     days: 493,
     hours: 13,
@@ -31,7 +30,6 @@ export default function FeaturedPropertiesSection() {
     return () => clearInterval(timer);
   }, []);
 
-  // Take first 3 properties for Flash Deals
   const flashProperties = mockProperties.slice(0, 3);
 
   const formatPrice = (v: number) =>
@@ -43,8 +41,7 @@ export default function FeaturedPropertiesSection() {
         <div className="flex flex-col lg:flex-row gap-6">
           
           {/* Left Flash Deal Countdown Block */}
-          <div className="w-full lg:w-80 bg-gradient-to-br from-[#f06023] to-[#e04f12] text-white rounded-3xl p-6 flex flex-col justify-between shadow-lg relative overflow-hidden min-h-[380px] lg:min-h-auto">
-            {/* Background elements */}
+          <div className="w-full lg:w-80 lg:flex-shrink-0 bg-gradient-to-br from-[#f06023] to-[#e04f12] text-white rounded-3xl p-6 flex flex-col justify-between shadow-lg relative overflow-hidden">
             <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/5 rounded-full blur-2xl" />
             
             <div className="space-y-4">
@@ -77,20 +74,20 @@ export default function FeaturedPropertiesSection() {
 
             <Link
               to="/properties"
-              className="w-full bg-white hover:bg-zinc-100 text-[#f06023] font-bold py-3 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-xs hover:scale-102"
+              className="w-full bg-white hover:bg-zinc-100 text-[#f06023] font-bold py-3 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-xs"
             >
               View All Limited Offers <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
-          {/* Right Flash Deal Cards List */}
-          <div className="flex-1">
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {/* Right Flash Deal Cards — responsive grid, max-w 280px per card */}
+          <div className="flex-1 min-w-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
               {flashProperties.map((p) => (
                 <div
                   key={p.id}
-                  className="bg-white border border-zinc-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-xl hover:border-[#f06023] transition-all duration-300 flex flex-col justify-between mx-auto"
-                  style={{ width: '280px', height: '400px' }}
+                  className="w-full max-w-[280px] mx-auto bg-white border border-zinc-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-xl hover:border-[#f06023] transition-all duration-300 flex flex-col"
+                  style={{ height: '400px' }}
                 >
                   {/* Card Media */}
                   <div className="relative h-40 bg-zinc-100 flex-shrink-0">

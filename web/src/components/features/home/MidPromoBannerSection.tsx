@@ -5,47 +5,97 @@ export default function MidPromoBannerSection() {
   const navigate = useNavigate();
 
   return (
-    <section className="py-8 bg-white">
+    <section className="py-6 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Banner Card */}
-        <div className="relative bg-gradient-to-r from-blue-600 via-[#1e40af] to-[#1e3a8a] text-white rounded-3xl overflow-hidden shadow-lg min-h-[220px] flex items-center p-8 md:p-12">
-          {/* Abstract Circle Overlays */}
-          <div className="absolute right-0 top-0 w-80 h-80 bg-white/5 rounded-full blur-3xl pointer-events-none -mr-16 -mt-16" />
-          <div className="absolute left-1/3 bottom-0 w-44 h-44 bg-blue-500/20 rounded-full blur-2xl pointer-events-none" />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-6 w-full relative z-10">
-            
-            {/* Banner Text */}
-            <div className="text-left space-y-4">
-              <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-display leading-tight tracking-tight">
-                Dive Into A World Of <br />
-                <span className="text-blue-100">Crystal Clear Logistics</span>
-              </h3>
-              <p className="text-xs sm:text-sm text-blue-100 max-w-md font-medium">
-                Rent high-performance transport vehicles & cargo assets from verified owners. Safe, insured, and verified.
-              </p>
-              <button
-                onClick={() => navigate('/properties?property_type=vehicle')}
-                className="bg-white hover:bg-zinc-100 text-blue-600 font-extrabold px-6 py-2.5 rounded-xl text-xs transition-all shadow-md flex items-center gap-1.5 hover:scale-103"
-              >
-                RENT NOW <ArrowRight className="h-3.5 w-3.5" />
-              </button>
-            </div>
+        {/*
+          aspect-[16/5] ensures the banner maintains the same
+          visual proportion across all screen sizes.
+          On mobile it becomes taller via min-h, but the ratio
+          keeps it consistent with desktop.
+        */}
+        <div
+          className="
+            relative w-full rounded-3xl overflow-hidden shadow-xl
+            bg-gradient-to-r from-[#f06023] via-[#e55520] to-[#c94210]
+            flex items-center
+            aspect-[16/5] min-h-[180px]
+          "
+        >
+          {/* ── Decorative Background Glows ── */}
+          <div className="absolute -top-16 -right-16 w-80 h-80 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-1/4 w-52 h-52 bg-orange-300/20 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/5 rounded-full blur-xl pointer-events-none" />
 
-            {/* Right Graphic Section (Clean Logistics/Car Render) */}
-            <div className="hidden md:flex justify-end items-center h-40">
-              <div className="w-64 h-40 relative">
-                <img
-                  src="https://images.pexels.com/photos/9735300/pexels-photo-9735300.jpeg?auto=compress&cs=tinysrgb&w=400"
-                  alt="Logistics Fleet"
-                  className="w-full h-full object-cover rounded-2xl border-4 border-white/20 shadow-lg rotate-3 hover:rotate-0 transition-transform duration-300"
-                />
+          {/* ── Inner Content Grid ── */}
+          <div className="relative z-10 w-full h-full flex items-center px-6 sm:px-10 md:px-14">
+            <div className="grid grid-cols-2 md:grid-cols-2 items-center gap-4 w-full h-full">
+
+              {/* LEFT ── Text + CTA */}
+              <div className="flex flex-col justify-center gap-2 sm:gap-3">
+                <span className="inline-flex self-start items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">
+                  🔥 Verified Rentals
+                </span>
+
+                <h3 className="text-base sm:text-xl md:text-3xl font-extrabold font-display text-white leading-tight tracking-tight">
+                  Rent Smarter.<br />
+                  <span className="text-orange-100">Zero Broker Fraud.</span>
+                </h3>
+
+                <p className="hidden sm:block text-[11px] sm:text-xs md:text-sm text-orange-50 font-medium max-w-xs leading-relaxed">
+                  Instantly access verified transport fleets, luxury housing, construction machines & event gear across Uganda.
+                </p>
+
+                <button
+                  onClick={() => navigate('/properties')}
+                  className="
+                    self-start mt-1
+                    bg-white hover:bg-zinc-100 text-[#f06023] font-extrabold
+                    px-4 sm:px-5 py-1.5 sm:py-2 rounded-xl
+                    text-[10px] sm:text-xs
+                    flex items-center gap-1.5
+                    shadow-md transition-all duration-200 hover:scale-105
+                  "
+                >
+                  BROWSE LISTINGS <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                </button>
               </div>
+
+              {/* RIGHT ── Collage of property images, visible on all screen sizes */}
+              <div className="flex items-center justify-end h-full py-4 gap-2 sm:gap-3 overflow-hidden">
+                {/* Back image — tilted left */}
+                <div className="
+                  w-[38%] sm:w-[32%]
+                  aspect-[4/3]
+                  rounded-xl sm:rounded-2xl
+                  overflow-hidden border-2 sm:border-4 border-white/60 shadow-lg
+                  -rotate-6 hover:rotate-0 transition-transform duration-300 flex-shrink-0
+                ">
+                  <img
+                    src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=400"
+                    alt="Housing"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* Front/center image — no tilt, on top */}
+                <div className="
+                  w-[42%] sm:w-[36%]
+                  aspect-[4/3]
+                  rounded-xl sm:rounded-2xl
+                  overflow-hidden border-2 sm:border-4 border-white shadow-2xl
+                  rotate-3 hover:rotate-0 transition-transform duration-300 flex-shrink-0 z-10
+                ">
+                  <img
+                    src="https://images.pexels.com/photos/9735300/pexels-photo-9735300.jpeg?auto=compress&cs=tinysrgb&w=400"
+                    alt="Vehicle Fleet"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+
             </div>
-
           </div>
-
         </div>
 
       </div>
