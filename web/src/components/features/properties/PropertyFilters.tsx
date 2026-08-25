@@ -17,13 +17,18 @@ interface Props {
 }
 
 const PROPERTY_TYPES = [
-  { value: '', label: 'All Types' },
-  { value: 'apartment', label: 'Apartment' },
-  { value: 'house', label: 'House' },
-  { value: 'studio', label: 'Studio' },
-  { value: 'hostel', label: 'Hostel' },
-  { value: 'land', label: 'Land' },
-  { value: 'commercial', label: 'Commercial' },
+  { value: '', label: 'All Physical Assets' },
+  { value: 'apartment', label: 'Apartments & Flats' },
+  { value: 'house', label: 'Residential Houses' },
+  { value: 'studio', label: 'Studio Units' },
+  { value: 'hostel', label: 'Hostel Rooms' },
+  { value: 'commercial', label: 'Commercial & Warehouses' },
+  { value: 'land', label: 'Land & Plots' },
+  { value: 'vehicle', label: 'Vehicles & Transport' },
+  { value: 'machinery', label: 'Heavy Machinery & Tools' },
+  { value: 'event_equipment', label: 'Event & Media Equipment' },
+  { value: 'event_venue', label: 'Event Venues & Gardens' },
+  { value: 'agro_machinery', label: 'Farm Equipment & Agro Assets' },
 ];
 
 const formatPrice = (v: number) =>
@@ -48,13 +53,13 @@ export default function PropertyFilters({ filters, onChange, onReset }: Props) {
       {/* Search bar row */}
       <div className="flex gap-2 mb-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
           <input
             type="text"
-            placeholder="Search properties, zones, keywords…"
+            placeholder="Search assets (e.g. Prado V8, CAT Excavator, Kololo Penthouse)..."
             value={filters.search}
             onChange={(e) => set('search', e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-white border border-zinc-200 rounded-xl text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-[#f06023] text-sm shadow-sm"
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-zinc-200 rounded-xl text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-[#f06023] text-sm shadow-sm font-medium"
           />
         </div>
 
@@ -63,7 +68,7 @@ export default function PropertyFilters({ filters, onChange, onReset }: Props) {
           className="relative flex items-center gap-2 px-4 py-2.5 bg-white border border-zinc-200 rounded-xl text-zinc-700 hover:border-[#f06023] text-sm font-medium shadow-sm transition-colors"
         >
           <Filter className="h-4 w-4 text-[#f06023]" />
-          Filters
+          Asset Clusters
           <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
           {activeCount > 0 && (
             <span className="absolute -top-1.5 -right-1.5 bg-[#f06023] text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
@@ -77,7 +82,7 @@ export default function PropertyFilters({ filters, onChange, onReset }: Props) {
             onClick={onReset}
             className="flex items-center gap-1 px-3 py-2.5 text-sm text-[#f06023] hover:text-[#d94b12] font-medium"
           >
-            <X className="h-4 w-4" /> Clear
+            <X className="h-4 w-4" /> Reset
           </button>
         )}
       </div>
@@ -85,32 +90,33 @@ export default function PropertyFilters({ filters, onChange, onReset }: Props) {
       {/* Expanded filters */}
       {open && (
         <div className="bg-white border border-zinc-200 rounded-2xl shadow-xl p-5 mb-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {/* For rent/sale */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            {/* Listing Type */}
             <div>
               <label className="block text-xs font-semibold text-zinc-600 mb-1.5 uppercase tracking-wide">
-                Listing
+                Listing Mode
               </label>
               <select
                 value={filters.listing_type}
                 onChange={(e) => set('listing_type', e.target.value)}
-                className="w-full p-2.5 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900 text-sm focus:outline-none focus:border-[#f06023]"
+                className="w-full p-2.5 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900 text-sm focus:outline-none focus:border-[#f06023] font-medium"
               >
-                <option value="">For rent & sale</option>
+                <option value="">Rent & Lease & Sale</option>
                 <option value="rent">For Rent</option>
+                <option value="lease">For Lease</option>
                 <option value="sale">For Sale</option>
               </select>
             </div>
 
-            {/* Property type */}
+            {/* Asset Cluster Type */}
             <div>
               <label className="block text-xs font-semibold text-zinc-600 mb-1.5 uppercase tracking-wide">
-                Type
+                Asset Cluster Type
               </label>
               <select
                 value={filters.property_type}
                 onChange={(e) => set('property_type', e.target.value)}
-                className="w-full p-2.5 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900 text-sm focus:outline-none focus:border-[#f06023]"
+                className="w-full p-2.5 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900 text-sm focus:outline-none focus:border-[#f06023] font-medium"
               >
                 {PROPERTY_TYPES.map((t) => (
                   <option key={t.value} value={t.value}>{t.label}</option>
@@ -118,35 +124,18 @@ export default function PropertyFilters({ filters, onChange, onReset }: Props) {
               </select>
             </div>
 
-            {/* Zone */}
+            {/* Zone / Area */}
             <div>
               <label className="block text-xs font-semibold text-zinc-600 mb-1.5 uppercase tracking-wide">
-                Zone / Area
+                Location / Zone
               </label>
               <input
                 type="text"
-                placeholder="e.g. Kampala, Ntinda…"
+                placeholder="e.g. Kampala, Jinja, Entebbe…"
                 value={filters.zone}
                 onChange={(e) => set('zone', e.target.value)}
-                className="w-full p-2.5 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900 text-sm focus:outline-none focus:border-[#f06023]"
+                className="w-full p-2.5 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900 text-sm focus:outline-none focus:border-[#f06023] font-medium"
               />
-            </div>
-
-            {/* Bedrooms */}
-            <div>
-              <label className="block text-xs font-semibold text-zinc-600 mb-1.5 uppercase tracking-wide">
-                Min Bedrooms
-              </label>
-              <select
-                value={filters.bedrooms}
-                onChange={(e) => set('bedrooms', e.target.value)}
-                className="w-full p-2.5 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900 text-sm focus:outline-none focus:border-[#f06023]"
-              >
-                <option value="">Any</option>
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <option key={n} value={String(n)}>{n}+</option>
-                ))}
-              </select>
             </div>
 
             {/* Max price */}
@@ -156,10 +145,10 @@ export default function PropertyFilters({ filters, onChange, onReset }: Props) {
               </label>
               <input
                 type="range"
-                min={500000}
-                max={500000000}
-                step={500000}
-                value={filters.price_max || 500000000}
+                min={50000}
+                max={10000000}
+                step={50000}
+                value={filters.price_max || 10000000}
                 onChange={(e) => set('price_max', e.target.value)}
                 className="w-full h-2 accent-[#f06023] cursor-pointer mt-2"
               />

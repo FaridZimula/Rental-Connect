@@ -19,8 +19,13 @@ const TYPE_LABELS: Record<string, string> = {
   house: 'House',
   studio: 'Studio',
   hostel: 'Hostel',
-  land: 'Land',
+  land: 'Land / Plot',
   commercial: 'Commercial',
+  vehicle: 'Vehicle / Transport',
+  machinery: 'Heavy Machinery',
+  event_equipment: 'Event Gear',
+  event_venue: 'Event Venue',
+  agro_machinery: 'Agro Machinery',
 };
 
 export default function PropertyCard({ property }: { property: PropertySummary }) {
@@ -113,9 +118,9 @@ export default function PropertyCard({ property }: { property: PropertySummary }
               <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">Price</p>
               <p className="text-base font-extrabold text-[#f06023]">
                 {formatPrice(property.price)}
-                {property.listing_type === 'rent' && (
-                  <span className="text-xs font-normal text-zinc-500">/mo</span>
-                )}
+                <span className="text-xs font-normal text-zinc-500">
+                  {property.price_period || (property.listing_type === 'rent' ? '/mo' : '')}
+                </span>
               </p>
             </div>
           </div>

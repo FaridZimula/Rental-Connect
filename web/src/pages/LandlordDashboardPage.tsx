@@ -307,11 +307,17 @@ export default function LandlordDashboardPage() {
                     value={propertyType}
                     onChange={(e) => setPropertyType(e.target.value)}
                   >
-                    <option value="apartment">Apartment</option>
-                    <option value="house">House</option>
-                    <option value="studio">Studio</option>
+                    <option value="apartment">Apartment / Flat</option>
+                    <option value="house">Residential House</option>
+                    <option value="studio">Studio Unit</option>
                     <option value="hostel">Hostel Room</option>
-                    <option value="commercial">Commercial</option>
+                    <option value="commercial">Commercial / Warehouse</option>
+                    <option value="land">Land / Open Yard Plot</option>
+                    <option value="vehicle">Vehicle (Car, SUV, Truck, Van)</option>
+                    <option value="machinery">Heavy Machinery & Construction Tool</option>
+                    <option value="event_equipment">Event Equipment (Sound, Lights, Mics)</option>
+                    <option value="event_venue">Event Venue / Garden Hall</option>
+                    <option value="agro_machinery">Farm Machinery & Agro Asset</option>
                   </select>
                 </div>
 
@@ -323,6 +329,7 @@ export default function LandlordDashboardPage() {
                     onChange={(e) => setListingType(e.target.value)}
                   >
                     <option value="rent">For Rent</option>
+                    <option value="lease">For Lease</option>
                     <option value="sale">For Sale</option>
                   </select>
                 </div>

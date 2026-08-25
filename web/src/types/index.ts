@@ -1,8 +1,19 @@
 export type UserRole = 'tenant' | 'landlord' | 'admin';
 
-export type PropertyType = 'apartment' | 'house' | 'studio' | 'hostel' | 'land' | 'commercial';
+export type PropertyType =
+  | 'apartment'
+  | 'house'
+  | 'studio'
+  | 'hostel'
+  | 'commercial'
+  | 'land'
+  | 'vehicle'
+  | 'machinery'
+  | 'event_equipment'
+  | 'event_venue'
+  | 'agro_machinery';
 
-export type ListingType = 'rent' | 'sale';
+export type ListingType = 'rent' | 'lease' | 'sale';
 
 export type PropertyStatus = 'pending_review' | 'published' | 'rejected' | 'suspended' | 'expired';
 
@@ -50,6 +61,7 @@ export interface Property {
   property_type: PropertyType;
   listing_type: ListingType;
   price: number | string;
+  price_period?: string; // e.g. '/month', '/day', '/event'
   real_address?: string;
   display_zone: string;
   display_lat?: number;
