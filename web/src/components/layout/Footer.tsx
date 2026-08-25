@@ -14,13 +14,14 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Company Info */}
           <div className="text-center md:text-left">
-            <div className="flex items-center justify-center md:justify-start space-x-3 mb-6">
-              <div className="h-9 w-9 rounded-xl bg-[#f06023] p-0.5 shadow-md">
-                <div className="w-full h-full bg-black rounded-[10px] flex items-center justify-center">
-                  <span className="text-[#f06023] font-black text-lg">RC</span>
-                </div>
-              </div>
-              <span className="text-xl font-display font-extrabold text-white">Rental <span className="text-[#f06023]">Connect</span></span>
+            <div className="flex items-center justify-center md:justify-start mb-6">
+              <Link to="/">
+                <img
+                  src="/images/BOTTOM LOGO.png"
+                  alt="Rental Connect Logo"
+                  className="h-12 sm:h-14 w-auto object-contain"
+                />
+              </Link>
             </div>
             <p className="text-zinc-300 text-sm leading-relaxed mb-6">
               The ultimate rental marketplace connecting property, vehicle, land, and equipment owners with verified renters across Uganda.

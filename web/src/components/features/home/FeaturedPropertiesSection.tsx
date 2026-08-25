@@ -80,13 +80,13 @@ export default function FeaturedPropertiesSection() {
             </Link>
           </div>
 
-          {/* Right Flash Deal Cards — responsive grid, max-w 280px per card */}
+          {/* Right Flash Deal Cards — One horizontal line on mobile view with left/right scroll */}
           <div className="flex-1 min-w-0">
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+            <div className="flex flex-nowrap overflow-x-auto sm:grid sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 pb-4 pt-1 hide-scrollbar scroll-smooth snap-x snap-mandatory">
               {flashProperties.map((p) => (
                 <div
                   key={p.id}
-                  className="w-full max-w-[280px] mx-auto bg-white border border-zinc-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-xl hover:border-[#f06023] transition-all duration-300 flex flex-col"
+                  className="w-[280px] sm:w-full sm:max-w-[280px] shrink-0 snap-start mx-auto bg-white border border-zinc-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-xl hover:border-[#f06023] transition-all duration-300 flex flex-col"
                   style={{ height: '400px' }}
                 >
                   {/* Card Media */}
@@ -126,8 +126,8 @@ export default function FeaturedPropertiesSection() {
                       </div>
                       
                       <Link to={`/properties/${p.id}`}>
-                        <button className="w-full bg-[#f06023]/10 hover:bg-[#f06023] text-[#f06023] hover:text-white font-bold py-2 rounded-xl transition-all duration-300 text-xs flex items-center justify-center gap-1.5">
-                          <Eye className="h-3.5 w-3.5" /> View Details
+                        <button className="w-full bg-[#f06023] hover:bg-[#d94b12] text-white font-bold py-2.5 rounded-xl transition-all duration-300 text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-98">
+                          <Eye className="h-3.5 w-3.5 text-white" /> View Details
                         </button>
                       </Link>
                     </div>

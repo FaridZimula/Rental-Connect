@@ -1,12 +1,30 @@
 import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, Building, Home, User, LogOut, ShieldCheck } from 'lucide-react';
+import { 
+  Search, Menu, X, Building, Home, User, LogOut, ChevronDown, 
+  Building2, Car, HardHat, Music, Sprout, HeartPulse, Sun, Shirt, Laptop, Anchor, Tent 
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import { useAuth } from '../../contexts/AuthContext';
 
+const categories = [
+  { id: 'apartment', label: 'Housing & Real Estate', icon: <Building2 className="h-4 w-4 text-[#f06023]" /> },
+  { id: 'vehicle', label: 'Vehicles & Transport', icon: <Car className="h-4 w-4 text-[#f06023]" /> },
+  { id: 'machinery', label: 'Construction Machinery', icon: <HardHat className="h-4 w-4 text-[#f06023]" /> },
+  { id: 'event_equipment', label: 'Event & Media Gear', icon: <Music className="h-4 w-4 text-[#f06023]" /> },
+  { id: 'agro_machinery', label: 'Agro & Land Assets', icon: <Sprout className="h-4 w-4 text-[#f06023]" /> },
+  { id: 'medical_equipment', label: 'Medical & Health Tech', icon: <HeartPulse className="h-4 w-4 text-[#f06023]" /> },
+  { id: 'solar_power', label: 'Renewable Solar Power', icon: <Sun className="h-4 w-4 text-[#f06023]" /> },
+  { id: 'fashion_attire', label: 'Fashion & Formal Wear', icon: <Shirt className="h-4 w-4 text-[#f06023]" /> },
+  { id: 'it_hardware', label: 'IT & Computing Tech', icon: <Laptop className="h-4 w-4 text-[#f06023]" /> },
+  { id: 'watercraft', label: 'Marine & Watercraft', icon: <Anchor className="h-4 w-4 text-[#f06023]" /> },
+  { id: 'camping_sports', label: 'Camping & Sports Gear', icon: <Tent className="h-4 w-4 text-[#f06023]" /> },
+];
+
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
@@ -29,19 +47,13 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-zinc-200 shadow-sm py-2 sm:py-3 text-zinc-900">
       <div className="container mx-auto px-4 h-full">
         <div className="flex items-center justify-between h-full">
-          {/* Logo & Brand Name */}
-          <NavLink to="/" className="flex items-center space-x-3 flex-shrink-0 group">
-            <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-[#f06023] p-0.5 shadow-[0_0_15px_rgba(240,96,35,0.3)]">
-              <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
-                <span className="text-[#f06023] font-black text-xl tracking-tighter">DR</span>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-lg sm:text-xl font-display font-extrabold tracking-tight text-zinc-900 group-hover:text-[#f06023] transition-colors leading-none">
-                Digital<span className="text-[#f06023]">Rentals</span>
-              </span>
-              <span className="text-[10px] font-medium text-zinc-400 tracking-wider uppercase">Property Management</span>
-            </div>
+          {/* Brand Logo Image */}
+          <NavLink to="/" className="flex items-center flex-shrink-0 group">
+            <img
+              src="/images/RENTAL CONNECT DARK.png"
+              alt="Rental Connect"
+              className="h-[52px] w-auto object-contain transition-transform group-hover:scale-105"
+            />
           </NavLink>
 
           {/* Desktop Navigation */}
@@ -134,7 +146,7 @@ const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white shadow-xl border-t border-zinc-200"
+            className="md:hidden bg-white shadow-xl border-t border-zinc-200 max-h-[85vh] overflow-y-auto"
           >
             <div className="container mx-auto px-4 py-4 space-y-3">
               <NavLink
@@ -145,6 +157,46 @@ const Navbar = () => {
                 <Home className="h-4 w-4 mr-2 text-[#f06023]" />
                 Home
               </NavLink>
+
+              {/* Mobile Expandable Categories Menu */}
+              <div>
+                <button
+                  onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+                  className="w-full flex items-center justify-between py-2 px-3 hover:bg-zinc-100 rounded-lg text-zinc-800 text-sm font-medium cursor-pointer"
+                >
+                  <div className="flex items-center">
+                    <Building2 className="h-4 w-4 mr-2 text-[#f06023]" />
+                    <span>Categories</span>
+                  </div>
+                  <ChevronDown className={clsx("h-4 w-4 text-zinc-500 transition-transform duration-200", isCategoriesOpen && "rotate-180")} />
+                </button>
+
+                <AnimatePresence>
+                  {isCategoriesOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="pl-4 pr-2 py-1 space-y-1 bg-zinc-50 rounded-xl my-1 border border-zinc-100 overflow-hidden"
+                    >
+                      {categories.map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => {
+                            navigate(`/properties?property_type=${cat.id}`);
+                            setIsMenuOpen(false);
+                          }}
+                          className="w-full flex items-center py-2 px-2 hover:bg-white rounded-lg text-xs font-semibold text-zinc-700 hover:text-[#f06023] transition-colors text-left"
+                        >
+                          <span className="mr-2.5 flex-shrink-0">{cat.icon}</span>
+                          <span>{cat.label}</span>
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               <NavLink
                 to="/properties"
                 onClick={() => setIsMenuOpen(false)}

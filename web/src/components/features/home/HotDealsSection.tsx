@@ -15,28 +15,24 @@ export default function HotDealsSection() {
     <section className="py-12 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Header Row */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 border-b border-zinc-100 pb-4 gap-3">
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-orange-100 text-[#f06023] rounded-xl flex-shrink-0">
-              <Flame className="h-5 w-5 fill-[#f06023]" />
-            </div>
-            <div>
-              <h3 className="text-xl sm:text-2xl font-black text-zinc-900 font-display">Hot Deal Auctions</h3>
-              <p className="text-xs text-zinc-500 font-semibold hidden sm:block">Active high-value property and transport assets open for bidding & lease inquiries</p>
-            </div>
+        {/* Header Row — Centered Alignment with Icon on Top */}
+        <div className="text-center mb-8 border-b border-zinc-100 pb-6 max-w-2xl mx-auto flex flex-col items-center">
+          <div className="h-12 w-12 rounded-full border-2 border-[#f06023] bg-[#f06023] text-white flex items-center justify-center shadow-md mb-3">
+            <Flame className="h-6 w-6 text-white fill-white" />
           </div>
-          <Link to="/properties" className="text-[#f06023] hover:text-[#d94b12] text-xs font-bold flex items-center gap-1 flex-shrink-0">
-            Explore Auction <ArrowRight className="h-4 w-4" />
+          <h3 className="text-xl sm:text-2xl font-black text-zinc-900 font-display mb-1">Hot Deal Auctions</h3>
+          <p className="text-xs sm:text-sm text-zinc-500 font-semibold mb-4">Active high-value property and transport assets open for bidding & lease inquiries</p>
+          <Link to="/properties" className="bg-[#f06023] hover:bg-[#d94b12] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5 active:scale-98">
+            Explore Auction <ArrowRight className="h-4 w-4 text-white" />
           </Link>
         </div>
 
-        {/* Responsive Auction Grid — cards cap at 280px wide, fill on mobile */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 justify-items-center">
+        {/* Responsive Auction Row/Grid — One horizontal line on mobile view */}
+        <div className="flex flex-nowrap overflow-x-auto sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 pb-4 pt-1 justify-start sm:justify-items-center hide-scrollbar scroll-smooth snap-x snap-mandatory">
           {hotProperties.map((p, idx) => (
             <div
               key={p.id}
-              className="w-full max-w-[280px] bg-white border border-zinc-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-xl hover:border-[#f06023] transition-all duration-300 flex flex-col"
+              className="w-[280px] sm:w-full sm:max-w-[280px] shrink-0 snap-start bg-white border border-zinc-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-xl hover:border-[#f06023] transition-all duration-300 flex flex-col"
               style={{ height: '400px' }}
             >
               {/* Media Section */}

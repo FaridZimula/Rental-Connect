@@ -50,6 +50,9 @@ export default function RegisterPage() {
           className="bg-white p-8 rounded-3xl border border-zinc-200 shadow-xl max-w-md w-full"
         >
           <div className="text-center mb-6">
+            <div className="h-14 w-14 rounded-full border-2 border-[#f06023] bg-[#f06023] text-white flex items-center justify-center mx-auto mb-4 shadow-md">
+              <UserCheck className="h-6 w-6 text-white" />
+            </div>
             <h1 className="text-2xl font-bold text-zinc-900">Create an Account</h1>
             <p className="text-xs text-zinc-500 mt-1">Join Digital Rental Properties Management System</p>
           </div>

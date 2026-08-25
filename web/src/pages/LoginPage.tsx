@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lock, Mail, ArrowRight } from 'lucide-react';
+import { Lock, Mail, ArrowRight, LockKeyhole } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import { useAuth } from '../contexts/AuthContext';
@@ -46,8 +46,8 @@ export default function LoginPage() {
           className="bg-white p-8 rounded-3xl border border-zinc-200 shadow-xl max-w-md w-full"
         >
           <div className="text-center mb-8">
-            <div className="h-12 w-12 rounded-2xl bg-[#f06023]/10 text-[#f06023] flex items-center justify-center mx-auto mb-3">
-              <Lock className="h-6 w-6" />
+            <div className="h-14 w-14 rounded-full border-2 border-[#f06023] bg-[#f06023] text-white flex items-center justify-center mx-auto mb-4 shadow-md">
+              <LockKeyhole className="h-6 w-6 text-white stroke-[2.2]" />
             </div>
             <h1 className="text-2xl font-bold text-zinc-900">Welcome Back</h1>
             <p className="text-xs text-zinc-500 mt-1">Sign in to your Digital Rental Account</p>

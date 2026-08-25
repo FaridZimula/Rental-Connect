@@ -98,7 +98,7 @@ const HeroSection = () => {
 
           {/* Right Column: Hero Banner Carousel area (6Valley Style) */}
           <div className="col-span-1 lg:col-span-3 flex flex-col gap-6">
-            <div className="relative bg-gradient-to-r from-orange-500 via-[#f06023] to-[#e04f12] rounded-3xl p-6 sm:p-8 md:p-12 text-white shadow-lg overflow-hidden flex items-center aspect-[16/9] sm:aspect-[16/7] min-h-[240px]">
+            <div className="relative bg-gradient-to-r from-orange-500 via-[#f06023] to-[#e04f12] rounded-3xl p-6 sm:p-8 md:p-10 text-white shadow-lg overflow-hidden flex items-center aspect-[16/10] min-h-[260px]">
               
               {/* Dynamic Abstract Shapes / Background Elements */}
               <div className="absolute right-0 bottom-0 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none -mr-20 -mb-20" />
@@ -161,7 +161,7 @@ const HeroSection = () => {
                     transition={{ duration: 0.8 }}
                   >
                     {/* Main image */}
-                    <div className="w-[55%] sm:w-56 aspect-square rounded-xl sm:rounded-2xl overflow-hidden border-2 sm:border-4 border-white shadow-xl rotate-3 absolute z-20 hover:rotate-0 transition-transform duration-300">
+                    <div className="w-[60%] sm:w-56 md:w-64 aspect-square rounded-xl sm:rounded-2xl overflow-hidden border-2 sm:border-4 border-white shadow-xl rotate-3 absolute z-20 hover:rotate-0 transition-transform duration-300">
                       <img 
                         src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=400" 
                         alt="Real Estate"
@@ -169,7 +169,7 @@ const HeroSection = () => {
                       />
                     </div>
                     {/* Back-left image */}
-                    <div className="hidden sm:block w-40 h-40 rounded-xl overflow-hidden border-4 border-white shadow-lg -rotate-12 absolute left-4 z-10 hover:rotate-0 transition-transform duration-300">
+                    <div className="hidden sm:block w-36 h-36 md:w-48 md:h-48 rounded-xl overflow-hidden border-4 border-white shadow-lg -rotate-12 absolute left-2 md:left-4 z-10 hover:rotate-0 transition-transform duration-300">
                       <img 
                         src="https://images.pexels.com/photos/9735300/pexels-photo-9735300.jpeg?auto=compress&cs=tinysrgb&w=300" 
                         alt="Safari Prado"
@@ -177,7 +177,7 @@ const HeroSection = () => {
                       />
                     </div>
                     {/* Back-right image */}
-                    <div className="hidden sm:block w-44 h-44 rounded-xl overflow-hidden border-4 border-white shadow-lg rotate-12 absolute right-4 z-10 hover:rotate-0 transition-transform duration-300">
+                    <div className="hidden sm:block w-40 h-40 md:w-52 md:h-52 rounded-xl overflow-hidden border-4 border-white shadow-lg rotate-12 absolute right-2 md:right-4 z-10 hover:rotate-0 transition-transform duration-300">
                       <img 
                         src="https://images.pexels.com/photos/1078884/pexels-photo-1078884.jpeg?auto=compress&cs=tinysrgb&w=300" 
                         alt="Machinery"
@@ -188,26 +188,6 @@ const HeroSection = () => {
                 </div>
               </div>
             </div>
-
-            {/* Mobile Categories Quick-Grid */}
-            <div className="lg:hidden">
-              <h3 className="text-sm font-bold text-zinc-800 mb-3">Quick Categories</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {assetClusters.slice(0, 6).map((cluster) => (
-                  <button
-                    key={cluster.id}
-                    onClick={() => handleCategoryClick(cluster.id)}
-                    className="bg-white border border-zinc-200 rounded-xl p-3 flex items-center gap-2 hover:border-[#f06023] text-left transition-all"
-                  >
-                    <div className="p-1.5 bg-[#f06023]/10 rounded-lg">
-                      {cluster.icon}
-                    </div>
-                    <span className="text-[11px] font-bold text-zinc-700">{cluster.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-            
           </div>
 
         </div>
