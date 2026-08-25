@@ -26,6 +26,12 @@ const TYPE_LABELS: Record<string, string> = {
   event_equipment: 'Event Gear',
   event_venue: 'Event Venue',
   agro_machinery: 'Agro Machinery',
+  medical_equipment: 'Medical Equipment',
+  solar_power: 'Solar Power',
+  fashion_attire: 'Formal & Cultural Wear',
+  it_hardware: 'IT & Tech Hardware',
+  watercraft: 'Marine & Speedboat',
+  camping_sports: 'Camping & Sports',
 };
 
 export default function PropertyCard({ property }: { property: PropertySummary }) {

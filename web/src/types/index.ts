@@ -11,7 +11,13 @@ export type PropertyType =
   | 'machinery'
   | 'event_equipment'
   | 'event_venue'
-  | 'agro_machinery';
+  | 'agro_machinery'
+  | 'medical_equipment'
+  | 'solar_power'
+  | 'fashion_attire'
+  | 'it_hardware'
+  | 'watercraft'
+  | 'camping_sports';
 
 export type ListingType = 'rent' | 'lease' | 'sale';
 

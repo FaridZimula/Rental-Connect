@@ -31,9 +31,6 @@ enum PropertyType {
   land
   vehicle
   machinery
-  event_equipment
-  event_venue
-  agro_machinery
 }
 
 enum PropertyStatus {

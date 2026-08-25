@@ -1,4 +1,4 @@
-import { Search, ArrowRight, ShieldCheck, Building2, Car, HardHat, Music, Sprout } from 'lucide-react';
+import { Search, ArrowRight, ShieldCheck, Building2, Car, HardHat, Music, Sprout, HeartPulse, Sun, Shirt, Laptop, Anchor, Tent } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -24,8 +24,14 @@ const HeroSection = () => {
     { id: 'apartment', label: 'Housing & Flats', icon: <Building2 className="h-4 w-4" /> },
     { id: 'vehicle', label: 'Vehicles & Transport', icon: <Car className="h-4 w-4" /> },
     { id: 'machinery', label: 'Heavy Machinery & Tools', icon: <HardHat className="h-4 w-4" /> },
-    { id: 'event_equipment', label: 'Event & Media Equipment', icon: <Music className="h-4 w-4" /> },
+    { id: 'event_equipment', label: 'Event & Media Gear', icon: <Music className="h-4 w-4" /> },
     { id: 'agro_machinery', label: 'Farm Equipment & Land', icon: <Sprout className="h-4 w-4" /> },
+    { id: 'medical_equipment', label: 'Medical & Healthcare', icon: <HeartPulse className="h-4 w-4" /> },
+    { id: 'solar_power', label: 'Solar & Off-Grid Power', icon: <Sun className="h-4 w-4" /> },
+    { id: 'fashion_attire', label: 'Formal & Cultural Wear', icon: <Shirt className="h-4 w-4" /> },
+    { id: 'it_hardware', label: 'IT & Computing Tech', icon: <Laptop className="h-4 w-4" /> },
+    { id: 'watercraft', label: 'Marine & Speedboats', icon: <Anchor className="h-4 w-4" /> },
+    { id: 'camping_sports', label: 'Camping & Sports', icon: <Tent className="h-4 w-4" /> },
   ];
 
   return (
@@ -36,31 +42,31 @@ const HeroSection = () => {
       {/* Main Container */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center relative z-10 pt-28 sm:pt-32 pb-16 sm:pb-24">
         <motion.div
-          className="max-w-4xl mr-auto text-left"
+          className="max-w-5xl mr-auto text-left"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
           <div className="inline-flex items-center gap-2 bg-[#f06023]/10 text-[#f06023] px-4 py-1.5 rounded-full text-xs font-bold mb-6 border border-[#f06023]/20">
             <ShieldCheck className="h-4 w-4" />
-            Verified Physical Assets & Fraud Protection System
+            Verified Physical Assets & Fraud-Protected Rental Platform
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-extrabold text-zinc-900 mb-4 leading-tight tracking-tight">
-            Rent Verified <span className="text-[#f06023]">Housing, Vehicles, Machinery & Equipment</span>
+            Rent Verified <span className="text-[#f06023]">Housing, Vehicles, Tech & Machinery</span>
           </h1>
-          <p className="text-base sm:text-lg lg:text-xl text-zinc-600 mb-8 max-w-2xl text-left font-medium">
-            Connect directly with verified owners of real estate, 4x4 SUVs, construction machinery, event gear, and farm equipment across Uganda.
+          <p className="text-base sm:text-lg lg:text-xl text-zinc-600 mb-8 max-w-3xl text-left font-medium">
+            Discover 65+ verified physical rental assets across Uganda — from apartments, 4x4 SUVs, and CAT excavators to medical equipment, solar power generators, formal gowns, and speedboats.
           </p>
 
           {/* Physical Asset Cluster Tabs */}
-          <div className="flex flex-wrap justify-start gap-2 mb-6 max-w-3xl">
+          <div className="flex flex-wrap justify-start gap-2 mb-6 max-w-4xl">
             {assetClusters.map((cluster) => (
               <button
                 key={cluster.id}
                 type="button"
                 onClick={() => setSelectedCluster(cluster.id)}
-                className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
                   selectedCluster === cluster.id
                     ? 'bg-[#f06023] text-white font-bold shadow-md scale-105'
                     : 'bg-white border border-zinc-200 text-zinc-700 hover:text-[#f06023] hover:border-[#f06023]/50'
@@ -85,7 +91,7 @@ const HeroSection = () => {
                   <input
                     type="text"
                     className="pl-12 pr-4 py-3.5 w-full rounded-xl text-sm bg-zinc-50 text-zinc-900 placeholder-zinc-400 border border-zinc-200 focus:outline-none focus:border-[#f06023] focus:bg-white transition-all font-medium"
-                    placeholder="Search asset title (e.g. Prado V8, CAT Excavator, Kololo Flat)..."
+                    placeholder="Search asset title (e.g. Prado V8, EcoFlow Solar, Sony FX3, Oxygen Concentrator)..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -94,7 +100,7 @@ const HeroSection = () => {
               
               <input
                 type="text"
-                placeholder="City / Area (e.g. Jinja)"
+                placeholder="City / Zone (e.g. Kampala)"
                 className="p-3.5 rounded-xl border border-zinc-200 text-sm focus:outline-none focus:border-[#f06023] bg-zinc-50 text-zinc-900 focus:bg-white sm:w-44 font-medium"
                 value={selectedZone}
                 onChange={(e) => setSelectedZone(e.target.value)}
@@ -112,10 +118,10 @@ const HeroSection = () => {
           {/* Quick Stats Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-12 max-w-4xl">
             {[
-              { label: 'Real Estate & Housing', value: '10+ Verified' },
-              { label: 'Vehicles & Transport', value: '8+ Verified' },
-              { label: 'Machinery & Tools', value: '8+ Verified' },
-              { label: 'Events & Farm Assets', value: '15+ Verified' }
+              { label: 'Asset Clusters', value: '11 Categories' },
+              { label: 'Verified Assets', value: '65+ Listed' },
+              { label: 'Coverage', value: 'Nationwide UG' },
+              { label: 'Fraud Shield', value: 'Admin Audited' }
             ].map((stat, index) => (
               <motion.div
                 key={stat.label}
