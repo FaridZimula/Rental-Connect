@@ -65,7 +65,7 @@ export class PropertiesService {
     const { page = 1, limit = 20, zone, listing_type, property_type, price_min, price_max, bedrooms, search } = query;
     const skip = (page - 1) * limit;
 
-    const where: any = { status: 'published' };
+    const where: any = { status: 'published', is_available: true };
     if (zone) where.display_zone = { contains: zone, mode: 'insensitive' };
     if (listing_type) where.listing_type = listing_type;
     if (property_type) where.property_type = property_type;
@@ -88,11 +88,11 @@ export class PropertiesService {
         where,
         skip,
         take: limit,
-        orderBy: [{ is_featured: 'desc' }, { created_at: 'desc' }],
+        orderBy: { created_at: 'desc' },
         include: {
           images: { where: { is_primary: true }, take: 1 },
           amenities: { include: { amenity: true } },
-          _count: { select: { leads: true } },
+          _count: { select: { inquiries: true, reviews: true } },
         },
       }),
       this.prisma.property.count({ where }),
@@ -110,6 +110,7 @@ export class PropertiesService {
       include: {
         images: true,
         amenities: { include: { amenity: true } },
+        owner: { select: { id: true, full_name: true, profile_image: true } },
         reviews: {
           include: { user: { select: { full_name: true } } },
           orderBy: { created_at: 'desc' },
@@ -124,10 +125,13 @@ export class PropertiesService {
   async findOwnerProperties(ownerId: string) {
     const properties = await this.prisma.property.findMany({
       where: { owner_id: ownerId },
-      include: { images: true, _count: { select: { leads: true } } },
+      include: {
+        images: true,
+        _count: { select: { inquiries: true, reviews: true } },
+      },
       orderBy: { created_at: 'desc' },
     });
-    // Owner can see their own real data (unmasked), but still no other owner's private info
+    // Owner can see their own real data (unmasked)
     return properties;
   }
 
@@ -161,9 +165,30 @@ export class PropertiesService {
     return this.prisma.property.update({ where: { id }, data });
   }
 
+  /** Toggle property availability (landlord marks as rented/available) */
+  async toggleAvailability(id: string, ownerId: string) {
+    const property = await this.prisma.property.findUnique({ where: { id } });
+    if (!property) throw new NotFoundException('Property not found');
+    if (property.owner_id !== ownerId) throw new ForbiddenException();
+
+    return this.prisma.property.update({
+      where: { id },
+      data: { is_available: !property.is_available },
+    });
+  }
+
+  /** Delete a property listing (landlord only) */
+  async remove(id: string, ownerId: string) {
+    const property = await this.prisma.property.findUnique({ where: { id } });
+    if (!property) throw new NotFoundException('Property not found');
+    if (property.owner_id !== ownerId) throw new ForbiddenException();
+
+    await this.prisma.property.delete({ where: { id } });
+    return { message: 'Property deleted successfully' };
+  }
+
   /**
    * Removes private fields from any property object before returning to clients.
-   * This is the serialization-layer enforcement — API consumers cannot see private data.
    */
   maskProperty(property: any) {
     const masked = { ...property };

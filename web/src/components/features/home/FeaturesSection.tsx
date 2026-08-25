@@ -1,35 +1,36 @@
 import { motion } from 'framer-motion';
+import { ShieldCheck, Filter, MessageSquare, Flag, Activity, CheckCircle } from 'lucide-react';
 
 const features = [
   {
-    icon: <i className="fa-solid fa-building text-2xl text-white" />,
-    title: 'Property & Hostel Rentals',
-    description: 'Explore verified student hostels, studio apartments, and residential houses available across Uganda.',
+    icon: <ShieldCheck className="h-6 w-6 text-white" />,
+    title: 'Listing Verification',
+    description: 'System managers review and approve every property before it goes public, eliminating fake listings and agent scams.',
   },
   {
-    icon: <i className="fa-solid fa-sliders text-2xl text-white" />,
-    title: 'Smart Category Filtering',
-    description: 'Filter rentals by property type, vehicles, commercial land, equipment, price range, and radius.',
+    icon: <Filter className="h-6 w-6 text-white" />,
+    title: 'Advanced Search & Filters',
+    description: 'Filter rental properties by zone, exact price range, property type (apartment, house, studio), bedrooms, and amenities.',
   },
   {
-    icon: <i className="fa-solid fa-user-tie text-2xl text-white" />,
-    title: 'Direct Owner Connection',
-    description: 'Connect directly with verified owners and lessors for transparent agreements and quick check-ins.',
+    icon: <MessageSquare className="h-6 w-6 text-white" />,
+    title: 'Direct Landlord Inquiries',
+    description: 'Tenants send inquiries and request property viewings directly to verified landlords without intermediary friction.',
   },
   {
-    icon: <i className="fa-solid fa-star text-2xl text-white" />,
-    title: 'Verified Renter Reviews',
-    description: 'Read authentic ratings and reviews from previous renters before booking any item or property.',
+    icon: <Flag className="h-6 w-6 text-white" />,
+    title: 'Fraud Reporting & Flagging',
+    description: 'Report suspicious, duplicate, or outdated listings instantly. System administrators review reports and take immediate action.',
   },
   {
-    icon: <i className="fa-solid fa-calendar-check text-2xl text-white" />,
-    title: 'Flexible Rental Durations',
-    description: 'Rent per day, per month, or per semester depending on your specific needs.',
+    icon: <Activity className="h-6 w-6 text-white" />,
+    title: 'Audit & System Monitoring',
+    description: 'Comprehensive activity logs record administrative actions, approvals, and moderations to maintain platform integrity.',
   },
   {
-    icon: <i className="fa-solid fa-shield-halved text-2xl text-white" />,
-    title: 'Protected Agreements',
-    description: 'Book with confidence knowing all listings, owner credentials, and rental transactions are secured.',
+    icon: <CheckCircle className="h-6 w-6 text-white" />,
+    title: 'Realtime Availability Control',
+    description: 'Landlords update vacancy status in real-time, while stale listings are automatically flagged to ensure fresh data.',
   },
 ];
 
@@ -45,59 +46,37 @@ const FeaturesSection = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            Why Rent with <span className="text-[#f06023]">Rental Connect</span>?
+            Core <span className="text-[#f06023]">System Objectives</span> & Features
           </motion.h2>
           <motion.p 
-            className="text-zinc-700 max-w-2xl mx-auto text-lg font-medium"
+            className="text-zinc-600 max-w-2xl mx-auto text-base md:text-lg font-normal"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            Connecting property and item owners with renters seamlessly, securely, and transparently.
+            Built according to rigorous information system design standards for trust, transparency, and administrative control.
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {features.map((feature, index) => (
             <motion.div
               key={index}
-              className="bg-white border border-zinc-200 hover:border-[#f06023] p-8 rounded-2xl shadow-md transition-all duration-300 group"
+              className="bg-white border border-zinc-200 hover:border-[#f06023] p-8 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 group"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={{ y: -5 }}
+              whileHover={{ y: -4 }}
             >
-              <div className="p-3 bg-[#f06023] text-white font-bold rounded-xl inline-flex mb-4 group-hover:scale-110 transition-transform shadow-md">
+              <div className="p-3.5 bg-[#f06023] text-white font-bold rounded-xl inline-flex mb-5 group-hover:scale-105 transition-transform shadow-md">
                 {feature.icon}
               </div>
               <h3 className="text-xl font-bold mb-3 text-zinc-900 group-hover:text-[#f06023] transition-colors">{feature.title}</h3>
-              <p className="text-zinc-600 font-normal leading-relaxed">{feature.description}</p>
+              <p className="text-zinc-600 text-sm leading-relaxed">{feature.description}</p>
             </motion.div>
           ))}
-        </div>
-      </div>
-
-      {/* Bottom Features Banner with FontAwesome Icons */}
-      <div className="bg-orange-50/70 border border-orange-200 py-12 mt-8 mx-auto max-w-7xl rounded-2xl shadow-sm">
-        <div className="px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-zinc-900 text-center">
-          <div className="flex flex-col items-center">
-            <i className="fa-solid fa-house-user text-[#f06023] text-3xl mb-3"></i>
-            <p className="text-lg font-bold text-zinc-900">Hostels & Apartments</p>
-          </div>
-          <div className="flex flex-col items-center">
-            <i className="fa-solid fa-car text-[#f06023] text-3xl mb-3"></i>
-            <p className="text-lg font-bold text-zinc-900">Cars & 4x4 Vehicles</p>
-          </div>
-          <div className="flex flex-col items-center">
-            <i className="fa-solid fa-map-location-dot text-[#f06023] text-3xl mb-3"></i>
-            <p className="text-lg font-bold text-zinc-900">Commercial & Plot Land</p>
-          </div>
-          <div className="flex flex-col items-center">
-            <i className="fa-solid fa-screwdriver-wrench text-[#f06023] text-3xl mb-3"></i>
-            <p className="text-lg font-bold text-zinc-900">Tools & Heavy Equipment</p>
-          </div>
         </div>
       </div>
     </section>

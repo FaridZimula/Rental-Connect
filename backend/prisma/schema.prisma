@@ -11,8 +11,8 @@ datasource db {
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
 enum UserRole {
-  buyer
-  owner
+  tenant
+  landlord
   admin
 }
 
@@ -35,47 +35,40 @@ enum PropertyStatus {
   published
   rejected
   suspended
-}
-
-enum FeaturedTier {
-  standard  // 7-day boost
-  premium   // 30-day boost
-}
-
-enum LeadStatus {
-  pending_payment
-  unlocked
   expired
 }
 
-enum PaymentType {
-  connection_unlock
-  credit_purchase
-  featured_boost
-}
-
-enum PaymentStatus {
+enum InquiryStatus {
   pending
-  successful
-  failed
+  responded
+  closed
 }
 
-enum CreditTransactionType {
-  purchase
-  spend
-  refund
+enum ReportReason {
+  fraudulent
+  duplicate
+  outdated
+  misleading
+  other
+}
+
+enum ReportStatus {
+  pending
+  reviewed
+  action_taken
+  dismissed
 }
 
 enum NotificationType {
   listing_approved
   listing_rejected
   listing_suspended
-  new_lead
-  lead_unlocked
-  boost_expiring
-  boost_expired
-  payment_successful
-  payment_failed
+  listing_expired
+  new_inquiry
+  inquiry_responded
+  report_received
+  account_disabled
+  account_enabled
 }
 
 // ─── Tables ───────────────────────────────────────────────────────────────────
@@ -86,23 +79,23 @@ model User {
   email           String    @unique
   phone           String?
   password_hash   String
-  role            UserRole  @default(buyer)
+  role            UserRole  @default(tenant)
   profile_image   String?
   is_verified     Boolean   @default(false)
+  is_active       Boolean   @default(true)
   tos_accepted_at DateTime?
   tos_version     String?
   created_at      DateTime  @default(now())
   updated_at      DateTime  @updatedAt
 
   // Relations
-  properties        Property[]
-  favorites         Favorite[]
-  leads_as_buyer    Lead[]           @relation("LeadBuyer")
-  leads_as_owner    Lead[]           @relation("LeadOwner")
-  credit_wallet     CreditWallet?
-  payments          Payment[]
-  notifications     Notification[]
-  reviews           Review[]
+  properties           Property[]
+  favorites            Favorite[]
+  inquiries_as_tenant  Inquiry[]        @relation("InquiryTenant")
+  inquiries_as_landlord Inquiry[]       @relation("InquiryLandlord")
+  notifications        Notification[]
+  reviews              Review[]
+  listing_reports      ListingReport[]
 
   @@map("users")
 }
@@ -131,12 +124,10 @@ model Property {
   bathrooms     Int            @default(0)
   area_sqft     Float?
 
-  status        PropertyStatus @default(pending_review)
+  status           PropertyStatus @default(pending_review)
   rejection_reason String?
-
-  is_featured   Boolean        @default(false)
-  featured_tier FeaturedTier?
-  featured_until DateTime?
+  is_available     Boolean        @default(true)
+  expires_at       DateTime?      // auto-mark expired after this date
 
   created_at    DateTime       @default(now())
   updated_at    DateTime       @updatedAt
@@ -145,16 +136,16 @@ model Property {
   images        PropertyImage[]
   amenities     PropertyAmenity[]
   favorites     Favorite[]
-  leads         Lead[]
-  payments      Payment[]
+  inquiries     Inquiry[]
   reviews       Review[]
+  reports       ListingReport[]
 
   @@index([owner_id])
   @@index([status])
-  @@index([is_featured])
   @@index([listing_type])
   @@index([property_type])
   @@index([display_zone])
+  @@index([is_available])
   @@map("properties")
 }
 
@@ -201,84 +192,63 @@ model Favorite {
   @@map("favorites")
 }
 
-model Lead {
-  id              String     @id @default(uuid())
-  property_id     String
-  buyer_id        String
-  owner_id        String
+model Inquiry {
+  id            String        @id @default(uuid())
+  property_id   String
+  tenant_id     String
+  landlord_id   String
+  message       String
+  viewing_date  DateTime?     // optional viewing request
+  status        InquiryStatus @default(pending)
+  response      String?       // landlord's reply
+  responded_at  DateTime?
+  created_at    DateTime      @default(now())
 
-  property        Property   @relation(fields: [property_id], references: [id])
-  buyer           User       @relation("LeadBuyer", fields: [buyer_id], references: [id])
-  owner           User       @relation("LeadOwner", fields: [owner_id], references: [id])
-
-  status          LeadStatus @default(pending_payment)
-  payment_amount  Decimal?   @db.Decimal(14, 2)
-  credit_used     Boolean    @default(false)
-  transaction_ref String?
-
-  buyer_message   String?    // contact-scrubbed before save
-  created_at      DateTime   @default(now())
-  unlocked_at     DateTime?
-
-  credit_transactions CreditTransaction[]
-  payments            Payment[]
+  property      Property      @relation(fields: [property_id], references: [id], onDelete: Cascade)
+  tenant        User          @relation("InquiryTenant", fields: [tenant_id], references: [id])
+  landlord      User          @relation("InquiryLandlord", fields: [landlord_id], references: [id])
 
   @@index([property_id])
-  @@index([buyer_id])
-  @@index([owner_id])
+  @@index([tenant_id])
+  @@index([landlord_id])
   @@index([status])
-  @@map("leads")
+  @@map("inquiries")
 }
 
-model CreditWallet {
-  id         String   @id @default(uuid())
-  user_id    String   @unique
-  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  balance    Int      @default(0)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+model ListingReport {
+  id            String        @id @default(uuid())
+  property_id   String
+  reporter_id   String
+  reason        ReportReason
+  details       String?
+  status        ReportStatus  @default(pending)
+  admin_notes   String?
+  resolved_by   String?
+  created_at    DateTime      @default(now())
+  resolved_at   DateTime?
 
-  transactions CreditTransaction[]
+  property      Property      @relation(fields: [property_id], references: [id], onDelete: Cascade)
+  reporter      User          @relation(fields: [reporter_id], references: [id])
 
-  @@map("credit_wallets")
-}
-
-model CreditTransaction {
-  id              String                @id @default(uuid())
-  wallet_id       String
-  wallet          CreditWallet          @relation(fields: [wallet_id], references: [id])
-  type            CreditTransactionType
-  amount          Int
-  related_lead_id String?
-  lead            Lead?                 @relation(fields: [related_lead_id], references: [id])
-  transaction_ref String?
-  created_at      DateTime              @default(now())
-
-  @@index([wallet_id])
-  @@map("credit_transactions")
-}
-
-model Payment {
-  id              String        @id @default(uuid())
-  user_id         String
-  user            User          @relation(fields: [user_id], references: [id])
-  property_id     String?
-  property        Property?     @relation(fields: [property_id], references: [id])
-  lead_id         String?
-  lead            Lead?         @relation(fields: [lead_id], references: [id])
-  type            PaymentType
-  amount          Decimal       @db.Decimal(14, 2)
-  currency        String        @default("UGX")
-  status          PaymentStatus @default(pending)
-  transaction_ref String?       @unique
-  gateway_ref     String?       // Flutterwave transaction ID
-  created_at      DateTime      @default(now())
-  updated_at      DateTime      @updatedAt
-
-  @@index([user_id])
+  @@index([property_id])
+  @@index([reporter_id])
   @@index([status])
-  @@index([type])
-  @@map("payments")
+  @@map("listing_reports")
+}
+
+model AuditLog {
+  id            String   @id @default(uuid())
+  actor_id      String?
+  action        String   // e.g. "listing_approved", "user_disabled", "listing_removed"
+  target_type   String   // e.g. "property", "user"
+  target_id     String
+  details       Json?
+  created_at    DateTime @default(now())
+
+  @@index([actor_id])
+  @@index([action])
+  @@index([target_type])
+  @@map("audit_logs")
 }
 
 model Review {

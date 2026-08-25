@@ -1,85 +1,136 @@
-export type RentalCategory = 'all' | 'hostels' | 'rentals' | 'vehicles' | 'land' | 'equipment';
+export type UserRole = 'tenant' | 'landlord' | 'admin';
 
-export type User = {
+export type PropertyType = 'apartment' | 'house' | 'studio' | 'hostel' | 'land' | 'commercial';
+
+export type ListingType = 'rent' | 'sale';
+
+export type PropertyStatus = 'pending_review' | 'published' | 'rejected' | 'suspended' | 'expired';
+
+export type InquiryStatus = 'pending' | 'responded' | 'closed';
+
+export type ReportReason = 'fraudulent' | 'duplicate' | 'outdated' | 'misleading' | 'other';
+
+export type ReportStatus = 'pending' | 'reviewed' | 'action_taken' | 'dismissed';
+
+export interface User {
   id: string;
-  name: string;
+  full_name: string;
   email: string;
-  role: 'student' | 'owner' | 'broker';
-  avatar?: string;
-  university?: string;
   phone?: string;
-};
+  role: UserRole;
+  profile_image?: string;
+  is_verified?: boolean;
+  is_active?: boolean;
+  created_at?: string;
+}
 
-export type University = {
+export interface PropertyImage {
+  id: string;
+  property_id: string;
+  image_url: string;
+  is_primary: boolean;
+}
+
+export interface Amenity {
   id: string;
   name: string;
-  location: string;
-  imageUrl: string;
-};
+}
 
-export type Room = {
-  id: string;
-  type: string;
-  price: number;
-  available: boolean;
-  capacity: number;
-  amenities: string[];
-  imageUrls: string[];
-};
+export interface PropertyAmenity {
+  property_id: string;
+  amenity_id: string;
+  amenity: Amenity;
+}
 
-export type Hostel = {
+export interface Property {
   id: string;
-  name: string;
-  category?: RentalCategory;
-  pricePeriod?: string; // e.g. '/semester', '/month', '/day'
+  owner_id: string;
+  title: string;
   description: string;
-  ownerId: string;
-  location: {
-    address: string;
-    distance: number; // distance in km
-    coordinates?: {
-      lat: number;
-      lng: number;
-    };
+  property_type: PropertyType;
+  listing_type: ListingType;
+  price: number | string;
+  real_address?: string;
+  display_zone: string;
+  display_lat?: number;
+  display_lng?: number;
+  bedrooms: number;
+  bathrooms: number;
+  area_sqft?: number;
+  status: PropertyStatus;
+  rejection_reason?: string;
+  is_available: boolean;
+  expires_at?: string;
+  created_at: string;
+  updated_at?: string;
+  images?: PropertyImage[];
+  amenities?: PropertyAmenity[];
+  owner?: Partial<User>;
+  _count?: {
+    inquiries?: number;
+    reviews?: number;
   };
-  university: string;
-  rating: number;
-  reviewCount: number;
-  amenities: string[];
-  rooms: Room[];
-  imageUrls: string[];
-};
+}
 
-export type Review = {
+export interface Inquiry {
   id: string;
-  hostelId: string;
-  userId: string;
-  userName: string;
-  rating: number;
-  comment: string;
-  date: string;
-};
+  property_id: string;
+  tenant_id: string;
+  landlord_id: string;
+  message: string;
+  viewing_date?: string;
+  status: InquiryStatus;
+  response?: string;
+  responded_at?: string;
+  created_at: string;
+  property?: Partial<Property>;
+  tenant?: Partial<User>;
+  landlord?: Partial<User>;
+}
 
-export type Booking = {
+export interface ListingReport {
   id: string;
-  userId: string;
-  hostelId: string;
-  roomId: string;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
-  checkInDate: string;
-  checkOutDate: string;
-  totalPrice: number;
-  createdAt: string;
-};
+  property_id: string;
+  reporter_id: string;
+  reason: ReportReason;
+  details?: string;
+  status: ReportStatus;
+  admin_notes?: string;
+  resolved_by?: string;
+  created_at: string;
+  resolved_at?: string;
+  property?: Partial<Property>;
+  reporter?: Partial<User>;
+}
 
-export type FilterOptions = {
-  category?: RentalCategory;
-  university?: string;
-  priceRange?: {
-    min: number;
-    max: number;
+export interface AuditLog {
+  id: string;
+  actor_id?: string;
+  action: string;
+  target_type: string;
+  target_id: string;
+  details?: Record<string, any>;
+  created_at: string;
+}
+
+export interface Review {
+  id: string;
+  property_id: string;
+  user_id: string;
+  rating: number;
+  comment?: string;
+  created_at: string;
+  user?: {
+    full_name: string;
   };
-  roomTypes?: string[];
-  amenities?: string[];
-  distance?: number;
-};
+}
+
+export interface FilterState {
+  search: string;
+  listing_type: string;
+  property_type: string;
+  price_min?: string;
+  price_max: string;
+  bedrooms: string;
+  zone: string;
+}

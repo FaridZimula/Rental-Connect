@@ -29,8 +29,6 @@ export class AuthService {
         role: dto.role,
         tos_accepted_at: new Date(),
         tos_version: '1.0',
-        // Create credit wallet for every user
-        credit_wallet: { create: { balance: 0 } },
       },
       select: { id: true, email: true, full_name: true, role: true, created_at: true },
     });
@@ -42,6 +40,9 @@ export class AuthService {
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (!user) throw new UnauthorizedException('Invalid credentials');
+
+    // Check if account is disabled
+    if (!user.is_active) throw new UnauthorizedException('Account has been disabled. Contact support.');
 
     const valid = await bcrypt.compare(dto.password, user.password_hash);
     if (!valid) throw new UnauthorizedException('Invalid credentials');
@@ -64,6 +65,7 @@ export class AuthService {
         role: true,
         profile_image: true,
         is_verified: true,
+        is_active: true,
         created_at: true,
       },
     });

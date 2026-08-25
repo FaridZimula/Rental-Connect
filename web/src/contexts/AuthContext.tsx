@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authApi } from '../lib/api';
 
-export type UserRole = 'buyer' | 'owner' | 'admin';
+export type UserRole = 'tenant' | 'landlord' | 'admin';
 
 export interface AuthUser {
   id: string;
@@ -22,7 +22,7 @@ interface AuthContextType {
     email: string;
     password: string;
     phone?: string;
-    role: 'buyer' | 'owner';
+    role: 'tenant' | 'landlord';
   }) => Promise<void>;
   logout: () => void;
 }
@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string;
     password: string;
     phone?: string;
-    role: 'buyer' | 'owner';
+    role: 'tenant' | 'landlord';
   }) => {
     const data = await authApi.register(formData);
     localStorage.setItem('rc_token', data.access_token);

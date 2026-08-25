@@ -21,7 +21,7 @@ api.interceptors.response.use(
     if (err.response?.status === 401) {
       localStorage.removeItem('rc_token');
       localStorage.removeItem('rc_user');
-      window.location.href = '/hostel-owner/login';
+      window.location.href = '/login';
     }
     return Promise.reject(err);
   },
@@ -35,7 +35,7 @@ export const authApi = {
     email: string;
     password: string;
     phone?: string;
-    role: 'buyer' | 'owner';
+    role: 'tenant' | 'landlord';
   }) => api.post('/auth/register', data).then((r) => r.data),
 
   login: (email: string, password: string) =>
@@ -58,6 +58,12 @@ export const propertiesApi = {
   update: (id: string, data: Record<string, any>) =>
     api.patch(`/properties/${id}`, data).then((r) => r.data),
 
+  toggleAvailability: (id: string) =>
+    api.patch(`/properties/${id}/availability`).then((r) => r.data),
+
+  delete: (id: string) =>
+    api.delete(`/properties/${id}`).then((r) => r.data),
+
   myProperties: () => api.get('/properties/owner/my').then((r) => r.data),
 
   uploadImage: (propertyId: string, file: File, isPrimary = false) => {
@@ -71,34 +77,33 @@ export const propertiesApi = {
   },
 };
 
-// ── Leads ─────────────────────────────────────────────────────────────────────
+// ── Inquiries ─────────────────────────────────────────────────────────────────
 
-export const leadsApi = {
-  create: (propertyId: string, message?: string) =>
-    api.post('/leads', { property_id: propertyId, buyer_message: message }).then((r) => r.data),
+export const inquiriesApi = {
+  create: (data: { property_id: string; message: string; viewing_date?: string }) =>
+    api.post('/inquiries', data).then((r) => r.data),
 
-  unlock: (leadId: string) => api.post(`/leads/${leadId}/unlock`).then((r) => r.data),
+  myInquiries: () => api.get('/inquiries/my-inquiries').then((r) => r.data),
 
-  get: (leadId: string) => api.get(`/leads/${leadId}`).then((r) => r.data),
+  landlordInquiries: () => api.get('/inquiries/landlord-inquiries').then((r) => r.data),
 
-  myLeads: () => api.get('/leads/buyer/my').then((r) => r.data),
-
-  ownerLeads: () => api.get('/leads/owner/incoming').then((r) => r.data),
+  respond: (id: string, response: string) =>
+    api.patch(`/inquiries/${id}/respond`, { response }).then((r) => r.data),
 };
 
-// ── Credits & Payments ────────────────────────────────────────────────────────
+// ── Reports / Flags ───────────────────────────────────────────────────────────
 
-export const creditsApi = {
-  balance: () => api.get('/credits/balance').then((r) => r.data),
-  transactions: () => api.get('/credits/transactions').then((r) => r.data),
-};
+export const reportsApi = {
+  create: (data: { property_id: string; reason: string; details?: string }) =>
+    api.post('/reports', data).then((r) => r.data),
 
-export const paymentsApi = {
-  initiateCreditPurchase: (bundle: '5' | '10' | '20') =>
-    api.post('/payments/credits/initiate', { bundle }).then((r) => r.data),
+  myReports: () => api.get('/reports/my-reports').then((r) => r.data),
 
-  initiateFeature: (propertyId: string, tier: '7day' | '30day') =>
-    api.post('/payments/feature/initiate', { property_id: propertyId, tier }).then((r) => r.data),
+  adminAll: (status?: string) =>
+    api.get('/reports/admin/all', { params: { status } }).then((r) => r.data),
+
+  resolve: (id: string, status: string, admin_notes?: string) =>
+    api.patch(`/reports/${id}/resolve`, { status, admin_notes }).then((r) => r.data),
 };
 
 // ── Favorites ─────────────────────────────────────────────────────────────────
@@ -118,8 +123,11 @@ export const adminApi = {
     api.post(`/admin/properties/${id}/reject`, { reason }).then((r) => r.data),
   suspend: (id: string, reason: string) =>
     api.post(`/admin/properties/${id}/suspend`, { reason }).then((r) => r.data),
+  toggleUserActive: (id: string) =>
+    api.patch(`/admin/users/${id}/toggle-active`).then((r) => r.data),
   analytics: () => api.get('/admin/analytics').then((r) => r.data),
   users: (page = 1) => api.get('/admin/users', { params: { page } }).then((r) => r.data),
+  auditLogs: (page = 1) => api.get('/admin/audit-logs', { params: { page } }).then((r) => r.data),
 };
 
 // ── Notifications ─────────────────────────────────────────────────────────────

@@ -16,6 +16,6 @@ export class RegisterDto {
   @IsString()
   phone?: string;
 
-  @IsEnum(['buyer', 'owner'])
-  role: 'buyer' | 'owner';
+  @IsEnum(['tenant', 'landlord'])
+  role: 'tenant' | 'landlord';
 }

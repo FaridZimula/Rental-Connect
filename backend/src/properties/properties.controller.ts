@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Body,
   Param,
   Query,
@@ -32,25 +33,25 @@ export class PropertiesController {
     return this.propertiesService.findOne(id);
   }
 
-  /** Owner: create a new listing (enters pending_review) */
+  /** Landlord: create a new listing (enters pending_review) */
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('owner')
+  @Roles('landlord')
   @Post()
   create(@CurrentUser() user: { id: string }, @Body() dto: CreatePropertyDto) {
     return this.propertiesService.create(user.id, dto);
   }
 
-  /** Owner: view their own listings (includes private fields) */
+  /** Landlord: view their own listings (includes private fields) */
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('owner')
+  @Roles('landlord')
   @Get('owner/my')
   myProperties(@CurrentUser() user: { id: string }) {
     return this.propertiesService.findOwnerProperties(user.id);
   }
 
-  /** Owner: edit a listing (triggers re-moderation) */
+  /** Landlord: edit a listing (triggers re-moderation) */
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('owner')
+  @Roles('landlord')
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -58,5 +59,27 @@ export class PropertiesController {
     @Body() dto: Partial<CreatePropertyDto>,
   ) {
     return this.propertiesService.update(id, user.id, dto);
+  }
+
+  /** Landlord: toggle availability (mark as rented/available) */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('landlord')
+  @Patch(':id/availability')
+  toggleAvailability(
+    @Param('id') id: string,
+    @CurrentUser() user: { id: string },
+  ) {
+    return this.propertiesService.toggleAvailability(id, user.id);
+  }
+
+  /** Landlord: delete a listing */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('landlord')
+  @Delete(':id')
+  remove(
+    @Param('id') id: string,
+    @CurrentUser() user: { id: string },
+  ) {
+    return this.propertiesService.remove(id, user.id);
   }
 }
