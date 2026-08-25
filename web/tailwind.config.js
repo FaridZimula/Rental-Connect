@@ -10,7 +10,7 @@ export default {
           200: '#ffccb8',
           300: '#ffaa8a',
           400: '#f78354',
-          500: '#f06023', // Requested primary color code
+          500: '#f06023',
           600: '#d94b12',
           700: '#b3380c',
           800: '#8e2b0d',
@@ -48,8 +48,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Poppins', 'system-ui', 'sans-serif'],
-        display: ['Poppins', 'system-ui', 'sans-serif'],
+        sans: ['Quicksand', 'system-ui', 'sans-serif'],
+        display: ['Quicksand', 'system-ui', 'sans-serif'],
       },
       animation: {
         'water-portal': 'water-portal 3s ease-in-out',
@@ -63,7 +63,7 @@ export default {
           '100%': { transform: 'scale(1)', opacity: '1' },
         },
         'fade-in': {
-          '0%': { opacity: '0' },
+          '0%': { opacity: '0 font' },
           '100%': { opacity: '1' },
         },
         'slide-up': {
