@@ -36,10 +36,7 @@ export default function PropertyCard({ property }: { property: PropertySummary }
   const primaryImage = property.images?.find((i) => i.is_primary) ?? property.images?.[0];
 
   return (
-    <div
-      className="w-full max-w-[280px] mx-auto bg-white border border-zinc-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-xl hover:border-[#f06023] transition-all duration-300 flex flex-col"
-      style={{ height: '400px' }}
-    >
+    <div className="w-full max-w-[280px] mx-auto bg-white border border-zinc-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-xl hover:border-[#f06023] transition-all duration-300 flex flex-col h-full">
       {/* Media Section */}
       <div className="relative h-40 bg-zinc-100 flex-shrink-0">
         {primaryImage ? (
@@ -66,18 +63,18 @@ export default function PropertyCard({ property }: { property: PropertySummary }
       </div>
 
       {/* Body Content */}
-      <div className="p-4 flex-grow flex flex-col justify-between">
+      <div className="p-3.5 flex-grow flex flex-col justify-between gap-3">
         <div>
-          <h4 className="font-bold text-sm text-zinc-950 line-clamp-1 mb-1 hover:text-[#f06023] transition-colors">
+          <h4 className="font-bold text-sm text-zinc-950 line-clamp-1 mb-0.5 hover:text-[#f06023] transition-colors">
             <Link to={`/properties/${property.id}`}>{property.title}</Link>
           </h4>
-          <p className="text-[10px] text-zinc-500 font-semibold mb-2">{property.display_zone}</p>
+          <p className="text-[10px] text-zinc-500 font-semibold mb-1.5">{property.display_zone}</p>
           <p className="text-xs text-zinc-600 line-clamp-2 leading-relaxed font-medium">
             {property.description}
           </p>
         </div>
 
-        <div className="pt-2 border-t border-zinc-100 flex flex-col justify-end">
+        <div className="pt-2 border-t border-zinc-100">
           <div className="flex justify-between items-baseline mb-2">
             <span className="text-[9px] uppercase font-bold text-zinc-400">Rent Price</span>
             <span className="text-sm font-extrabold text-[#f06023]">

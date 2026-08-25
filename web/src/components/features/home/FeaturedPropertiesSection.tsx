@@ -86,8 +86,7 @@ export default function FeaturedPropertiesSection() {
               {flashProperties.map((p) => (
                 <div
                   key={p.id}
-                  className="w-[280px] sm:w-full sm:max-w-[280px] shrink-0 snap-start mx-auto bg-white border border-zinc-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-xl hover:border-[#f06023] transition-all duration-300 flex flex-col"
-                  style={{ height: '400px' }}
+                  className="w-[280px] sm:w-full sm:max-w-[280px] shrink-0 snap-start mx-auto bg-white border border-zinc-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-xl hover:border-[#f06023] transition-all duration-300 flex flex-col h-full"
                 >
                   {/* Card Media */}
                   <div className="relative h-40 bg-zinc-100 flex-shrink-0">
@@ -105,7 +104,7 @@ export default function FeaturedPropertiesSection() {
                   </div>
 
                   {/* Card Body */}
-                  <div className="p-4 flex-grow flex flex-col justify-between">
+                  <div className="p-3.5 flex-grow flex flex-col justify-between gap-3">
                     <div>
                       <h4 className="font-bold text-sm text-zinc-950 line-clamp-1 mb-1 hover:text-[#f06023] transition-colors">
                         <Link to={`/properties/${p.id}`}>{p.title}</Link>

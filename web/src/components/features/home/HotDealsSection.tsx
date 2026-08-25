@@ -32,21 +32,20 @@ export default function HotDealsSection() {
           {hotProperties.map((p, idx) => (
             <div
               key={p.id}
-              className="w-[280px] sm:w-full sm:max-w-[280px] shrink-0 snap-start bg-white border border-zinc-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-xl hover:border-[#f06023] transition-all duration-300 flex flex-col"
-              style={{ height: '400px' }}
+              className="w-[280px] sm:w-full sm:max-w-[280px] shrink-0 snap-start bg-white border border-zinc-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-xl hover:border-[#f06023] transition-all duration-300 flex flex-col h-full"
             >
               {/* Media Section */}
-              <div className="relative h-44 bg-zinc-100 flex-shrink-0">
+              <div className="relative h-40 bg-zinc-100 flex-shrink-0">
                 <img
                   src={p.images?.[0]?.image_url}
                   alt={p.title}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute top-2.5 left-2.5 bg-red-600 text-white font-bold text-[9px] uppercase tracking-wider px-2.5 py-1 rounded-md shadow-sm animate-pulse">
+                <div className="absolute top-2.5 left-2.5 bg-red-600 text-white font-bold text-[9px] uppercase tracking-wider px-2.5 py-1 rounded-md shadow-sm animate-pulse z-10">
                   LIVE
                 </div>
                 {/* Closing Timer Overlay */}
-                <div className="absolute bottom-0 inset-x-0 bg-black/60 backdrop-blur-sm text-white text-[10px] font-semibold py-1.5 px-3 flex items-center justify-between">
+                <div className="absolute bottom-0 inset-x-0 bg-black/60 backdrop-blur-sm text-white text-[10px] font-semibold py-1.5 px-3 flex items-center justify-between z-10">
                   <span className="text-zinc-300">Closes In:</span>
                   <span className="flex items-center gap-1 font-bold text-orange-400">
                     <Clock className="h-3 w-3" /> {countdowns[idx] ?? '71h 43m 53s'}
@@ -55,13 +54,13 @@ export default function HotDealsSection() {
               </div>
 
               {/* Body Content */}
-              <div className="p-4 flex-grow flex flex-col justify-between">
+              <div className="p-3.5 flex-grow flex flex-col justify-between gap-3">
                 <div>
-                  <h4 className="font-bold text-sm text-zinc-950 line-clamp-1 mb-1 hover:text-[#f06023] transition-colors">
+                  <h4 className="font-bold text-sm text-zinc-950 line-clamp-1 mb-0.5 hover:text-[#f06023] transition-colors">
                     <Link to={`/properties/${p.id}`}>{p.title}</Link>
                   </h4>
-                  <p className="text-[10px] text-zinc-500 font-semibold mb-2">{p.display_zone}</p>
-                  <p className="text-[11px] text-zinc-500 line-clamp-2 leading-relaxed">
+                  <p className="text-[10px] text-zinc-500 font-semibold mb-1.5">{p.display_zone}</p>
+                  <p className="text-xs text-zinc-600 line-clamp-2 leading-relaxed font-medium">
                     {p.description}
                   </p>
                 </div>
@@ -76,8 +75,8 @@ export default function HotDealsSection() {
                   </div>
 
                   <Link to={`/properties/${p.id}`}>
-                    <button className="w-full bg-[#f06023] hover:bg-[#d94b12] text-white font-bold py-2 rounded-xl transition-all duration-300 text-xs flex items-center justify-center gap-1.5 shadow-sm">
-                      <Eye className="h-3.5 w-3.5" /> Bid / Inquire
+                    <button className="w-full bg-[#f06023] hover:bg-[#d94b12] text-white font-bold py-2.5 rounded-xl transition-all duration-300 text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-98 cursor-pointer">
+                      <Eye className="h-3.5 w-3.5 text-white" /> Bid / Inquire
                     </button>
                   </Link>
                 </div>
