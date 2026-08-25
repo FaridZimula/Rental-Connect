@@ -31,6 +31,15 @@ enum PropertyType {
   land
   vehicle
   machinery
+  event_equipment
+  event_venue
+  agro_machinery
+  medical_equipment
+  solar_power
+  fashion_attire
+  it_hardware
+  watercraft
+  camping_sports
 }
 
 enum PropertyStatus {

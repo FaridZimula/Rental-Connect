@@ -17,22 +17,22 @@ interface Props {
 }
 
 const PROPERTY_TYPES = [
-  { value: '', label: 'All Physical Asset Clusters (11)' },
+  { value: '', label: 'All Physical Asset Clusters' },
   { value: 'apartment', label: 'Apartments & Flats' },
   { value: 'house', label: 'Residential Houses' },
   { value: 'studio', label: 'Studio Units' },
   { value: 'hostel', label: 'Hostel Rooms' },
   { value: 'commercial', label: 'Commercial & Warehouses' },
-  { value: 'land', label: 'Land & Open Yard Plots' },
+  { value: 'land', label: 'Land & Plots' },
   { value: 'vehicle', label: 'Vehicles & Transport' },
   { value: 'machinery', label: 'Heavy Machinery & Tools' },
   { value: 'event_equipment', label: 'Event & Media Equipment' },
   { value: 'event_venue', label: 'Event Venues & Gardens' },
-  { value: 'agro_machinery', label: 'Farm Equipment & Agro Land' },
+  { value: 'agro_machinery', label: 'Farm Machinery & Agro Assets' },
   { value: 'medical_equipment', label: 'Medical & Healthcare Equipment' },
-  { value: 'solar_power', label: 'Solar & Off-Grid Energy' },
+  { value: 'solar_power', label: 'Solar & Renewable Energy' },
   { value: 'fashion_attire', label: 'Formal Wear & Cultural Attire' },
-  { value: 'it_hardware', label: 'IT, Laptops & Office Hardware' },
+  { value: 'it_hardware', label: 'IT, Laptops & Office Tech' },
   { value: 'watercraft', label: 'Marine & Speedboats' },
   { value: 'camping_sports', label: 'Camping, Sports & Fitness Gear' },
 ];
@@ -62,7 +62,7 @@ export default function PropertyFilters({ filters, onChange, onReset }: Props) {
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
           <input
             type="text"
-            placeholder="Search assets (e.g. Prado V8, CAT Excavator, Oxygen Concentrator, Sony FX3)..."
+            placeholder="Search assets (e.g. Prado V8, CAT Excavator, Oxygen Concentrator)..."
             value={filters.search}
             onChange={(e) => set('search', e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-zinc-200 rounded-xl text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-[#f06023] text-sm shadow-sm font-medium"
@@ -74,7 +74,7 @@ export default function PropertyFilters({ filters, onChange, onReset }: Props) {
           className="relative flex items-center gap-2 px-4 py-2.5 bg-white border border-zinc-200 rounded-xl text-zinc-700 hover:border-[#f06023] text-sm font-medium shadow-sm transition-colors"
         >
           <Filter className="h-4 w-4 text-[#f06023]" />
-          Clusters
+          Asset Clusters
           <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
           {activeCount > 0 && (
             <span className="absolute -top-1.5 -right-1.5 bg-[#f06023] text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">

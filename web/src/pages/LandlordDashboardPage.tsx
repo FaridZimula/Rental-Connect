@@ -318,6 +318,12 @@ export default function LandlordDashboardPage() {
                     <option value="event_equipment">Event Equipment (Sound, Lights, Mics)</option>
                     <option value="event_venue">Event Venue / Garden Hall</option>
                     <option value="agro_machinery">Farm Machinery & Agro Asset</option>
+                    <option value="medical_equipment">Medical & Healthcare Equipment</option>
+                    <option value="solar_power">Solar & Renewable Energy</option>
+                    <option value="fashion_attire">Formal Wear & Cultural Attire</option>
+                    <option value="it_hardware">IT & Computing Tech</option>
+                    <option value="watercraft">Marine & Watercraft</option>
+                    <option value="camping_sports">Camping & Sports Gear</option>
                   </select>
                 </div>
 

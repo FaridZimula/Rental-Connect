@@ -20,18 +20,18 @@ const HeroSection = () => {
   };
 
   const assetClusters = [
-    { id: 'all', label: 'All Physical Assets', icon: <ShieldCheck className="h-4 w-4" /> },
-    { id: 'apartment', label: 'Housing & Flats', icon: <Building2 className="h-4 w-4" /> },
+    { id: 'all', label: 'All Listings', icon: <ShieldCheck className="h-4 w-4" /> },
+    { id: 'apartment', label: 'Housing & Real Estate', icon: <Building2 className="h-4 w-4" /> },
     { id: 'vehicle', label: 'Vehicles & Transport', icon: <Car className="h-4 w-4" /> },
-    { id: 'machinery', label: 'Heavy Machinery & Tools', icon: <HardHat className="h-4 w-4" /> },
+    { id: 'machinery', label: 'Construction Machinery', icon: <HardHat className="h-4 w-4" /> },
     { id: 'event_equipment', label: 'Event & Media Gear', icon: <Music className="h-4 w-4" /> },
-    { id: 'agro_machinery', label: 'Farm Equipment & Land', icon: <Sprout className="h-4 w-4" /> },
-    { id: 'medical_equipment', label: 'Medical & Healthcare', icon: <HeartPulse className="h-4 w-4" /> },
-    { id: 'solar_power', label: 'Solar & Off-Grid Power', icon: <Sun className="h-4 w-4" /> },
-    { id: 'fashion_attire', label: 'Formal & Cultural Wear', icon: <Shirt className="h-4 w-4" /> },
+    { id: 'agro_machinery', label: 'Agro & Land Assets', icon: <Sprout className="h-4 w-4" /> },
+    { id: 'medical_equipment', label: 'Medical & Health Tech', icon: <HeartPulse className="h-4 w-4" /> },
+    { id: 'solar_power', label: 'Renewable Solar Power', icon: <Sun className="h-4 w-4" /> },
+    { id: 'fashion_attire', label: 'Fashion & Formal Wear', icon: <Shirt className="h-4 w-4" /> },
     { id: 'it_hardware', label: 'IT & Computing Tech', icon: <Laptop className="h-4 w-4" /> },
-    { id: 'watercraft', label: 'Marine & Speedboats', icon: <Anchor className="h-4 w-4" /> },
-    { id: 'camping_sports', label: 'Camping & Sports', icon: <Tent className="h-4 w-4" /> },
+    { id: 'watercraft', label: 'Marine & Watercraft', icon: <Anchor className="h-4 w-4" /> },
+    { id: 'camping_sports', label: 'Camping & Sports Gear', icon: <Tent className="h-4 w-4" /> },
   ];
 
   return (
@@ -49,14 +49,14 @@ const HeroSection = () => {
         >
           <div className="inline-flex items-center gap-2 bg-[#f06023]/10 text-[#f06023] px-4 py-1.5 rounded-full text-xs font-bold mb-6 border border-[#f06023]/20">
             <ShieldCheck className="h-4 w-4" />
-            Verified Physical Assets & Fraud-Protected Rental Platform
+            Digital Physical Rental Properties & Assets Management System
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-extrabold text-zinc-900 mb-4 leading-tight tracking-tight">
             Rent Verified <span className="text-[#f06023]">Housing, Vehicles, Tech & Machinery</span>
           </h1>
           <p className="text-base sm:text-lg lg:text-xl text-zinc-600 mb-8 max-w-3xl text-left font-medium">
-            Discover 65+ verified physical rental assets across Uganda — from apartments, 4x4 SUVs, and CAT excavators to medical equipment, solar power generators, formal gowns, and speedboats.
+            Connect directly with verified owners of real estate, 4x4 SUVs, construction machinery, event gear, solar arrays, and medical equipment across Uganda.
           </p>
 
           {/* Physical Asset Cluster Tabs */}
@@ -91,7 +91,7 @@ const HeroSection = () => {
                   <input
                     type="text"
                     className="pl-12 pr-4 py-3.5 w-full rounded-xl text-sm bg-zinc-50 text-zinc-900 placeholder-zinc-400 border border-zinc-200 focus:outline-none focus:border-[#f06023] focus:bg-white transition-all font-medium"
-                    placeholder="Search asset title (e.g. Prado V8, EcoFlow Solar, Sony FX3, Oxygen Concentrator)..."
+                    placeholder="Search asset title (e.g. Prado V8, EcoFlow Solar, Sony FX3)..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -100,7 +100,7 @@ const HeroSection = () => {
               
               <input
                 type="text"
-                placeholder="City / Zone (e.g. Kampala)"
+                placeholder="City / Area (e.g. Kampala)"
                 className="p-3.5 rounded-xl border border-zinc-200 text-sm focus:outline-none focus:border-[#f06023] bg-zinc-50 text-zinc-900 focus:bg-white sm:w-44 font-medium"
                 value={selectedZone}
                 onChange={(e) => setSelectedZone(e.target.value)}
@@ -119,9 +119,9 @@ const HeroSection = () => {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-12 max-w-4xl">
             {[
               { label: 'Asset Clusters', value: '11 Categories' },
-              { label: 'Verified Assets', value: '65+ Listed' },
-              { label: 'Coverage', value: 'Nationwide UG' },
-              { label: 'Fraud Shield', value: 'Admin Audited' }
+              { label: 'Coverage Area', value: 'Nationwide UG' },
+              { label: 'Owner Protection', value: 'Double Verified' },
+              { label: 'Listing Expiry Control', value: '90-Day Auto' }
             ].map((stat, index) => (
               <motion.div
                 key={stat.label}
