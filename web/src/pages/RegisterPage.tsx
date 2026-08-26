@@ -1,10 +1,16 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { User, Mail, Phone, Lock, Building, UserCheck, Check, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import { useAuth } from '../contexts/AuthContext';
+import {
+  auth,
+  signInWithPhoneNumber,
+  RecaptchaVerifier,
+} from '../lib/firebase';
+import type { ConfirmationResult } from 'firebase/auth';
 
 function getPasswordStrength(pw: string): { label: string; color: string; width: string } {
   if (pw.length === 0) return { label: '', color: '', width: '0%' };
@@ -16,7 +22,6 @@ function getPasswordStrength(pw: string): { label: string; color: string; width:
 }
 
 export default function RegisterPage() {
-  const [step, setStep] = useState<'form' | 'verify-phone'>('form');
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -30,38 +35,67 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [infoMessage, setInfoMessage] = useState('');
 
-  const { register } = useAuth();
+  const { register, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+
+  // Firebase phone auth references
+  const confirmationResultRef = useRef<ConfirmationResult | null>(null);
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
   const pwStrength = getPasswordStrength(password);
 
-  const handleGoogleSignUp = () => {
+  const navigateByRole = (selectedRole: string) => {
+    if (selectedRole === 'landlord') navigate('/dashboard/landlord');
+    else navigate('/dashboard/tenant');
+  };
+
+  // ── Google Sign Up ──────────────────────────────────────────────────────
+  const handleGoogleSignUp = async () => {
     if (!agreeTerms) {
       setError('Please accept the Terms of Service before continuing.');
       return;
     }
     setLoading(true);
-    setTimeout(() => {
+    setError('');
+    try {
+      await signInWithGoogle(role);
+      navigateByRole(role);
+    } catch (err: any) {
+      setError(err.message || 'Google sign-up failed.');
+    } finally {
       setLoading(false);
-      // In production: redirect to Google OAuth consent screen
-      navigate('/dashboard/tenant');
-    }, 1000);
+    }
   };
 
-  const handleSendPhoneOtp = () => {
+  // ── Phone OTP: Send Code ───────────────────────────────────────────────
+  const handleSendPhoneOtp = async () => {
     if (!phone.trim()) {
       setError('Please enter a phone number to verify.');
       return;
     }
     setLoading(true);
     setError('');
-    setTimeout(() => {
-      setLoading(false);
+
+    try {
+      const recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current!, {
+        size: 'invisible',
+      });
+      const result = await signInWithPhoneNumber(auth, phone.trim(), recaptchaVerifier);
+      confirmationResultRef.current = result;
       setOtpSent(true);
       setInfoMessage(`Verification code sent to ${phone}`);
-    }, 1200);
+    } catch (err: any) {
+      if (err.code === 'auth/invalid-phone-number') {
+        setError('Invalid phone number. Use format: +256 700 000 000');
+      } else {
+        setError(err.message || 'Failed to send OTP.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // ── Email Registration ─────────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!agreeTerms) {
@@ -84,11 +118,17 @@ export default function RegisterPage() {
         password,
         role,
       });
-
-      if (role === 'landlord') navigate('/dashboard/landlord');
-      else navigate('/dashboard/tenant');
+      setInfoMessage('Account created! A verification email has been sent to your inbox.');
+      navigateByRole(role);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed. Try again.');
+      const code = err.code;
+      if (code === 'auth/email-already-in-use') {
+        setError('This email is already registered. Please log in instead.');
+      } else if (code === 'auth/weak-password') {
+        setError('Password is too weak. Please use at least 8 characters.');
+      } else {
+        setError(err.message || 'Registration failed. Try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -115,7 +155,8 @@ export default function RegisterPage() {
           <button
             type="button"
             onClick={handleGoogleSignUp}
-            className="w-full bg-white hover:bg-zinc-50 text-zinc-700 font-bold py-3 px-4 rounded-xl border border-zinc-300 shadow-sm transition-all duration-200 flex items-center justify-center gap-3 text-xs mb-5 active:scale-98 cursor-pointer"
+            disabled={loading}
+            className="w-full bg-white hover:bg-zinc-50 text-zinc-700 font-bold py-3 px-4 rounded-xl border border-zinc-300 shadow-sm transition-all duration-200 flex items-center justify-center gap-3 text-xs mb-5 active:scale-98 cursor-pointer disabled:opacity-50"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -322,6 +363,9 @@ export default function RegisterPage() {
             </Link>
           </p>
         </motion.div>
+
+        {/* Invisible reCAPTCHA container for phone auth */}
+        <div ref={recaptchaContainerRef} id="recaptcha-container-register" />
       </div>
     </Layout>
   );

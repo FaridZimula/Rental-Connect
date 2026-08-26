@@ -12,7 +12,7 @@ import {
 import { PropertiesService } from './properties.service';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { QueryPropertiesDto } from './dto/query-properties.dto';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { FirebaseAuthGuard } from '../common/guards/firebase-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -34,7 +34,7 @@ export class PropertiesController {
   }
 
   /** Landlord: create a new listing (enters pending_review) */
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(FirebaseAuthGuard, RolesGuard)
   @Roles('landlord')
   @Post()
   create(@CurrentUser() user: { id: string }, @Body() dto: CreatePropertyDto) {
@@ -42,7 +42,7 @@ export class PropertiesController {
   }
 
   /** Landlord: view their own listings (includes private fields) */
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(FirebaseAuthGuard, RolesGuard)
   @Roles('landlord')
   @Get('owner/my')
   myProperties(@CurrentUser() user: { id: string }) {
@@ -50,7 +50,7 @@ export class PropertiesController {
   }
 
   /** Landlord: edit a listing (triggers re-moderation) */
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(FirebaseAuthGuard, RolesGuard)
   @Roles('landlord')
   @Patch(':id')
   update(
@@ -62,7 +62,7 @@ export class PropertiesController {
   }
 
   /** Landlord: toggle availability (mark as rented/available) */
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(FirebaseAuthGuard, RolesGuard)
   @Roles('landlord')
   @Patch(':id/availability')
   toggleAvailability(
@@ -73,7 +73,7 @@ export class PropertiesController {
   }
 
   /** Landlord: delete a listing */
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(FirebaseAuthGuard, RolesGuard)
   @Roles('landlord')
   @Delete(':id')
   remove(

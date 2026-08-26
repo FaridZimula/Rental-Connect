@@ -13,11 +13,13 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
 import { ReportsModule } from './reports/reports.module';
 import { AuditModule } from './audit/audit.module';
+import { FirebaseModule } from './firebase/firebase.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
+    FirebaseModule,
     PrismaModule,
     AuthModule,
     PropertiesModule,

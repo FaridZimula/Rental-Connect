@@ -1,10 +1,16 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Mail, Phone, LockKeyhole, ShieldCheck, ArrowRight, Check } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Lock, Mail, Phone, LockKeyhole, Check } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import { useAuth } from '../contexts/AuthContext';
+import {
+  auth,
+  signInWithPhoneNumber,
+  RecaptchaVerifier,
+} from '../lib/firebase';
+import type { ConfirmationResult } from 'firebase/auth';
 
 export default function LoginPage() {
   const [authMethod, setAuthMethod] = useState<'email' | 'phone'>('email');
@@ -18,46 +24,36 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [infoMessage, setInfoMessage] = useState('');
 
-  const { login, user } = useAuth();
+  const { login, signInWithGoogle, sendPasswordReset, user } = useAuth();
   const navigate = useNavigate();
 
-  const handleGoogleLogin = () => {
-    setLoading(true);
-    // Simulate authentic Google OAuth redirect/login
-    setTimeout(() => {
-      login('demo@gmail.com', 'password123');
-      navigate('/dashboard/tenant');
-    }, 1000);
+  // Firebase phone auth references
+  const confirmationResultRef = useRef<ConfirmationResult | null>(null);
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+
+  const navigateByRole = (role?: string) => {
+    if (role === 'admin') navigate('/dashboard/admin');
+    else if (role === 'landlord') navigate('/dashboard/landlord');
+    else navigate('/dashboard/tenant');
   };
 
-  const handleSendOtp = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!phone.trim()) {
-      setError('Please enter a valid phone number.');
-      return;
-    }
+  // ── Google Login ────────────────────────────────────────────────────────
+  const handleGoogleLogin = async () => {
+    setLoading(true);
     setError('');
-    setLoading(true);
-    setTimeout(() => {
+    try {
+      await signInWithGoogle();
+      const stored = localStorage.getItem('rc_user');
+      const parsed = stored ? JSON.parse(stored) : null;
+      navigateByRole(parsed?.role);
+    } catch (err: any) {
+      setError(err.message || 'Google sign-in failed.');
+    } finally {
       setLoading(false);
-      setOtpSent(true);
-      setInfoMessage(`Verification code sent via SMS to ${phone}`);
-    }, 1200);
-  };
-
-  const handleVerifyOtp = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (otpCode.length < 4) {
-      setError('Please enter the 6-digit code sent to your phone.');
-      return;
     }
-    setLoading(true);
-    setTimeout(() => {
-      login('phone_user@rentalconnect.ug', 'password123');
-      navigate('/dashboard/tenant');
-    }, 1000);
   };
 
+  // ── Email Login ─────────────────────────────────────────────────────────
   const handleSubmitEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -68,24 +64,101 @@ export default function LoginPage() {
       const stored = localStorage.getItem('rc_user');
       const parsed = stored ? JSON.parse(stored) : null;
       const role = parsed?.role || user?.role;
-
-      if (role === 'admin') navigate('/dashboard/admin');
-      else if (role === 'landlord') navigate('/dashboard/landlord');
-      else navigate('/dashboard/tenant');
+      navigateByRole(role);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Invalid email or password.');
+      // Firebase error codes → friendly messages
+      const code = err.code;
+      if (code === 'auth/user-not-found' || code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+        setError('Invalid email or password.');
+      } else if (code === 'auth/too-many-requests') {
+        setError('Too many failed attempts. Please try again later.');
+      } else {
+        setError(err.message || 'Login failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleForgotPassword = () => {
+  // ── Phone OTP: Send Code ───────────────────────────────────────────────
+  const handleSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!phone.trim()) {
+      setError('Please enter a valid phone number.');
+      return;
+    }
+    setError('');
+    setLoading(true);
+
+    try {
+      // Set up invisible reCAPTCHA
+      const recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current!, {
+        size: 'invisible',
+      });
+
+      const result = await signInWithPhoneNumber(auth, phone.trim(), recaptchaVerifier);
+      confirmationResultRef.current = result;
+      setOtpSent(true);
+      setInfoMessage(`Verification code sent via SMS to ${phone}`);
+    } catch (err: any) {
+      if (err.code === 'auth/invalid-phone-number') {
+        setError('Invalid phone number. Use format: +256 700 000 000');
+      } else if (err.code === 'auth/too-many-requests') {
+        setError('Too many attempts. Please wait before trying again.');
+      } else {
+        setError(err.message || 'Failed to send OTP. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── Phone OTP: Verify Code ─────────────────────────────────────────────
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otpCode.length < 4) {
+      setError('Please enter the 6-digit code sent to your phone.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+
+    try {
+      if (!confirmationResultRef.current) {
+        setError('Session expired. Please request a new code.');
+        setOtpSent(false);
+        setLoading(false);
+        return;
+      }
+      await confirmationResultRef.current.confirm(otpCode);
+      // onAuthStateChanged in AuthContext will sync the user
+      const stored = localStorage.getItem('rc_user');
+      const parsed = stored ? JSON.parse(stored) : null;
+      navigateByRole(parsed?.role);
+    } catch (err: any) {
+      if (err.code === 'auth/invalid-verification-code') {
+        setError('Invalid verification code. Please check and try again.');
+      } else {
+        setError(err.message || 'Verification failed.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── Forgot Password ────────────────────────────────────────────────────
+  const handleForgotPassword = async () => {
     if (!email) {
       setError('Enter your email address above to receive a password reset link.');
       return;
     }
-    setInfoMessage(`Password reset link sent to ${email}`);
-    setError('');
+    try {
+      await sendPasswordReset(email.trim());
+      setInfoMessage(`Password reset link sent to ${email}`);
+      setError('');
+    } catch (err: any) {
+      setError(err.message || 'Failed to send reset email.');
+    }
   };
 
   return (
@@ -108,7 +181,8 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className="w-full bg-white hover:bg-zinc-50 text-zinc-700 font-bold py-3 px-4 rounded-xl border border-zinc-300 shadow-sm transition-all duration-200 flex items-center justify-center gap-3 text-xs mb-5 active:scale-98 cursor-pointer"
+            disabled={loading}
+            className="w-full bg-white hover:bg-zinc-50 text-zinc-700 font-bold py-3 px-4 rounded-xl border border-zinc-300 shadow-sm transition-all duration-200 flex items-center justify-center gap-3 text-xs mb-5 active:scale-98 cursor-pointer disabled:opacity-50"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path
@@ -289,6 +363,9 @@ export default function LoginPage() {
             </Link>
           </p>
         </motion.div>
+
+        {/* Invisible reCAPTCHA container for phone auth */}
+        <div ref={recaptchaContainerRef} id="recaptcha-container" />
       </div>
     </Layout>
   );

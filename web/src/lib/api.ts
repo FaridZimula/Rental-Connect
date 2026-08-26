@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { auth } from './firebase';
 
 export const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -7,10 +8,13 @@ export const api = axios.create({
   withCredentials: false,
 });
 
-// Attach JWT token from localStorage on every request
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('rc_token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+// Attach fresh Firebase ID token on every request
+api.interceptors.request.use(async (config) => {
+  const currentUser = auth.currentUser;
+  if (currentUser) {
+    const token = await currentUser.getIdToken();
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
 
@@ -19,7 +23,6 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
-      localStorage.removeItem('rc_token');
       localStorage.removeItem('rc_user');
       window.location.href = '/login';
     }
@@ -30,17 +33,11 @@ api.interceptors.response.use(
 // ── Auth ─────────────────────────────────────────────────────────────────────
 
 export const authApi = {
-  register: (data: {
-    full_name: string;
-    email: string;
-    password: string;
-    phone?: string;
-    role: 'tenant' | 'landlord';
-  }) => api.post('/auth/register', data).then((r) => r.data),
+  /** Sync Firebase user with Postgres backend (called after Firebase login/register) */
+  sync: (data: { full_name?: string; phone?: string; role?: string }) =>
+    api.post('/auth/sync', data).then((r) => r.data),
 
-  login: (email: string, password: string) =>
-    api.post('/auth/login', { email, password }).then((r) => r.data),
-
+  /** Get current user profile */
   me: () => api.get('/auth/me').then((r) => r.data),
 };
 

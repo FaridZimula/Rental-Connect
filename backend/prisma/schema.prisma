@@ -87,10 +87,11 @@ enum NotificationType {
 
 model User {
   id              String    @id @default(uuid())
+  firebase_uid    String?   @unique
   full_name       String
   email           String    @unique
   phone           String?
-  password_hash   String
+  password_hash   String    @default("")
   role            UserRole  @default(tenant)
   profile_image   String?
   is_verified     Boolean   @default(false)

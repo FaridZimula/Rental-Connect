@@ -1,12 +1,12 @@
 import { Controller, Get, Post, Patch, Body, Param, UseGuards } from '@nestjs/common';
 import { InquiriesService } from './inquiries.service';
 import { CreateInquiryDto, RespondInquiryDto } from './dto/inquiry.dto';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { FirebaseAuthGuard } from '../common/guards/firebase-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(FirebaseAuthGuard, RolesGuard)
 @Controller('inquiries')
 export class InquiriesController {
   constructor(private inquiriesService: InquiriesService) {}
