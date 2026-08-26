@@ -98,7 +98,7 @@ const HeroSection = () => {
 
           {/* Right Column: Hero Banner Carousel area (6Valley Style) */}
           <div className="col-span-1 lg:col-span-3 flex flex-col gap-6">
-            <div className="relative bg-gradient-to-r from-orange-500 via-[#f06023] to-[#e04f12] rounded-3xl p-6 sm:p-8 md:p-10 text-white shadow-lg overflow-hidden flex items-center aspect-[16/10] min-h-[260px]">
+            <div className="relative bg-gradient-to-r from-orange-500 via-[#f06023] to-[#e04f12] rounded-3xl p-6 sm:p-8 md:p-10 text-white shadow-lg overflow-hidden flex items-center w-full aspect-[16/9]">
               
               {/* Dynamic Abstract Shapes / Background Elements */}
               <div className="absolute right-0 bottom-0 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none -mr-20 -mb-20" />
