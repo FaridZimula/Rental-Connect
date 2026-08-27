@@ -24,7 +24,19 @@ const slides: Slide[] = [
     categoryLink: '/properties?property_type=agro_machinery',
   },
   {
-    id: 3,
+    id:3,
+    title: 'Rent, Live And Thrive - Housing & Real Estate',
+    image: '/images/flyers/FLYER ONE.png',
+    categoryLink: '/properties?property_type=apartment',
+  },
+  {
+    id: 4,
+    title: 'Speak, Play And Celebrate - Sound & PA Systems',
+    image: '/images/flyers/FLYER 4.png',
+    categoryLink: '/properties?property_type=event_equipment',
+  },
+  {
+    id: 5,
     title: 'Heal, Care And Recover - Medical & Healthcare Equipment',
     image: '/images/flyers/FLYER 6.png',
     categoryLink: '/properties?property_type=medical_equipment',
