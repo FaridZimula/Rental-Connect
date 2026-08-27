@@ -35,7 +35,7 @@ export default function HotDealsSection() {
               className="w-[280px] sm:w-full sm:max-w-[280px] shrink-0 snap-start bg-white border border-zinc-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-xl hover:border-[#f06023] transition-all duration-300 flex flex-col h-full"
             >
               {/* Media Section */}
-              <div className="relative h-40 bg-zinc-100 flex-shrink-0">
+              <div className="relative h-[200px] bg-zinc-100 flex-shrink-0">
                 <img
                   src={p.images?.[0]?.image_url}
                   alt={p.title}

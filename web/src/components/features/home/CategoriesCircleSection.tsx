@@ -11,7 +11,6 @@ export default function CategoriesCircleSection() {
     { id: 'event_equipment', label: 'Event Gear & Venues', icon: <Music className="h-7 w-7 text-white" /> },
     { id: 'agro_machinery', label: 'Agro & Land Assets', icon: <Sprout className="h-7 w-7 text-white" /> },
     { id: 'medical_equipment', label: 'Medical & Healthcare', icon: <HeartPulse className="h-7 w-7 text-white" /> },
-    { id: 'solar_power', label: 'Solar & Renewable Power', icon: <Sun className="h-7 w-7 text-white" /> },
     { id: 'fashion_attire', label: 'Formal & Cultural Wear', icon: <Shirt className="h-7 w-7 text-white" /> },
   ];
 

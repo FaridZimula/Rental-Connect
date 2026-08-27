@@ -15,10 +15,8 @@ const HeroSection = () => {
     { id: 'event_equipment', label: 'Event & Media Gear', icon: <Music className="h-4.5 w-4.5 text-[#f06023]" /> },
     { id: 'agro_machinery', label: 'Agro & Land Assets', icon: <Sprout className="h-4.5 w-4.5 text-[#f06023]" /> },
     { id: 'medical_equipment', label: 'Medical & Health Tech', icon: <HeartPulse className="h-4.5 w-4.5 text-[#f06023]" /> },
-    { id: 'solar_power', label: 'Renewable Solar Power', icon: <Sun className="h-4.5 w-4.5 text-[#f06023]" /> },
     { id: 'fashion_attire', label: 'Fashion & Formal Wear', icon: <Shirt className="h-4.5 w-4.5 text-[#f06023]" /> },
     { id: 'it_hardware', label: 'IT & Computing Tech', icon: <Laptop className="h-4.5 w-4.5 text-[#f06023]" /> },
-    { id: 'watercraft', label: 'Marine & Watercraft', icon: <Anchor className="h-4.5 w-4.5 text-[#f06023]" /> },
     { id: 'camping_sports', label: 'Camping & Sports Gear', icon: <Tent className="h-4.5 w-4.5 text-[#f06023]" /> },
   ];
 

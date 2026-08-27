@@ -30,10 +30,8 @@ const PROPERTY_TYPES = [
   { value: 'event_venue', label: 'Event Venues & Gardens' },
   { value: 'agro_machinery', label: 'Farm Machinery & Agro Assets' },
   { value: 'medical_equipment', label: 'Medical & Healthcare Equipment' },
-  { value: 'solar_power', label: 'Solar & Renewable Energy' },
   { value: 'fashion_attire', label: 'Formal Wear & Cultural Attire' },
   { value: 'it_hardware', label: 'IT, Laptops & Office Tech' },
-  { value: 'watercraft', label: 'Marine & Speedboats' },
   { value: 'camping_sports', label: 'Camping, Sports & Fitness Gear' },
 ];
 
