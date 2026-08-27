@@ -31,12 +31,6 @@ const slides: Slide[] = [
   },
   {
     id: 4,
-    title: 'Speak, Play And Celebrate - Sound & PA Systems',
-    image: '/images/flyers/FLYER 4.png',
-    categoryLink: '/properties?property_type=event_equipment',
-  },
-  {
-    id: 5,
     title: 'Heal, Care And Recover - Medical & Healthcare Equipment',
     image: '/images/flyers/FLYER 6.png',
     categoryLink: '/properties?property_type=medical_equipment',
