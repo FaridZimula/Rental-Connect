@@ -36,12 +36,6 @@ const slides: Slide[] = [
     categoryLink: '/properties?property_type=event_equipment',
   },
   {
-    id: 5,
-    title: 'Speak, Play And Celebrate - Stage & Event Gear',
-    image: '/images/flyers/FLYER 5.png',
-    categoryLink: '/properties?property_type=event_equipment',
-  },
-  {
     id: 6,
     title: 'Heal, Care And Recover - Medical & Healthcare Equipment',
     image: '/images/flyers/FLYER 6.png',
