@@ -1,59 +1,58 @@
 import { useState, useEffect } from 'react';
-import { Search, ArrowRight, ShieldCheck, Building2, Car, HardHat, Music, Sprout, HeartPulse, Shirt, Laptop, Tent, ChevronRight, CheckCircle, ChevronLeft } from 'lucide-react';
+import { Search, ShieldCheck, Building2, Car, HardHat, Music, Sprout, HeartPulse, Shirt, Laptop, Tent, ChevronRight, CheckCircle, ChevronLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
 interface Slide {
   id: number;
   title: string;
-  subtitle: string;
-  tagline: string;
   image: string;
-  ctaText: string;
+  fallbackImage: string;
   categoryLink: string;
-  bgGradient: string;
 }
 
 const slides: Slide[] = [
   {
     id: 1,
-    tagline: 'Verified Rental Assets',
-    title: 'Smart Rentals, Smart Savings!',
-    subtitle: 'Get instant access to verified heavy machinery, wedding cars, event gear, and quality housing across Uganda.',
-    image: 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1920',
-    ctaText: 'Browse All Listings',
+    title: 'Rental Connect - Main Asset Marketplace',
+    image: '/images/flyers/FLYER ONE.png',
+    fallbackImage: 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1920',
     categoryLink: '/properties',
-    bgGradient: 'from-orange-600/90 via-[#f06023]/80 to-transparent',
   },
   {
     id: 2,
-    tagline: 'Heavy Earthmoving & Construction',
-    title: 'Excavators, Generators & Road Machinery',
-    subtitle: 'Rent CAT excavators, Perkins silent generators, backhoe loaders, and tower cranes with certified operators.',
-    image: 'https://images.pexels.com/photos/1078884/pexels-photo-1078884.jpeg?auto=compress&cs=tinysrgb&w=1920',
-    ctaText: 'Explore Machinery',
-    categoryLink: '/properties?property_type=machinery',
-    bgGradient: 'from-zinc-950/90 via-zinc-900/70 to-transparent',
+    title: 'Real Estate & Housing Fleet',
+    image: '/images/flyers/FLYER 2.png',
+    fallbackImage: 'https://images.pexels.com/photos/1918291/pexels-photo-1918291.jpeg?auto=compress&cs=tinysrgb&w=1920',
+    categoryLink: '/properties?property_type=apartment',
   },
   {
     id: 3,
-    tagline: 'Logistics & Safari Transport',
-    title: 'Prado 4x4, Safari Vans & Cargo Fleet',
-    subtitle: 'Hire self-drive or chauffered Land Cruiser Prados, 30-seater Coaster buses, and 5-ton Fuso cargo trucks.',
-    image: 'https://images.pexels.com/photos/9735300/pexels-photo-9735300.jpeg?auto=compress&cs=tinysrgb&w=1920',
-    ctaText: 'Hire Vehicles',
+    title: 'Vehicles & Safari Transport Fleet',
+    image: '/images/flyers/FLYER 3.png',
+    fallbackImage: 'https://images.pexels.com/photos/9735300/pexels-photo-9735300.jpeg?auto=compress&cs=tinysrgb&w=1920',
     categoryLink: '/properties?property_type=vehicle',
-    bgGradient: 'from-amber-950/90 via-orange-950/70 to-transparent',
   },
   {
     id: 4,
-    tagline: 'Event & Production Systems',
-    title: '10,000W Sound PA & Marquee Tents',
-    subtitle: 'Concert line array PA systems, P3.9 outdoor LED screen video walls, lakeside wedding gardens, and RED 8K cameras.',
-    image: 'https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&w=1920',
-    ctaText: 'Discover Event Gear',
+    title: 'Heavy Machinery & Earthmoving Equipment',
+    image: '/images/flyers/FLYER 4.png',
+    fallbackImage: 'https://images.pexels.com/photos/1078884/pexels-photo-1078884.jpeg?auto=compress&cs=tinysrgb&w=1920',
+    categoryLink: '/properties?property_type=machinery',
+  },
+  {
+    id: 5,
+    title: 'Event & Production Systems',
+    image: '/images/flyers/FLYER 5.png',
+    fallbackImage: 'https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&w=1920',
     categoryLink: '/properties?property_type=event_equipment',
-    bgGradient: 'from-purple-950/90 via-orange-950/70 to-transparent',
+  },
+  {
+    id: 6,
+    title: 'Agricultural Machinery & Farmland',
+    image: '/images/flyers/FLYER 6.png',
+    fallbackImage: 'https://images.pexels.com/photos/440731/pexels-photo-440731.jpeg?auto=compress&cs=tinysrgb&w=1920',
+    categoryLink: '/properties?property_type=agro_machinery',
   },
 ];
 
@@ -61,6 +60,7 @@ const HeroSection = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedZone, setSelectedZone] = useState('');
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [imgErrors, setImgErrors] = useState<Record<number, boolean>>({});
   const navigate = useNavigate();
 
   // Auto-play timer for slideshow (changes every 5 seconds)
@@ -162,9 +162,10 @@ const HeroSection = () => {
             </div>
           </div>
 
-          {/* Right Column: Hero Banner Slideshow Area (Strict 16:9 Aspect Ratio) */}
+          {/* Right Column: Hero Graphic Flyer Slideshow (Strict 16:9 Aspect Ratio) */}
           <div className="col-span-1 lg:col-span-3 flex flex-col gap-6">
-            <div className="relative w-full aspect-[16/9] rounded-3xl overflow-hidden shadow-xl bg-zinc-950 border border-zinc-200 group">
+            <div className="relative w-full aspect-[16/9] rounded-3xl overflow-hidden shadow-xl bg-zinc-950 border border-zinc-200 group cursor-pointer"
+                 onClick={() => navigate(slide.categoryLink)}>
               
               <AnimatePresence mode="wait">
                 <motion.div
@@ -175,89 +176,51 @@ const HeroSection = () => {
                   transition={{ duration: 0.6 }}
                   className="relative w-full h-full"
                 >
-                  {/* Slide Background Image (Maintains 16:9 Aspect Ratio perfectly) */}
+                  {/* Clean Full-Bleed Graphic Flyer Display */}
                   <img
-                    src={slide.image}
+                    src={imgErrors[slide.id] ? slide.fallbackImage : slide.image}
                     alt={slide.title}
+                    onError={() => setImgErrors((prev) => ({ ...prev, [slide.id]: true }))}
                     className="w-full h-full object-cover object-center"
                   />
-
-                  {/* Gradient Overlay for Text Clarity */}
-                  <div className={`absolute inset-0 bg-gradient-to-r ${slide.bgGradient}`} />
-
-                  {/* Slide Content Overlay */}
-                  <div className="absolute inset-0 p-4 sm:p-8 md:p-12 flex flex-col justify-center text-white z-10 max-w-xl">
-                    <motion.div
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4 }}
-                    >
-                      <span className="bg-white/20 backdrop-blur-md text-white px-2.5 sm:px-3.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-xs font-bold uppercase tracking-wider border border-white/20">
-                        {slide.tagline}
-                      </span>
-                    </motion.div>
-
-                    <motion.h2
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.1 }}
-                      className="text-base sm:text-2xl md:text-3xl lg:text-4xl font-display font-extrabold text-white leading-tight mt-2 sm:mt-3 drop-shadow-md"
-                    >
-                      {slide.title}
-                    </motion.h2>
-
-                    <motion.p
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.2 }}
-                      className="hidden sm:block text-xs sm:text-sm text-zinc-100 font-medium mt-2 leading-relaxed drop-shadow"
-                    >
-                      {slide.subtitle}
-                    </motion.p>
-
-                    <motion.div
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.3 }}
-                      className="mt-3 sm:mt-5"
-                    >
-                      <button
-                        onClick={() => navigate(slide.categoryLink)}
-                        className="bg-[#f06023] hover:bg-[#d94b12] text-white font-bold px-3 sm:px-6 py-2 sm:py-3 rounded-xl transition-all shadow-lg flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-sm hover:scale-105 active:scale-95 cursor-pointer"
-                      >
-                        {slide.ctaText} <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                      </button>
-                    </motion.div>
-                  </div>
                 </motion.div>
               </AnimatePresence>
 
               {/* Left Arrow Control */}
               <button
-                onClick={prevSlide}
-                className="absolute left-3 top-1/2 -translate-y-1/2 z-20 bg-black/40 hover:bg-[#f06023] text-white p-2 rounded-full backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
-                title="Previous Slide"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  prevSlide();
+                }}
+                className="absolute left-3 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-[#f06023] text-white p-2 rounded-full backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-lg"
+                title="Previous Flyer"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
 
               {/* Right Arrow Control */}
               <button
-                onClick={nextSlide}
-                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 bg-black/40 hover:bg-[#f06023] text-white p-2 rounded-full backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
-                title="Next Slide"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  nextSlide();
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-[#f06023] text-white p-2 rounded-full backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-lg"
+                title="Next Flyer"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
 
-              {/* Pagination Dots */}
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-2 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+              {/* Navigation Dots */}
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20">
                 {slides.map((_, idx) => (
                   <button
                     key={idx}
-                    onClick={() => setCurrentSlide(idx)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCurrentSlide(idx);
+                    }}
                     className={`h-2 rounded-full transition-all duration-300 ${
-                      idx === currentSlide ? 'w-6 bg-[#f06023]' : 'w-2 bg-white/50 hover:bg-white'
+                      idx === currentSlide ? 'w-6 bg-[#f06023]' : 'w-2 bg-white/60 hover:bg-white'
                     }`}
                   />
                 ))}
