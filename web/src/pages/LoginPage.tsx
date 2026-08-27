@@ -30,6 +30,27 @@ export default function LoginPage() {
   // Firebase phone auth references
   const confirmationResultRef = useRef<ConfirmationResult | null>(null);
   const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
+
+  const getOrCreateRecaptchaVerifier = () => {
+    if (recaptchaVerifierRef.current) {
+      try {
+        recaptchaVerifierRef.current.clear();
+      } catch (e) {
+        // ignore if already cleared
+      }
+      recaptchaVerifierRef.current = null;
+    }
+    if (recaptchaContainerRef.current) {
+      recaptchaContainerRef.current.innerHTML = '';
+    }
+    const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current!, {
+      size: 'invisible',
+      callback: () => {},
+    });
+    recaptchaVerifierRef.current = verifier;
+    return verifier;
+  };
 
   const navigateByRole = (role?: string) => {
     if (role === 'admin') navigate('/dashboard/admin');
@@ -91,16 +112,21 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // Set up invisible reCAPTCHA
-      const recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current!, {
-        size: 'invisible',
-      });
-
+      const recaptchaVerifier = getOrCreateRecaptchaVerifier();
       const result = await signInWithPhoneNumber(auth, phone.trim(), recaptchaVerifier);
       confirmationResultRef.current = result;
       setOtpSent(true);
       setInfoMessage(`Verification code sent via SMS to ${phone}`);
     } catch (err: any) {
+      if (recaptchaVerifierRef.current) {
+        try {
+          recaptchaVerifierRef.current.clear();
+        } catch (e) {}
+        recaptchaVerifierRef.current = null;
+      }
+      if (recaptchaContainerRef.current) {
+        recaptchaContainerRef.current.innerHTML = '';
+      }
       if (err.code === 'auth/invalid-phone-number') {
         setError('Invalid phone number. Use format: +256 700 000 000');
       } else if (err.code === 'auth/too-many-requests') {
