@@ -7,45 +7,45 @@ interface Slide {
   id: number;
   title: string;
   image: string;
-  fallbackImage: string;
   categoryLink: string;
 }
 
 const slides: Slide[] = [
   {
     id: 1,
-    title: 'Rental Connect - Main Asset Marketplace',
+    title: 'Rent, Live And Thrive - Housing & Real Estate',
     image: '/images/flyers/FLYER ONE.png',
-    fallbackImage: 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1920',
-    categoryLink: '/properties',
-  },
-  {
-    id: 2,
-    title: 'Real Estate & Housing Fleet',
-    image: '/images/flyers/FLYER 2.png',
-    fallbackImage: 'https://images.pexels.com/photos/1918291/pexels-photo-1918291.jpeg?auto=compress&cs=tinysrgb&w=1920',
     categoryLink: '/properties?property_type=apartment',
   },
   {
-    id: 3,
-    title: 'Vehicles & Safari Transport Fleet',
-    image: '/images/flyers/FLYER 3.png',
-    fallbackImage: 'https://images.pexels.com/photos/9735300/pexels-photo-9735300.jpeg?auto=compress&cs=tinysrgb&w=1920',
+    id: 2,
+    title: 'Rent, Drive And Explore - Vehicles & Transport',
+    image: '/images/flyers/FLYER 2.png',
     categoryLink: '/properties?property_type=vehicle',
   },
   {
+    id: 3,
+    title: 'Till, Plant And Harvest - Agro & Farm Machinery',
+    image: '/images/flyers/FLYER 3.png',
+    categoryLink: '/properties?property_type=agro_machinery',
+  },
+  {
     id: 4,
-    title: 'Heavy Machinery & Earthmoving Equipment',
+    title: 'Speak, Play And Celebrate - Sound & PA Systems',
     image: '/images/flyers/FLYER 4.png',
-    fallbackImage: 'https://images.pexels.com/photos/1078884/pexels-photo-1078884.jpeg?auto=compress&cs=tinysrgb&w=1920',
-    categoryLink: '/properties?property_type=machinery',
+    categoryLink: '/properties?property_type=event_equipment',
   },
   {
     id: 5,
-    title: 'Event & Production Systems',
+    title: 'Speak, Play And Celebrate - Stage & Event Gear',
     image: '/images/flyers/FLYER 5.png',
-    fallbackImage: 'https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&w=1920',
     categoryLink: '/properties?property_type=event_equipment',
+  },
+  {
+    id: 6,
+    title: 'Heal, Care And Recover - Medical & Healthcare Equipment',
+    image: '/images/flyers/FLYER 6.png',
+    categoryLink: '/properties?property_type=medical_equipment',
   },
 ];
 
@@ -53,7 +53,6 @@ const HeroSection = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedZone, setSelectedZone] = useState('');
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [imgErrors, setImgErrors] = useState<Record<number, boolean>>({});
   const navigate = useNavigate();
 
   // Auto-play timer for slideshow (changes every 5 seconds)
@@ -171,9 +170,8 @@ const HeroSection = () => {
                 >
                   {/* Clean Full-Bleed Graphic Flyer Display */}
                   <img
-                    src={imgErrors[slide.id] ? slide.fallbackImage : slide.image}
+                    src={slide.image}
                     alt={slide.title}
-                    onError={() => setImgErrors((prev) => ({ ...prev, [slide.id]: true }))}
                     className="w-full h-full object-cover object-center"
                   />
                 </motion.div>
