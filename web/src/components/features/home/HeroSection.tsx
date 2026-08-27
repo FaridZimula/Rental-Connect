@@ -47,13 +47,6 @@ const slides: Slide[] = [
     fallbackImage: 'https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&w=1920',
     categoryLink: '/properties?property_type=event_equipment',
   },
-  {
-    id: 6,
-    title: 'Agricultural Machinery & Farmland',
-    image: '/images/flyers/FLYER 6.png',
-    fallbackImage: 'https://images.pexels.com/photos/440731/pexels-photo-440731.jpeg?auto=compress&cs=tinysrgb&w=1920',
-    categoryLink: '/properties?property_type=agro_machinery',
-  },
 ];
 
 const HeroSection = () => {
