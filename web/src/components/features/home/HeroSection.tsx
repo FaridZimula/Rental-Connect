@@ -36,7 +36,7 @@ const slides: Slide[] = [
     categoryLink: '/properties?property_type=event_equipment',
   },
   {
-    id: 6,
+    id: 5,
     title: 'Heal, Care And Recover - Medical & Healthcare Equipment',
     image: '/images/flyers/FLYER 6.png',
     categoryLink: '/properties?property_type=medical_equipment',
