@@ -38,7 +38,7 @@ export default function PropertyCard({ property }: { property: PropertySummary }
   return (
     <div className="w-full max-w-[280px] mx-auto bg-white border border-zinc-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-xl hover:border-[#f06023] transition-all duration-300 flex flex-col h-full">
       {/* Media Section */}
-      <div className="relative h-40 bg-zinc-100 flex-shrink-0">
+      <div className="relative h-[200px] bg-zinc-100 flex-shrink-0">
         {primaryImage ? (
           <img
             src={primaryImage.image_url}
