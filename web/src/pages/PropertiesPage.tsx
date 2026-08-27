@@ -25,7 +25,7 @@ interface Meta {
 }
 
 /**
- * Filter mock data suitably according to category cluster and active filters.
+ * Filter items strictly by category cluster and active search/filter criteria.
  */
 function filterMockProperties(items: PropertySummary[], f: FilterState): PropertySummary[] {
   return items.filter((item) => {
@@ -34,15 +34,15 @@ function filterMockProperties(items: PropertySummary[], f: FilterState): Propert
       const target = f.property_type.toLowerCase();
       const itemType = (item.property_type || '').toLowerCase();
 
-      if (target === 'apartment' || target === 'housing') {
+      if (target === 'apartment' || target === 'housing' || target === 'house' || target === 'studio' || target === 'hostel' || target === 'commercial') {
         if (!['apartment', 'house', 'studio', 'hostel', 'commercial'].includes(itemType)) return false;
       } else if (target === 'vehicle' || target === 'transport') {
         if (itemType !== 'vehicle') return false;
       } else if (target === 'machinery' || target === 'construction') {
         if (itemType !== 'machinery') return false;
-      } else if (target === 'event_equipment' || target === 'events') {
+      } else if (target === 'event_equipment' || target === 'events' || target === 'event_venue') {
         if (!['event_equipment', 'event_venue'].includes(itemType)) return false;
-      } else if (target === 'agro_machinery' || target === 'agriculture') {
+      } else if (target === 'agro_machinery' || target === 'agriculture' || target === 'land') {
         if (!['agro_machinery', 'land'].includes(itemType)) return false;
       } else if (target === 'medical_equipment' || target === 'medical') {
         if (itemType !== 'medical_equipment') return false;
@@ -141,21 +141,29 @@ export default function PropertiesPage() {
       if (f.bedrooms) params.bedrooms = f.bedrooms;
       if (f.zone) params.zone = f.zone;
 
-      const result = await propertiesApi.list(params);
-      if (result.data && result.data.length > 0) {
-        setProperties(result.data);
-        setMeta(result.meta ?? { total: result.data.length, page: 1, limit: 20, pages: 1 });
-      } else {
-        // Fallback to filtered mock data
-        const filteredMock = filterMockProperties(mockProperties, f);
-        setProperties(filteredMock);
-        setMeta({ total: filteredMock.length, page: 1, limit: 20, pages: 1 });
+      let apiData: PropertySummary[] = [];
+      try {
+        const result = await propertiesApi.list(params);
+        if (result.data) apiData = result.data;
+      } catch {
+        apiData = [];
       }
-    } catch {
-      // Fallback to filtered mock data on backend error / offline
-      const filteredMock = filterMockProperties(mockProperties, f);
-      setProperties(filteredMock);
-      setMeta({ total: filteredMock.length, page: 1, limit: 20, pages: 1 });
+
+      // Combine API items and mock items, deduplicating by ID
+      const combined = [...apiData, ...mockProperties].filter(
+        (item, index, self) => index === self.findIndex((t) => t.id === item.id),
+      );
+
+      // ALWAYS strictly filter the items by category and filters
+      const filtered = filterMockProperties(combined, f);
+
+      setProperties(filtered);
+      setMeta({
+        total: filtered.length,
+        page: p,
+        limit: 18,
+        pages: Math.ceil(filtered.length / 18) || 1,
+      });
     } finally {
       setLoading(false);
     }
@@ -189,6 +197,29 @@ export default function PropertiesPage() {
     setSearchParams({}, { replace: true });
   };
 
+  const getCategoryLabel = (type: string) => {
+    const map: Record<string, string> = {
+      apartment: 'Housing & Real Estate',
+      house: 'Residential Houses',
+      studio: 'Studio Units',
+      hostel: 'Hostel Rooms',
+      commercial: 'Commercial & Warehouses',
+      land: 'Land & Plots',
+      vehicle: 'Vehicles & Transport',
+      machinery: 'Heavy Machinery & Construction Tools',
+      event_equipment: 'Event & Media Equipment',
+      event_venue: 'Event Venues & Gardens',
+      agro_machinery: 'Agro Machinery & Land Assets',
+      medical_equipment: 'Medical & Healthcare Tech',
+      solar_power: 'Renewable Solar Power',
+      fashion_attire: 'Formal Wear & Cultural Attire',
+      it_hardware: 'IT & Computing Tech',
+      watercraft: 'Marine & Speedboats',
+      camping_sports: 'Camping & Sports Gear',
+    };
+    return map[type] || type.replace('_', ' ');
+  };
+
   return (
     <Layout>
       <div className="bg-white min-h-screen text-zinc-900 pt-24 pb-16">
@@ -199,8 +230,8 @@ export default function PropertiesPage() {
             </h1>
             <p className="text-zinc-500 text-sm">
               {filters.property_type ? (
-                <span className="font-medium text-[#f06023] capitalize">
-                  Showing Category: {filters.property_type.replace('_', ' ')} ({meta.total} listings)
+                <span className="font-semibold text-[#f06023]">
+                  Category: {getCategoryLabel(filters.property_type)} ({meta.total} listings found)
                 </span>
               ) : (
                 `${meta.total} verified assets listed across Uganda`
