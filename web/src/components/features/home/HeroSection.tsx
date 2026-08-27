@@ -13,24 +13,18 @@ interface Slide {
 const slides: Slide[] = [
   {
     id: 1,
-    title: 'Rent, Live And Thrive - Housing & Real Estate',
-    image: '/images/flyers/FLYER ONE.png',
-    categoryLink: '/properties?property_type=apartment',
-  },
-  {
-    id: 2,
     title: 'Rent, Drive And Explore - Vehicles & Transport',
     image: '/images/flyers/FLYER 2.png',
     categoryLink: '/properties?property_type=vehicle',
   },
   {
-    id: 3,
+    id: 2,
     title: 'Till, Plant And Harvest - Agro & Farm Machinery',
     image: '/images/flyers/FLYER 3.png',
     categoryLink: '/properties?property_type=agro_machinery',
   },
   {
-    id: 4,
+    id: 3,
     title: 'Heal, Care And Recover - Medical & Healthcare Equipment',
     image: '/images/flyers/FLYER 6.png',
     categoryLink: '/properties?property_type=medical_equipment',
