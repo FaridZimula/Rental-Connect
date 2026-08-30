@@ -87,6 +87,29 @@ export class AuthService {
   }
 
   /**
+   * Update user profile (name, phone).
+   */
+  async updateProfile(userId: string, data: { full_name?: string; phone?: string }) {
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(data.full_name && { full_name: data.full_name }),
+        ...(data.phone !== undefined && { phone: data.phone }),
+      },
+      select: {
+        id: true,
+        full_name: true,
+        email: true,
+        phone: true,
+        role: true,
+        profile_image: true,
+        is_verified: true,
+      },
+    });
+    return { user: updated };
+  }
+
+  /**
    * Verify a raw Firebase ID token and sync the user.
    * Used by the /auth/sync endpoint before the guard is applied.
    */

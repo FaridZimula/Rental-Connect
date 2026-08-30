@@ -171,6 +171,17 @@ export default function AdminDashboardPage() {
             >
               <Activity className="h-4 w-4" /> Audit Logs ({auditLogs.length})
             </button>
+
+            <button
+              onClick={() => setActiveTab('analytics')}
+              className={`pb-3 px-4 text-sm font-semibold transition-all border-b-2 flex items-center gap-2 whitespace-nowrap ${
+                activeTab === 'analytics'
+                  ? 'border-[#f06023] text-[#f06023]'
+                  : 'border-transparent text-zinc-500 hover:text-zinc-800'
+              }`}
+            >
+              <BarChart3 className="h-4 w-4" /> System Analytics
+            </button>
           </div>
 
           {/* Tab Content */}
@@ -361,6 +372,76 @@ export default function AdminDashboardPage() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              )}
+
+              {/* Analytics Overview */}
+              {activeTab === 'analytics' && (
+                <div className="space-y-6">
+                  <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm">
+                    <h3 className="text-lg font-bold text-zinc-900 mb-4 flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-[#f06023]" /> Platform Performance & Operations Summary
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4">
+                        <h4 className="text-xs font-bold text-zinc-500 uppercase mb-2">Property Listings</h4>
+                        <div className="space-y-2 text-xs font-medium">
+                          <div className="flex justify-between">
+                            <span className="text-zinc-600">Total Listings:</span>
+                            <span className="font-bold text-zinc-900">{analytics?.properties?.total ?? 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-emerald-600">Published / Active:</span>
+                            <span className="font-bold text-emerald-700">{analytics?.properties?.published ?? 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-amber-600">Pending Review:</span>
+                            <span className="font-bold text-amber-700">{analytics?.properties?.pending ?? 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-red-600">Rejected / Suspended:</span>
+                            <span className="font-bold text-red-700">{analytics?.properties?.rejected ?? 0}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4">
+                        <h4 className="text-xs font-bold text-zinc-500 uppercase mb-2">User Distribution</h4>
+                        <div className="space-y-2 text-xs font-medium">
+                          <div className="flex justify-between">
+                            <span className="text-zinc-600">Total Users:</span>
+                            <span className="font-bold text-zinc-900">{analytics?.users?.total ?? 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-blue-600">Tenants / Customers:</span>
+                            <span className="font-bold text-blue-700">{analytics?.users?.tenants ?? 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-purple-600">Landlords / Brokers:</span>
+                            <span className="font-bold text-purple-700">{analytics?.users?.landlords ?? 0}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4">
+                        <h4 className="text-xs font-bold text-zinc-500 uppercase mb-2">Inquiries & Reports</h4>
+                        <div className="space-y-2 text-xs font-medium">
+                          <div className="flex justify-between">
+                            <span className="text-zinc-600">Total Inquiries:</span>
+                            <span className="font-bold text-zinc-900">{analytics?.inquiries?.total ?? 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-red-600">Flagged Reports:</span>
+                            <span className="font-bold text-red-700">{analytics?.reports?.pending ?? 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-zinc-500">Audit Actions Tracked:</span>
+                            <span className="font-bold text-zinc-700">{auditLogs.length}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </>

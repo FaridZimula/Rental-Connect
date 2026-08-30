@@ -1,23 +1,37 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Building2, Plus, MessageSquare, CheckCircle2, Clock, Trash2, Eye, EyeOff, X } from 'lucide-react';
+import { Building2, Plus, MessageSquare, CheckCircle2, Clock, Trash2, Eye, EyeOff, X, Edit2, User, Phone } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import { useAuth } from '../contexts/AuthContext';
-import { propertiesApi, inquiriesApi } from '../lib/api';
+import { propertiesApi, inquiriesApi, authApi } from '../lib/api';
 import { Property, Inquiry } from '../types';
 import { mockProperties } from '../data/mockData';
 
+const AVAILABLE_AMENITIES = [
+  'Water Supply',
+  'Electricity (Umeme)',
+  'Security Guard',
+  'Parking Space',
+  'WiFi Internet',
+  'Furnished',
+  'CCTV Surveillance',
+  'Backup Generator',
+  'Paved Compound',
+  'Garbage Collection',
+];
+
 export default function LandlordDashboardPage() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'listings' | 'inquiries'>('listings');
+  const [activeTab, setActiveTab] = useState<'listings' | 'inquiries' | 'profile'>('listings');
 
   const [properties, setProperties] = useState<Property[]>([]);
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // New Property Form State
+  // Property Form State (Create / Edit)
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingPropertyId, setEditingPropertyId] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [propertyType, setPropertyType] = useState('apartment');
@@ -27,7 +41,35 @@ export default function LandlordDashboardPage() {
   const [realAddress, setRealAddress] = useState('');
   const [bedrooms, setBedrooms] = useState('1');
   const [bathrooms, setBathrooms] = useState('1');
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+
+  // Profile Form State
+  const [fullName, setFullName] = useState(user?.full_name || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileMsg, setProfileMsg] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      setFullName(user.full_name || '');
+      setPhone(user.phone || '');
+    }
+  }, [user]);
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingProfile(true);
+    setProfileMsg('');
+    try {
+      await authApi.updateProfile({ full_name: fullName, phone });
+      setProfileMsg('Profile updated successfully!');
+    } catch {
+      setProfileMsg('Failed to update profile.');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
 
   // Response Form State
   const [replyingInquiry, setReplyingInquiry] = useState<Inquiry | null>(null);
@@ -54,11 +96,41 @@ export default function LandlordDashboardPage() {
     fetchData();
   }, []);
 
-  const handleCreateProperty = async (e: React.FormEvent) => {
+  const openCreateModal = () => {
+    setEditingPropertyId(null);
+    setTitle('');
+    setDescription('');
+    setPropertyType('apartment');
+    setListingType('rent');
+    setPrice('');
+    setDisplayZone('');
+    setRealAddress('');
+    setBedrooms('1');
+    setBathrooms('1');
+    setSelectedAmenities([]);
+    setShowAddModal(true);
+  };
+
+  const openEditModal = (p: Property) => {
+    setEditingPropertyId(p.id);
+    setTitle(p.title);
+    setDescription(p.description);
+    setPropertyType(p.property_type);
+    setListingType(p.listing_type);
+    setPrice(String(p.price));
+    setDisplayZone(p.display_zone);
+    setRealAddress(p.real_address || p.display_zone);
+    setBedrooms(String(p.bedrooms));
+    setBathrooms(String(p.bathrooms));
+    setSelectedAmenities(p.amenities?.map((a) => a.amenity.name) || []);
+    setShowAddModal(true);
+  };
+
+  const handleSaveProperty = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await propertiesApi.create({
+      const payload = {
         title,
         description,
         property_type: propertyType,
@@ -68,13 +140,20 @@ export default function LandlordDashboardPage() {
         real_address: realAddress || displayZone,
         bedrooms: Number(bedrooms),
         bathrooms: Number(bathrooms),
+        amenities: selectedAmenities,
         real_lat: 0.3476,
         real_lng: 32.5825,
-      });
+      };
+
+      if (editingPropertyId) {
+        await propertiesApi.update(editingPropertyId, payload);
+      } else {
+        await propertiesApi.create(payload);
+      }
       setShowAddModal(false);
       fetchData();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to create listing.');
+      alert(err.response?.data?.message || 'Failed to save listing.');
     } finally {
       setSubmitting(false);
     }
@@ -131,7 +210,7 @@ export default function LandlordDashboardPage() {
               variant="primary"
               icon={<Plus className="h-4 w-4" />}
               iconPosition="left"
-              onClick={() => setShowAddModal(true)}
+              onClick={openCreateModal}
             >
               Post New Property
             </Button>
@@ -160,6 +239,17 @@ export default function LandlordDashboardPage() {
             >
               <MessageSquare className="h-4 w-4" /> Tenant Inquiries ({inquiries.length})
             </button>
+
+            <button
+              onClick={() => setActiveTab('profile')}
+              className={`pb-3 px-4 text-sm font-semibold transition-all border-b-2 flex items-center gap-2 ${
+                activeTab === 'profile'
+                  ? 'border-[#f06023] text-[#f06023]'
+                  : 'border-transparent text-zinc-500 hover:text-zinc-800'
+              }`}
+            >
+              <User className="h-4 w-4" /> Profile Settings
+            </button>
           </div>
 
           {/* Content */}
@@ -174,7 +264,7 @@ export default function LandlordDashboardPage() {
                   <Building2 className="h-12 w-12 text-zinc-300 mx-auto mb-3" />
                   <h3 className="text-lg font-bold text-zinc-700">No Listings Created</h3>
                   <p className="text-zinc-500 text-xs mt-1 mb-4">Post your first property listing to reach verified tenants.</p>
-                  <Button variant="primary" onClick={() => setShowAddModal(true)}>Post Property</Button>
+                  <Button variant="primary" onClick={openCreateModal}>Post Property</Button>
                 </div>
               ) : (
                 properties.map((p) => (
@@ -211,6 +301,14 @@ export default function LandlordDashboardPage() {
 
                     <div className="flex items-center gap-2 w-full md:w-auto justify-end">
                       <button
+                        onClick={() => openEditModal(p)}
+                        className="px-3 py-1.5 rounded-xl border border-zinc-300 text-xs font-semibold hover:bg-zinc-50 flex items-center gap-1 text-zinc-700"
+                        title="Edit Property Listing"
+                      >
+                        <Edit2 className="h-3.5 w-3.5 text-[#f06023]" /> Edit
+                      </button>
+
+                      <button
                         onClick={() => handleToggleAvailability(p.id)}
                         className="px-3 py-1.5 rounded-xl border border-zinc-300 text-xs font-semibold hover:bg-zinc-50 flex items-center gap-1"
                       >
@@ -230,7 +328,7 @@ export default function LandlordDashboardPage() {
                 ))
               )}
             </div>
-          ) : (
+          ) : activeTab === 'inquiries' ? (
             <div className="space-y-4">
               {inquiries.length === 0 ? (
                 <div className="bg-white rounded-2xl p-12 text-center border border-zinc-200">
@@ -273,6 +371,59 @@ export default function LandlordDashboardPage() {
                 ))
               )}
             </div>
+          ) : (
+            /* Profile Tab */
+            <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm max-w-xl">
+              <h3 className="text-lg font-bold text-zinc-900 mb-4 flex items-center gap-2">
+                <User className="h-5 w-5 text-[#f06023]" /> Edit Landlord / Broker Profile
+              </h3>
+
+              {profileMsg && (
+                <div className={`p-3 rounded-xl text-xs font-semibold mb-4 ${
+                  profileMsg.includes('successfully') ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-600 border border-red-200'
+                }`}>
+                  {profileMsg}
+                </div>
+              )}
+
+              <form onSubmit={handleUpdateProfile} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-700 mb-1">Full Name / Agency Name</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-700 mb-1">Email Address (Read-only)</label>
+                  <input
+                    type="email"
+                    disabled
+                    className="w-full p-3 border border-zinc-200 bg-zinc-100 text-zinc-500 rounded-xl text-sm cursor-not-allowed"
+                    value={user?.email || ''}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-700 mb-1">Phone Number</label>
+                  <input
+                    type="tel"
+                    className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                    placeholder="0700 000 000 or +256..."
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                </div>
+
+                <Button variant="primary" type="submit" disabled={savingProfile}>
+                  {savingProfile ? 'Saving Changes...' : 'Save Profile Updates'}
+                </Button>
+              </form>
+            </div>
           )}
         </div>
       </div>
@@ -285,8 +436,10 @@ export default function LandlordDashboardPage() {
               <X className="h-5 w-5" />
             </button>
 
-            <h3 className="text-xl font-bold text-zinc-900 mb-4">Post New Rental Listing</h3>
-            <form onSubmit={handleCreateProperty} className="space-y-4">
+            <h3 className="text-xl font-bold text-zinc-900 mb-4">
+              {editingPropertyId ? 'Edit Rental Listing' : 'Post New Rental Listing'}
+            </h3>
+            <form onSubmit={handleSaveProperty} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-zinc-700 mb-1">Property Title</label>
                 <input
@@ -399,8 +552,39 @@ export default function LandlordDashboardPage() {
                 />
               </div>
 
+              {/* Amenities Selection */}
+              <div>
+                <label className="block text-xs font-semibold text-zinc-700 mb-2">Amenities & Property Features</label>
+                <div className="grid grid-cols-2 gap-2 max-h-36 overflow-y-auto p-2 border border-zinc-200 rounded-xl bg-zinc-50">
+                  {AVAILABLE_AMENITIES.map((item) => {
+                    const isChecked = selectedAmenities.includes(item);
+                    return (
+                      <label key={item} className="flex items-center gap-2 text-xs text-zinc-700 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedAmenities([...selectedAmenities, item]);
+                            } else {
+                              setSelectedAmenities(selectedAmenities.filter((a) => a !== item));
+                            }
+                          }}
+                          className="rounded text-[#f06023] focus:ring-[#f06023]"
+                        />
+                        <span>{item}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
               <Button variant="primary" fullWidth type="submit" disabled={submitting}>
-                {submitting ? 'Submitting for Admin Verification...' : 'Submit Property for Verification'}
+                {submitting
+                  ? 'Saving Listing...'
+                  : editingPropertyId
+                  ? 'Save Property Changes'
+                  : 'Submit Property for Verification'}
               </Button>
             </form>
           </div>

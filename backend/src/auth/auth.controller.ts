@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Headers, UseGuards, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Body, Headers, UseGuards, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SyncUserDto } from './dto/sync-user.dto';
 import { FirebaseAuthGuard } from '../common/guards/firebase-auth.guard';
@@ -40,4 +40,19 @@ export class AuthController {
   me(@CurrentUser() user: { id: string }) {
     return this.authService.getProfile(user.id);
   }
+
+  /**
+   * PATCH /auth/profile
+   *
+   * Allows authenticated users to update their full name and phone number.
+   */
+  @UseGuards(FirebaseAuthGuard)
+  @Patch('profile')
+  updateProfile(
+    @CurrentUser() user: { id: string },
+    @Body() body: { full_name?: string; phone?: string },
+  ) {
+    return this.authService.updateProfile(user.id, body);
+  }
 }
+

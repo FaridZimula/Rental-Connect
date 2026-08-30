@@ -39,6 +39,10 @@ export const authApi = {
 
   /** Get current user profile */
   me: () => api.get('/auth/me').then((r) => r.data),
+
+  /** Update profile (name, phone) */
+  updateProfile: (data: { full_name?: string; phone?: string }) =>
+    api.patch('/auth/profile', data).then((r) => r.data),
 };
 
 // ── Properties ────────────────────────────────────────────────────────────────
