@@ -1,16 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, Mail, Phone, Lock, Building, UserCheck, Check, ShieldCheck, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Phone, Lock, Building, UserCheck, Eye, EyeOff } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import { useAuth } from '../contexts/AuthContext';
-import {
-  auth,
-  signInWithPhoneNumber,
-  RecaptchaVerifier,
-} from '../lib/firebase';
-import type { ConfirmationResult } from 'firebase/auth';
 
 function getPasswordStrength(pw: string): { label: string; color: string; width: string } {
   if (pw.length === 0) return { label: '', color: '', width: '0%' };
@@ -29,39 +23,11 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<'tenant' | 'landlord'>('tenant');
   const [agreeTerms, setAgreeTerms] = useState(false);
-  const [otpCode, setOtpCode] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [infoMessage, setInfoMessage] = useState('');
 
   const { register, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
-
-  // Firebase phone auth references
-  const confirmationResultRef = useRef<ConfirmationResult | null>(null);
-  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
-  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
-
-  const getOrCreateRecaptchaVerifier = () => {
-    if (recaptchaVerifierRef.current) {
-      try {
-        recaptchaVerifierRef.current.clear();
-      } catch (e) {
-        // ignore if already cleared
-      }
-      recaptchaVerifierRef.current = null;
-    }
-    if (recaptchaContainerRef.current) {
-      recaptchaContainerRef.current.innerHTML = '';
-    }
-    const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current!, {
-      size: 'invisible',
-      callback: () => {},
-    });
-    recaptchaVerifierRef.current = verifier;
-    return verifier;
-  };
 
   const pwStrength = getPasswordStrength(password);
 
@@ -83,41 +49,6 @@ export default function RegisterPage() {
       navigateByRole(role);
     } catch (err: any) {
       setError(err.message || 'Google sign-up failed.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ── Phone OTP: Send Code ───────────────────────────────────────────────
-  const handleSendPhoneOtp = async () => {
-    if (!phone.trim()) {
-      setError('Please enter a phone number to verify.');
-      return;
-    }
-    setLoading(true);
-    setError('');
-
-    try {
-      const recaptchaVerifier = getOrCreateRecaptchaVerifier();
-      const result = await signInWithPhoneNumber(auth, phone.trim(), recaptchaVerifier);
-      confirmationResultRef.current = result;
-      setOtpSent(true);
-      setInfoMessage(`Verification code sent to ${phone}`);
-    } catch (err: any) {
-      if (recaptchaVerifierRef.current) {
-        try {
-          recaptchaVerifierRef.current.clear();
-        } catch (e) {}
-        recaptchaVerifierRef.current = null;
-      }
-      if (recaptchaContainerRef.current) {
-        recaptchaContainerRef.current.innerHTML = '';
-      }
-      if (err.code === 'auth/invalid-phone-number') {
-        setError('Invalid phone number. Use format: +256 700 000 000');
-      } else {
-        setError(err.message || 'Failed to send OTP.');
-      }
     } finally {
       setLoading(false);
     }
@@ -146,7 +77,6 @@ export default function RegisterPage() {
         password,
         role,
       });
-      setInfoMessage('Account created! A verification email has been sent to your inbox.');
       navigateByRole(role);
     } catch (err: any) {
       const code = err.code;
@@ -229,13 +159,6 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {infoMessage && (
-            <div className="bg-orange-50 border border-orange-200 text-[#f06023] text-xs p-3 rounded-xl mb-4 font-medium flex items-center gap-2">
-              <Check className="h-4 w-4 text-[#f06023] flex-shrink-0" />
-              <span>{infoMessage}</span>
-            </div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-3.5">
             {/* Full Name */}
             <div>
@@ -269,57 +192,22 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Phone with OTP verification */}
+            {/* Phone Number (simple input, no OTP) */}
             <div>
               <label className="block text-xs font-semibold text-zinc-700 mb-1">
                 Phone Number
-                <span className="ml-1.5 text-zinc-400 font-normal">(for SMS OTP verification)</span>
+                <span className="ml-1.5 text-zinc-400 font-normal">(optional)</span>
               </label>
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 h-4 w-4" />
-                  <input
-                    type="tel"
-                    className="w-full pl-10 pr-4 py-2.5 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
-                    placeholder="+256 700 000 000"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={handleSendPhoneOtp}
-                  disabled={loading || otpSent}
-                  className={`shrink-0 text-xs font-bold px-3 py-2.5 rounded-xl border transition-all ${
-                    otpSent
-                      ? 'bg-green-50 border-green-300 text-green-600'
-                      : 'bg-white border-[#f06023] text-[#f06023] hover:bg-orange-50'
-                  }`}
-                >
-                  {otpSent ? <Check className="h-4 w-4" /> : 'Verify'}
-                </button>
+              <div className="relative">
+                <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 h-4 w-4" />
+                <input
+                  type="tel"
+                  className="w-full pl-10 pr-4 py-2.5 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                  placeholder="+256 700 000 000"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
               </div>
-
-              {/* OTP Code Input */}
-              {otpSent && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  className="mt-2"
-                >
-                  <div className="relative">
-                    <ShieldCheck className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 h-4 w-4" />
-                    <input
-                      type="text"
-                      maxLength={6}
-                      className="w-full pl-10 pr-4 py-2.5 border border-green-300 rounded-xl text-sm focus:outline-none focus:border-green-500 tracking-widest font-bold text-center"
-                      placeholder="Enter 6-digit SMS code"
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value)}
-                    />
-                  </div>
-                </motion.div>
-              )}
             </div>
 
             {/* Password with strength meter */}
@@ -391,9 +279,6 @@ export default function RegisterPage() {
             </Link>
           </p>
         </motion.div>
-
-        {/* Invisible reCAPTCHA container for phone auth */}
-        <div ref={recaptchaContainerRef} id="recaptcha-container-register" />
       </div>
     </Layout>
   );
