@@ -69,11 +69,20 @@ export default function RegisterPage() {
     setLoading(true);
     setError('');
 
+    // Normalize Ugandan phone: 07X... → +2567X...
+    const normalizePhone = (num: string) => {
+      const cleaned = num.replace(/\s+/g, '').trim();
+      if (cleaned.startsWith('0') && cleaned.length === 10) {
+        return '+256' + cleaned.slice(1);
+      }
+      return cleaned;
+    };
+
     try {
       await register({
         full_name: fullName.trim(),
         email: email.trim(),
-        phone: phone.trim() || undefined,
+        phone: phone.trim() ? normalizePhone(phone) : undefined,
         password,
         role,
       });
@@ -203,11 +212,12 @@ export default function RegisterPage() {
                 <input
                   type="tel"
                   className="w-full pl-10 pr-4 py-2.5 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
-                  placeholder="+256 700 000 000"
+                  placeholder="0700 000 000 or +256 700 000 000"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                 />
               </div>
+              <p className="text-[10px] text-zinc-400 mt-1 ml-1">You can use local format (0700...) or international (+256...)</p>
             </div>
 
             {/* Password with strength meter */}
