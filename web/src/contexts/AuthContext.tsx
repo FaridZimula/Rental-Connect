@@ -109,11 +109,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (fbUser) {
         try {
-          const profile = await syncUserWithBackend(fbUser);
+          // Preserve the stored role so page reloads don't reset it to 'tenant'
+          const saved = localStorage.getItem('rc_user');
+          const savedRole = saved ? (JSON.parse(saved) as AuthUser).role : undefined;
+          const profile = await syncUserWithBackend(fbUser, { role: savedRole });
           setUser(profile);
           localStorage.setItem('rc_user', JSON.stringify(profile));
         } catch (e) {
           console.warn('Sync failed, retaining active user session:', e);
+          // If sync throws, still clear loading
+        }
+      } else {
+        // Firebase says no user — only clear if we don't have a local session
+        const saved = localStorage.getItem('rc_user');
+        if (!saved) {
+          setUser(null);
         }
       }
 
@@ -125,36 +135,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ── Email / Password Login ──────────────────────────────────────────────
   const login = async (email: string, password: string) => {
-    const cleanEmail = email.trim();
+    const cleanEmail = email.trim().toLowerCase();
     try {
       const cred = await signInWithEmailAndPassword(auth, cleanEmail, password);
-      const profile = await syncUserWithBackend(cred.user);
+      // Preserve stored role on login just like on auth state change
+      const saved = localStorage.getItem('rc_user');
+      const savedRole = saved ? (JSON.parse(saved) as AuthUser).role : undefined;
+      const profile = await syncUserWithBackend(cred.user, { role: savedRole });
       setUser(profile);
       localStorage.setItem('rc_user', JSON.stringify(profile));
       return;
     } catch (firebaseErr: any) {
-      console.warn('Firebase login notice/resilient fallback mode active:', firebaseErr);
+      const code = firebaseErr?.code as string;
+      // Hard auth failures — tell the user, don't silently fall back
+      if (
+        code === 'auth/wrong-password' ||
+        code === 'auth/invalid-credential' ||
+        code === 'auth/user-not-found' ||
+        code === 'auth/invalid-email' ||
+        code === 'auth/too-many-requests'
+      ) {
+        throw firebaseErr;
+      }
+      // Network / service error — fall back to local session gracefully
+      console.warn('Firebase login network/service error, using local fallback:', firebaseErr);
     }
 
-    // Resilient Fallback: authenticate user session locally
+    // Resilient Fallback: use stored local session for the matching email
     const saved = localStorage.getItem('rc_user');
     const parsed = saved ? JSON.parse(saved) : null;
-    const userRole: UserRole = parsed?.role || 'landlord';
+    // Only reuse a stored profile if it belongs to this email
+    const storedEmail = parsed?.email?.toLowerCase();
+    const userRole: UserRole = storedEmail === cleanEmail ? (parsed?.role ?? 'tenant') : 'tenant';
 
     const fallbackUser: AuthUser = {
-      id: parsed?.id || `usr_${Date.now()}`,
-      full_name: parsed?.full_name || cleanEmail.split('@')[0] || 'Rental User',
+      id: storedEmail === cleanEmail ? (parsed?.id ?? `usr_${Date.now()}`) : `usr_${Date.now()}`,
+      full_name: storedEmail === cleanEmail ? (parsed?.full_name ?? cleanEmail.split('@')[0]) : cleanEmail.split('@')[0],
       email: cleanEmail,
-      phone: parsed?.phone,
+      phone: storedEmail === cleanEmail ? parsed?.phone : undefined,
       role: userRole,
       is_verified: true,
     };
 
     setUser(fallbackUser);
     localStorage.setItem('rc_user', JSON.stringify(fallbackUser));
-    if (password) {
-      localStorage.setItem(`rc_pwd_${cleanEmail.toLowerCase()}`, password);
-    }
   };
 
   // ── Email / Password Registration ───────────────────────────────────────
@@ -249,6 +273,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setFirebaseUser(null);
     localStorage.removeItem('rc_user');
+    // Navigate to login handled by the caller
+    window.location.href = '/login';
   };
 
   return (

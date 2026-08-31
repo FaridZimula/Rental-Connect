@@ -11,6 +11,7 @@ import TenantDashboardPage from './pages/TenantDashboardPage';
 import LandlordDashboardPage from './pages/LandlordDashboardPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import { AuthProvider } from './contexts/AuthContext';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 function ScrollToTop() {
   const { pathname, search } = useLocation();
@@ -30,39 +31,41 @@ function App() {
   };
 
   return (
-    <AuthProvider>
-      {showSplash ? (
-        <SplashScreen onComplete={handleSplashComplete} />
-      ) : (
-        <Router>
-          <ScrollToTop />
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Home />} />
-            <Route path="/properties" element={<PropertiesPage />} />
-            <Route path="/properties/:id" element={<PropertyDetailPage />} />
+    <ErrorBoundary>
+      <AuthProvider>
+        {showSplash ? (
+          <SplashScreen onComplete={handleSplashComplete} />
+        ) : (
+          <Router>
+            <ScrollToTop />
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<Home />} />
+              <Route path="/properties" element={<PropertiesPage />} />
+              <Route path="/properties/:id" element={<PropertyDetailPage />} />
 
-            {/* Auth routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+              {/* Auth routes */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
 
-            {/* Legacy route aliases */}
-            <Route path="/signup" element={<Navigate to="/register" replace />} />
-            <Route path="/hostel-owner/login" element={<Navigate to="/login" replace />} />
-            <Route path="/hostel-owner/signup" element={<Navigate to="/register" replace />} />
+              {/* Legacy route aliases */}
+              <Route path="/signup" element={<Navigate to="/register" replace />} />
+              <Route path="/hostel-owner/login" element={<Navigate to="/login" replace />} />
+              <Route path="/hostel-owner/signup" element={<Navigate to="/register" replace />} />
 
-            {/* Dashboard routes */}
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/dashboard/tenant" element={<TenantDashboardPage />} />
-            <Route path="/dashboard/landlord" element={<LandlordDashboardPage />} />
-            <Route path="/dashboard/admin" element={<AdminDashboardPage />} />
+              {/* Dashboard routes */}
+              <Route path="/dashboard" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
+              <Route path="/dashboard/tenant" element={<ErrorBoundary><TenantDashboardPage /></ErrorBoundary>} />
+              <Route path="/dashboard/landlord" element={<ErrorBoundary><LandlordDashboardPage /></ErrorBoundary>} />
+              <Route path="/dashboard/admin" element={<ErrorBoundary><AdminDashboardPage /></ErrorBoundary>} />
 
-            {/* Fallbacks */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Router>
-      )}
-    </AuthProvider>
+              {/* Fallbacks */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Router>
+        )}
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
