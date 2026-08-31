@@ -11,8 +11,7 @@ import TenantDashboardPage from './pages/TenantDashboardPage';
 import LandlordDashboardPage from './pages/LandlordDashboardPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import NotFoundPage from './pages/NotFoundPage';
-import { AuthProvider } from './contexts/AuthContext';
-import ErrorBoundary from './components/common/ErrorBoundary';
+import AdminLoginPage from './pages/AdminLoginPage';
 
 function ScrollToTop() {
   const { pathname, search } = useLocation();
@@ -45,6 +44,7 @@ function App() {
             {/* Auth routes */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/admin" element={<AdminLoginPage />} />
 
             {/* Legacy route aliases */}
             <Route path="/signup" element={<Navigate to="/register" replace />} />

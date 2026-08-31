@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, CheckCircle2, XCircle, Users, Flag, Activity, Ban, ShieldAlert, BarChart3, Clock } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, XCircle, Users, Flag, Activity, Ban, ShieldAlert, BarChart3, Clock, UserPlus, Shield, User, Mail, Key, X, Sparkles } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import { adminApi, reportsApi } from '../lib/api';
@@ -15,6 +15,23 @@ export default function AdminDashboardPage() {
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  // Add Property Owner Modal State
+  const [showAddOwnerModal, setShowAddOwnerModal] = useState(false);
+  const [ownerName, setOwnerName] = useState('');
+  const [ownerEmail, setOwnerEmail] = useState('');
+  const [ownerPassword, setOwnerPassword] = useState('');
+  const [ownerPhone, setOwnerPhone] = useState('');
+  const [addingOwner, setAddingOwner] = useState(false);
+  const [ownerSuccessMsg, setOwnerSuccessMsg] = useState('');
+
+  // Add Admin Modal State
+  const [showAddAdminModal, setShowAddAdminModal] = useState(false);
+  const [adminName, setAdminName] = useState('');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [addingAdmin, setAddingAdmin] = useState(false);
+  const [adminSuccessMsg, setAdminSuccessMsg] = useState('');
 
   // Reject / Suspend reason modal state
   const [actionTarget, setActionTarget] = useState<{ id: string; type: 'reject' | 'suspend' } | null>(null);
@@ -97,6 +114,67 @@ export default function AdminDashboardPage() {
     } catch {}
   };
 
+  const handleAddOwner = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ownerEmail.trim() || !ownerPassword.trim()) return;
+    setAddingOwner(true);
+    setOwnerSuccessMsg('');
+
+    const cleanEmail = ownerEmail.trim().toLowerCase();
+    const newOwner = {
+      id: `owner_${Date.now()}`,
+      full_name: ownerName.trim() || cleanEmail.split('@')[0],
+      email: cleanEmail,
+      phone: ownerPhone.trim() || undefined,
+      role: 'landlord',
+      created_at: new Date().toISOString(),
+    };
+
+    // Save temporary password
+    localStorage.setItem(`rc_pwd_${cleanEmail}`, ownerPassword);
+
+    // Save in registered owners storage
+    const registeredOwnersStr = localStorage.getItem('rc_registered_owners');
+    let registeredOwners = registeredOwnersStr ? JSON.parse(registeredOwnersStr) : [];
+    registeredOwners = [newOwner, ...registeredOwners.filter((o: any) => o.email?.toLowerCase() !== cleanEmail)];
+    localStorage.setItem('rc_registered_owners', JSON.stringify(registeredOwners));
+
+    setOwnerSuccessMsg(`Property Owner "${cleanEmail}" added successfully! They can now log in via Google or password.`);
+    setOwnerName('');
+    setOwnerEmail('');
+    setOwnerPassword('');
+    setOwnerPhone('');
+    setAddingOwner(false);
+    fetchAdminData();
+  };
+
+  const handleAddAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminEmail.trim() || !adminPassword.trim()) return;
+    setAddingAdmin(true);
+    setAdminSuccessMsg('');
+
+    const cleanEmail = adminEmail.trim().toLowerCase();
+
+    // Save temporary password
+    localStorage.setItem(`rc_pwd_${cleanEmail}`, adminPassword);
+
+    // Save in authorized admins list
+    const authorizedAdminsStr = localStorage.getItem('rc_authorized_admins');
+    let authorizedAdmins: string[] = authorizedAdminsStr ? JSON.parse(authorizedAdminsStr) : [];
+    if (!authorizedAdmins.includes(cleanEmail)) {
+      authorizedAdmins.push(cleanEmail);
+      localStorage.setItem('rc_authorized_admins', JSON.stringify(authorizedAdmins));
+    }
+
+    setAdminSuccessMsg(`New Admin "${cleanEmail}" authorized! They can now log in to /admin via Google or password.`);
+    setAdminName('');
+    setAdminEmail('');
+    setAdminPassword('');
+    setAddingAdmin(false);
+    fetchAdminData();
+  };
+
   return (
     <Layout>
       <div className="bg-zinc-50 min-h-screen pt-24 pb-16">
@@ -111,6 +189,29 @@ export default function AdminDashboardPage() {
                 <h1 className="text-2xl font-bold text-white">System Manager Console</h1>
                 <p className="text-xs text-zinc-400">Platform Moderation, Verification & Audit Control</p>
               </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddOwnerModal(true);
+                  setOwnerSuccessMsg('');
+                }}
+                className="px-4 py-2.5 bg-[#f06023] hover:bg-[#d94b12] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-md cursor-pointer active:scale-98"
+              >
+                <UserPlus className="h-4 w-4" /> Add Property Owner
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddAdminModal(true);
+                  setAdminSuccessMsg('');
+                }}
+                className="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-md cursor-pointer active:scale-98"
+              >
+                <Shield className="h-4 w-4 text-[#f06023]" /> Add System Admin
+              </button>
             </div>
           </div>
 
@@ -483,6 +584,168 @@ export default function AdminDashboardPage() {
                 </Button>
                 <Button variant="primary" fullWidth type="submit" disabled={submittingAction}>
                   Confirm
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Property Owner Modal */}
+      {showAddOwnerModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button
+              onClick={() => setShowAddOwnerModal(false)}
+              className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <h3 className="text-lg font-bold text-zinc-900 mb-1 flex items-center gap-2">
+              <UserPlus className="h-5 w-5 text-[#f06023]" /> Register New Property Owner
+            </h3>
+            <p className="text-xs text-zinc-500 mb-4">
+              Pre-authorize a Property Owner account. They can log in via Google or password immediately.
+            </p>
+
+            {ownerSuccessMsg && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold rounded-xl mb-4 flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span>{ownerSuccessMsg}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleAddOwner} className="space-y-3.5">
+              <div>
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">Full Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Mukasa Robert"
+                  className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                  value={ownerName}
+                  onChange={(e) => setOwnerName(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">Google Email / User Email</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="e.g. mukasa.owner@gmail.com"
+                  className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                  value={ownerEmail}
+                  onChange={(e) => setOwnerEmail(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">First-Time Temporary Password</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="••••••••"
+                  className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                  value={ownerPassword}
+                  onChange={(e) => setOwnerPassword(e.target.value)}
+                />
+                <p className="text-[10px] text-zinc-400 mt-0.5">The owner can change this password later in their profile.</p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">Phone Number (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="+256 700 000 000"
+                  className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                  value={ownerPhone}
+                  onChange={(e) => setOwnerPhone(e.target.value)}
+                />
+              </div>
+
+              <div className="pt-2 flex gap-2">
+                <Button variant="secondary" fullWidth type="button" onClick={() => setShowAddOwnerModal(false)}>
+                  Cancel
+                </Button>
+                <Button variant="primary" fullWidth type="submit" disabled={addingOwner}>
+                  {addingOwner ? 'Adding Owner...' : 'Add Property Owner'}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add System Admin Modal */}
+      {showAddAdminModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative border-t-4 border-[#f06023]">
+            <button
+              onClick={() => setShowAddAdminModal(false)}
+              className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <h3 className="text-lg font-bold text-zinc-900 mb-1 flex items-center gap-2">
+              <Shield className="h-5 w-5 text-[#f06023]" /> Authorize New System Administrator
+            </h3>
+            <p className="text-xs text-zinc-500 mb-4">
+              Add a new Google email to the system admin allowlist for /admin portal access.
+            </p>
+
+            {adminSuccessMsg && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold rounded-xl mb-4 flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span>{adminSuccessMsg}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleAddAdmin} className="space-y-3.5">
+              <div>
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">Admin Full Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Sarah Mukiibi"
+                  className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                  value={adminName}
+                  onChange={(e) => setAdminName(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">Google Account Email</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="e.g. sarah.admin@gmail.com"
+                  className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                  value={adminEmail}
+                  onChange={(e) => setAdminEmail(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">First-Time Temporary Password</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="••••••••"
+                  className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                />
+              </div>
+
+              <div className="pt-2 flex gap-2">
+                <Button variant="secondary" fullWidth type="button" onClick={() => setShowAddAdminModal(false)}>
+                  Cancel
+                </Button>
+                <Button variant="primary" fullWidth type="submit" disabled={addingAdmin}>
+                  {addingAdmin ? 'Authorizing Admin...' : 'Authorize Admin'}
                 </Button>
               </div>
             </form>

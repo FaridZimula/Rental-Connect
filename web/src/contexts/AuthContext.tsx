@@ -39,7 +39,7 @@ interface AuthContextType {
     phone?: string;
     role: 'tenant' | 'landlord';
   }) => Promise<void>;
-  signInWithGoogle: (role?: 'tenant' | 'landlord') => Promise<void>;
+  signInWithGoogle: (role?: UserRole, isAdminPortal?: boolean) => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
   logout: () => void;
   setDemoUser: (role: UserRole) => void;
@@ -257,9 +257,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // ── Google Sign-In ──────────────────────────────────────────────────────
-  const signInWithGoogleFn = async (role?: 'tenant' | 'landlord') => {
+  const signInWithGoogleFn = async (requestedRole?: UserRole, isAdminPortal?: boolean) => {
     const cred = await signInWithPopup(auth, googleProvider);
-    const profile = await syncUserWithBackend(cred.user, { role });
+    const cleanEmail = cred.user.email?.toLowerCase().trim() || '';
+
+    // Authorized Admin List Check
+    const defaultAdmins = [
+      'faridzimula602@gmail.com',
+      'mukiibirhines2001@gmail.com',
+      'robtxpro002@gmail.com',
+      'mukiibirobert002@gmail.com',
+      'admin.demo@rentalconnect.ug',
+    ];
+    const customAdminsStr = localStorage.getItem('rc_authorized_admins');
+    const customAdmins: string[] = customAdminsStr ? JSON.parse(customAdminsStr) : [];
+    const allAdmins = [...defaultAdmins, ...customAdmins].map((a) => a.toLowerCase().trim());
+    const isAuthorizedAdmin = allAdmins.includes(cleanEmail);
+
+    if (isAdminPortal && !isAuthorizedAdmin) {
+      try {
+        await signOut(auth);
+      } catch (e) {}
+      throw new Error(`Access Denied: "${cleanEmail}" is not listed as an authorized system administrator.`);
+    }
+
+    // Check if email was pre-registered as Property Owner by Admin
+    const registeredOwnersStr = localStorage.getItem('rc_registered_owners');
+    const registeredOwners: any[] = registeredOwnersStr ? JSON.parse(registeredOwnersStr) : [];
+    const preRegisteredOwner = registeredOwners.find((o) => o.email?.toLowerCase().trim() === cleanEmail);
+
+    let determinedRole: UserRole = 'tenant';
+    if (isAdminPortal || (requestedRole === 'admin' && isAuthorizedAdmin)) {
+      determinedRole = 'admin';
+    } else if (isAuthorizedAdmin) {
+      determinedRole = 'admin';
+    } else if (preRegisteredOwner || requestedRole === 'landlord') {
+      determinedRole = 'landlord';
+    } else {
+      determinedRole = requestedRole || 'tenant';
+    }
+
+    const profile = await syncUserWithBackend(cred.user, {
+      full_name: preRegisteredOwner?.full_name || cred.user.displayName || cleanEmail.split('@')[0],
+      phone: preRegisteredOwner?.phone,
+      role: determinedRole,
+    });
+
     setUser(profile);
     localStorage.setItem('rc_user', JSON.stringify(profile));
   };
