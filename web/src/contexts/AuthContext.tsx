@@ -104,33 +104,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Listen for Firebase auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
-      setFirebaseUser(fbUser);
+    let unsub = () => {};
 
-      if (fbUser) {
-        try {
-          // Preserve the stored role so page reloads don't reset it to 'tenant'
-          const saved = localStorage.getItem('rc_user');
-          const savedRole = saved ? (JSON.parse(saved) as AuthUser).role : undefined;
-          const profile = await syncUserWithBackend(fbUser, { role: savedRole });
-          setUser(profile);
-          localStorage.setItem('rc_user', JSON.stringify(profile));
-        } catch (e) {
-          console.warn('Sync failed, retaining active user session:', e);
-          // If sync throws, still clear loading
-        }
-      } else {
-        // Firebase says no user — only clear if we don't have a local session
-        const saved = localStorage.getItem('rc_user');
-        if (!saved) {
-          setUser(null);
-        }
-      }
-
+    // Safety timeout: ensure loading state turns off after max 1.5 seconds regardless of network
+    const timer = setTimeout(() => {
       setIsLoading(false);
-    });
+    }, 1500);
 
-    return () => unsubscribe();
+    try {
+      unsub = onAuthStateChanged(auth, async (fbUser) => {
+        setFirebaseUser(fbUser);
+
+        if (fbUser) {
+          try {
+            // Preserve the stored role so page reloads don't reset it to 'tenant'
+            const saved = localStorage.getItem('rc_user');
+            const savedRole = saved ? (JSON.parse(saved) as AuthUser).role : undefined;
+            const profile = await syncUserWithBackend(fbUser, { role: savedRole });
+            setUser(profile);
+            localStorage.setItem('rc_user', JSON.stringify(profile));
+          } catch (e) {
+            console.warn('Sync failed, retaining active user session:', e);
+          }
+        } else {
+          // Firebase says no user — only clear if we don't have a local session
+          const saved = localStorage.getItem('rc_user');
+          if (!saved) {
+            setUser(null);
+          }
+        }
+
+        setIsLoading(false);
+        clearTimeout(timer);
+      });
+    } catch (err) {
+      console.warn('Firebase auth listener error:', err);
+      setIsLoading(false);
+      clearTimeout(timer);
+    }
+
+    return () => {
+      unsub();
+      clearTimeout(timer);
+    };
   }, []);
 
   // ── Email / Password Login ──────────────────────────────────────────────
