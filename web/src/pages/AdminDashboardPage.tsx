@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHouseUser, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import { 
   ShieldCheck, CheckCircle2, XCircle, Users, Flag, Activity, Ban, ShieldAlert, 
   BarChart3, Clock, UserPlus, Shield, User, Mail, Key, X, Sparkles, Building2, 
@@ -960,12 +962,17 @@ export default function AdminDashboardPage() {
               <X className="h-5 w-5" />
             </button>
 
-            <h3 className="text-lg font-bold text-zinc-900 mb-1 flex items-center gap-2">
-              <UserPlus className="h-5 w-5 text-[#f06023]" /> Register New Property Owner
-            </h3>
-            <p className="text-xs text-zinc-500 mb-4">
-              Pre-authorize a Property Owner account. They can log in via Google or password immediately.
-            </p>
+            <div className="text-center mb-5">
+              <div className="h-14 w-14 rounded-full bg-[#f06023] flex items-center justify-center mx-auto mb-3 shadow-md">
+                <FontAwesomeIcon icon={faHouseUser} className="text-white text-xl" />
+              </div>
+              <h3 className="text-lg font-bold text-zinc-900">
+                Register New Property Owner
+              </h3>
+              <p className="text-xs text-zinc-500 mt-1">
+                Pre-authorize a Property Owner account. They can log in via Google or password immediately.
+              </p>
+            </div>
 
             {ownerSuccessMsg && (
               <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold rounded-xl mb-4 flex items-center gap-2">
@@ -1069,12 +1076,17 @@ export default function AdminDashboardPage() {
               <X className="h-5 w-5" />
             </button>
 
-            <h3 className="text-lg font-bold text-zinc-900 mb-1 flex items-center gap-2">
-              <Shield className="h-5 w-5 text-[#f06023]" /> Authorize New System Administrator
-            </h3>
-            <p className="text-xs text-zinc-500 mb-4">
-              Add a new Google email to the system admin allowlist for /admin portal access.
-            </p>
+            <div className="text-center mb-5">
+              <div className="h-14 w-14 rounded-full bg-[#f06023] flex items-center justify-center mx-auto mb-3 shadow-md">
+                <FontAwesomeIcon icon={faUserShield} className="text-white text-xl" />
+              </div>
+              <h3 className="text-lg font-bold text-zinc-900">
+                Authorize New System Administrator
+              </h3>
+              <p className="text-xs text-zinc-500 mt-1">
+                Add a new Google email to the system admin allowlist for /admin portal access.
+              </p>
+            </div>
 
             {adminSuccessMsg && (
               <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold rounded-xl mb-4 flex items-center gap-2">
