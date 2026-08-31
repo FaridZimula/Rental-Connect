@@ -281,17 +281,17 @@ export default function LandlordDashboardPage() {
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <span
-                            className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                            className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full text-white shadow-sm ${
                               p.status === 'published'
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                ? 'bg-[#f06023]'
                                 : p.status === 'pending_review'
-                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                : 'bg-red-50 text-red-700 border border-red-200'
+                                ? 'bg-amber-500'
+                                : 'bg-red-600'
                             }`}
                           >
                             {p.status.replace('_', ' ')}
                           </span>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${p.is_available ? 'bg-blue-50 text-blue-700' : 'bg-zinc-100 text-zinc-500'}`}>
+                          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full text-white shadow-sm ${p.is_available ? 'bg-zinc-900' : 'bg-zinc-500'}`}>
                             {p.is_available ? 'Available' : 'Marked Occupied'}
                           </span>
                         </div>
