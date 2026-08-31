@@ -40,6 +40,7 @@ const Navbar = () => {
   const location = useLocation();
 
   const isOwnerOrAdminPage =
+    location.pathname.startsWith('/admin') ||
     location.pathname.startsWith('/dashboard/landlord') ||
     location.pathname.startsWith('/dashboard/admin') ||
     ((user?.role === 'landlord' || user?.role === 'admin') && location.pathname.startsWith('/dashboard'));
