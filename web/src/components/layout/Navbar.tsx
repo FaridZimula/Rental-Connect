@@ -1,23 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { 
-  Search, Menu, X, Building, Home, User, LogOut, ChevronDown, 
-  Building2, Car, HardHat, Music, Sprout, HeartPulse, Sun, Shirt, Laptop, Anchor, Tent 
+  Search, Menu, X, Building, Home, User, LogOut, ChevronDown
 } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faBuilding, 
+  faCarSide, 
+  faHardHat, 
+  faMusic, 
+  faSeedling, 
+  faHeartPulse, 
+  faShirt, 
+  faLaptopCode, 
+  faCampground
+} from '@fortawesome/free-solid-svg-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import { useAuth } from '../../contexts/AuthContext';
 
 const categories = [
-  { id: 'apartment', label: 'Housing & Real Estate', icon: <Building2 className="h-4 w-4 text-[#f06023]" /> },
-  { id: 'vehicle', label: 'Vehicles & Transport', icon: <Car className="h-4 w-4 text-[#f06023]" /> },
-  { id: 'machinery', label: 'Construction Machinery', icon: <HardHat className="h-4 w-4 text-[#f06023]" /> },
-  { id: 'event_equipment', label: 'Event & Media Gear', icon: <Music className="h-4 w-4 text-[#f06023]" /> },
-  { id: 'agro_machinery', label: 'Agro & Land Assets', icon: <Sprout className="h-4 w-4 text-[#f06023]" /> },
-  { id: 'medical_equipment', label: 'Medical & Health Tech', icon: <HeartPulse className="h-4 w-4 text-[#f06023]" /> },
-  { id: 'fashion_attire', label: 'Fashion & Formal Wear', icon: <Shirt className="h-4 w-4 text-[#f06023]" /> },
-  { id: 'it_hardware', label: 'IT & Computing Tech', icon: <Laptop className="h-4 w-4 text-[#f06023]" /> },
-  { id: 'camping_sports', label: 'Camping & Sports Gear', icon: <Tent className="h-4 w-4 text-[#f06023]" /> },
+  { id: 'apartment', label: 'Housing & Real Estate', faIcon: faBuilding },
+  { id: 'vehicle', label: 'Vehicles & Transport', faIcon: faCarSide },
+  { id: 'machinery', label: 'Construction Machinery', faIcon: faHardHat },
+  { id: 'event_equipment', label: 'Event & Media Gear', faIcon: faMusic },
+  { id: 'agro_machinery', label: 'Agro & Land Assets', faIcon: faSeedling },
+  { id: 'medical_equipment', label: 'Medical & Health Tech', faIcon: faHeartPulse },
+  { id: 'fashion_attire', label: 'Fashion & Formal Wear', faIcon: faShirt },
+  { id: 'it_hardware', label: 'IT & Computing Tech', faIcon: faLaptopCode },
+  { id: 'camping_sports', label: 'Camping & Sports Gear', faIcon: faCampground },
 ];
 
 const Navbar = () => {
@@ -163,7 +174,7 @@ const Navbar = () => {
                   className="w-full flex items-center justify-between py-2 px-3 hover:bg-zinc-100 rounded-lg text-zinc-800 text-sm font-medium cursor-pointer"
                 >
                   <div className="flex items-center">
-                    <Building2 className="h-4 w-4 mr-2 text-[#f06023]" />
+                    <FontAwesomeIcon icon={faBuilding} className="h-4 w-4 mr-2 text-[#f06023]" />
                     <span>Categories</span>
                   </div>
                   <ChevronDown className={clsx("h-4 w-4 text-zinc-500 transition-transform duration-200", isCategoriesOpen && "rotate-180")} />
@@ -184,9 +195,11 @@ const Navbar = () => {
                             navigate(`/properties?property_type=${cat.id}`);
                             setIsMenuOpen(false);
                           }}
-                          className="w-full flex items-center py-2 px-2 hover:bg-white rounded-lg text-xs font-semibold text-zinc-700 hover:text-[#f06023] transition-colors text-left"
+                          className="w-full flex items-center py-2 px-2 hover:bg-white rounded-lg text-xs font-semibold text-zinc-700 hover:text-[#f06023] transition-colors text-left cursor-pointer"
                         >
-                          <span className="mr-2.5 flex-shrink-0">{cat.icon}</span>
+                          <span className="mr-2.5 flex-shrink-0 w-4 text-center">
+                            <FontAwesomeIcon icon={cat.faIcon} className="h-3.5 w-3.5 text-[#f06023]" />
+                          </span>
                           <span>{cat.label}</span>
                         </button>
                       ))}

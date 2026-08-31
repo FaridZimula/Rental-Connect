@@ -1,17 +1,27 @@
-import { ArrowRight, Building2, Car, HardHat, Music, Sprout, HeartPulse, Sun, Shirt } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faBuilding, 
+  faCar, 
+  faHardHat, 
+  faMusic, 
+  faSeedling, 
+  faHeartPulse, 
+  faShirt,
+  faArrowRight
+} from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function CategoriesCircleSection() {
   const navigate = useNavigate();
 
   const circles = [
-    { id: 'apartment', label: 'Housing & Flats', icon: <Building2 className="h-7 w-7 text-white" /> },
-    { id: 'vehicle', label: 'Vehicles & Transport', icon: <Car className="h-7 w-7 text-white" /> },
-    { id: 'machinery', label: 'Construction Machinery', icon: <HardHat className="h-7 w-7 text-white" /> },
-    { id: 'event_equipment', label: 'Event Gear & Venues', icon: <Music className="h-7 w-7 text-white" /> },
-    { id: 'agro_machinery', label: 'Agro & Land Assets', icon: <Sprout className="h-7 w-7 text-white" /> },
-    { id: 'medical_equipment', label: 'Medical & Healthcare', icon: <HeartPulse className="h-7 w-7 text-white" /> },
-    { id: 'fashion_attire', label: 'Formal & Cultural Wear', icon: <Shirt className="h-7 w-7 text-white" /> },
+    { id: 'apartment', label: 'Housing & Flats', faIcon: faBuilding },
+    { id: 'vehicle', label: 'Vehicles & Transport', faIcon: faCar },
+    { id: 'machinery', label: 'Construction Machinery', faIcon: faHardHat },
+    { id: 'event_equipment', label: 'Event Gear & Venues', faIcon: faMusic },
+    { id: 'agro_machinery', label: 'Agro & Land Assets', faIcon: faSeedling },
+    { id: 'medical_equipment', label: 'Medical & Healthcare', faIcon: faHeartPulse },
+    { id: 'fashion_attire', label: 'Formal & Cultural Wear', faIcon: faShirt },
   ];
 
   return (
@@ -23,21 +33,21 @@ export default function CategoriesCircleSection() {
           <h3 className="text-xl sm:text-2xl font-black text-zinc-900 font-display mb-1">Featured Categories</h3>
           <p className="text-xs sm:text-sm text-zinc-500 font-semibold mb-3">Browse rental properties and physical assets by industry clusters</p>
           <Link to="/properties" className="bg-[#f06023] hover:bg-[#d94b12] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5 active:scale-98">
-            View All Categories <ArrowRight className="h-4 w-4 text-white" />
+            View All Categories <FontAwesomeIcon icon={faArrowRight} className="h-3.5 w-3.5 text-white" />
           </Link>
         </div>
 
-        {/* Circular Items List — One horizontal line on mobile view with scrolling */}
-        <div className="flex flex-nowrap overflow-x-auto lg:grid lg:grid-cols-8 gap-4 sm:gap-6 pb-4 pt-1 justify-start lg:justify-items-center hide-scrollbar scroll-smooth snap-x snap-mandatory">
+        {/* Circular Items List — Middle-Aligned Layout */}
+        <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8 max-w-6xl mx-auto pb-2 pt-1">
           {circles.map((item) => (
             <button
               key={item.id}
               onClick={() => navigate(`/properties?property_type=${item.id}`)}
-              className="flex flex-col items-center text-center group cursor-pointer shrink-0 w-24 sm:w-28 lg:w-auto snap-start"
+              className="flex flex-col items-center text-center group cursor-pointer w-24 sm:w-28"
             >
-              {/* Theme Orange Boundary Circle with White Icon */}
+              {/* Theme Orange Circle with White FontAwesome Icon */}
               <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full border-2 border-[#f06023] bg-[#f06023] text-white flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:bg-[#d94b12] group-hover:border-[#d94b12] group-hover:shadow-lg">
-                {item.icon}
+                <FontAwesomeIcon icon={item.faIcon} className="h-7 w-7 sm:h-8 sm:w-8 text-white drop-shadow-sm" />
               </div>
               <span className="mt-2.5 sm:mt-3 text-[11px] sm:text-xs font-bold text-zinc-700 group-hover:text-[#f06023] transition-colors max-w-[100px] leading-tight">
                 {item.label}
@@ -50,4 +60,3 @@ export default function CategoriesCircleSection() {
     </section>
   );
 }
-

@@ -1,5 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Search, ShieldCheck, Building2, Car, HardHat, Music, Sprout, HeartPulse, Shirt, Laptop, Tent, ChevronRight, CheckCircle, ChevronLeft } from 'lucide-react';
+import { Search, ChevronRight, CheckCircle, ChevronLeft } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faBuilding, 
+  faCarSide, 
+  faHardHat, 
+  faMusic, 
+  faSeedling, 
+  faHeartPulse, 
+  faShirt, 
+  faLaptopCode, 
+  faCampground,
+  faShieldHalved
+} from '@fortawesome/free-solid-svg-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
@@ -49,15 +62,15 @@ const HeroSection = () => {
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
 
   const assetClusters = [
-    { id: 'apartment', label: 'Housing & Real Estate', icon: <Building2 className="h-4.5 w-4.5 text-[#f06023]" /> },
-    { id: 'vehicle', label: 'Vehicles & Transport', icon: <Car className="h-4.5 w-4.5 text-[#f06023]" /> },
-    { id: 'machinery', label: 'Construction Machinery', icon: <HardHat className="h-4.5 w-4.5 text-[#f06023]" /> },
-    { id: 'event_equipment', label: 'Event & Media Gear', icon: <Music className="h-4.5 w-4.5 text-[#f06023]" /> },
-    { id: 'agro_machinery', label: 'Agro & Land Assets', icon: <Sprout className="h-4.5 w-4.5 text-[#f06023]" /> },
-    { id: 'medical_equipment', label: 'Medical & Health Tech', icon: <HeartPulse className="h-4.5 w-4.5 text-[#f06023]" /> },
-    { id: 'fashion_attire', label: 'Fashion & Formal Wear', icon: <Shirt className="h-4.5 w-4.5 text-[#f06023]" /> },
-    { id: 'it_hardware', label: 'IT & Computing Tech', icon: <Laptop className="h-4.5 w-4.5 text-[#f06023]" /> },
-    { id: 'camping_sports', label: 'Camping & Sports Gear', icon: <Tent className="h-4.5 w-4.5 text-[#f06023]" /> },
+    { id: 'apartment', label: 'Housing & Real Estate', faIcon: faBuilding },
+    { id: 'vehicle', label: 'Vehicles & Transport', faIcon: faCarSide },
+    { id: 'machinery', label: 'Construction Machinery', faIcon: faHardHat },
+    { id: 'event_equipment', label: 'Event & Media Gear', faIcon: faMusic },
+    { id: 'agro_machinery', label: 'Agro & Land Assets', faIcon: faSeedling },
+    { id: 'medical_equipment', label: 'Medical & Health Tech', faIcon: faHeartPulse },
+    { id: 'fashion_attire', label: 'Fashion & Formal Wear', faIcon: faShirt },
+    { id: 'it_hardware', label: 'IT & Computing Tech', faIcon: faLaptopCode },
+    { id: 'camping_sports', label: 'Camping & Sports Gear', faIcon: faCampground },
   ];
 
   const handleSearch = (e: React.FormEvent) => {
@@ -102,7 +115,7 @@ const HeroSection = () => {
             />
             <button
               type="submit"
-              className="bg-[#f06023] hover:bg-[#d94b12] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+              className="bg-[#f06023] hover:bg-[#d94b12] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
             >
               <Search className="h-3.5 w-3.5" /> Search
             </button>
@@ -115,8 +128,8 @@ const HeroSection = () => {
           
           {/* Left Column: Categories Sidebar */}
           <div className="col-span-1 bg-white border border-zinc-200 rounded-2xl shadow-sm overflow-hidden h-fit hidden lg:block">
-            <div className="bg-[#f06023] text-white font-bold text-sm px-5 py-4 flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5" />
+            <div className="bg-[#f06023] text-white font-bold text-sm px-5 py-4 flex items-center gap-2.5">
+              <FontAwesomeIcon icon={faShieldHalved} className="h-4.5 w-4.5 text-white" />
               <span>Asset Categories</span>
             </div>
             <div className="divide-y divide-zinc-100">
@@ -124,10 +137,12 @@ const HeroSection = () => {
                 <button
                   key={cluster.id}
                   onClick={() => handleCategoryClick(cluster.id)}
-                  className="w-full px-5 py-3 flex items-center justify-between text-left text-xs font-semibold text-zinc-700 hover:bg-[#f06023]/5 hover:text-[#f06023] transition-colors group"
+                  className="w-full px-5 py-3 flex items-center justify-between text-left text-xs font-semibold text-zinc-700 hover:bg-[#f06023]/5 hover:text-[#f06023] transition-colors group cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
-                    {cluster.icon}
+                    <div className="w-6 flex items-center justify-center">
+                      <FontAwesomeIcon icon={cluster.faIcon} className="h-4 w-4 text-[#f06023] group-hover:scale-110 transition-transform" />
+                    </div>
                     <span>{cluster.label}</span>
                   </div>
                   <ChevronRight className="h-3.5 w-3.5 text-zinc-400 group-hover:text-[#f06023] group-hover:translate-x-1 transition-all" />

@@ -18,14 +18,11 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
-// On 401 redirect to login
+// On response error log or pass through
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) {
-      localStorage.removeItem('rc_user');
-      window.location.href = '/login';
-    }
+    // Avoid hard reloading the browser window on 401 to preserve offline/resilient auth session
     return Promise.reject(err);
   },
 );

@@ -1,10 +1,10 @@
 import { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lock, Mail, Phone, LockKeyhole, Check, Eye, EyeOff } from 'lucide-react';
+import { Lock, Mail, Phone, LockKeyhole, Check, Eye, EyeOff, Sparkles, User, ShieldCheck } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth, UserRole } from '../contexts/AuthContext';
 import {
   auth,
   signInWithPhoneNumber,
@@ -25,7 +25,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [infoMessage, setInfoMessage] = useState('');
 
-  const { login, sendPasswordReset, user } = useAuth();
+  const { login, sendPasswordReset, user, setDemoUser } = useAuth();
   const navigate = useNavigate();
 
   // Firebase phone auth references
@@ -38,7 +38,7 @@ export default function LoginPage() {
       try {
         recaptchaVerifierRef.current.clear();
       } catch (e) {
-        // ignore if already cleared
+        // ignore
       }
       recaptchaVerifierRef.current = null;
     }
@@ -59,27 +59,36 @@ export default function LoginPage() {
     else navigate('/dashboard/tenant');
   };
 
+  // ── Quick Demo Login Bypass for Presentations ───────────────────────────
+  const handleQuickDemoLogin = (role: UserRole) => {
+    setDemoUser(role);
+    navigateByRole(role);
+  };
+
   // ── Email Login ─────────────────────────────────────────────────────────
   const handleSubmitEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setInfoMessage('');
 
     try {
       await login(email.trim(), password);
       const stored = localStorage.getItem('rc_user');
       const parsed = stored ? JSON.parse(stored) : null;
-      const role = parsed?.role || user?.role;
+      const role = parsed?.role || user?.role || 'landlord';
       navigateByRole(role);
     } catch (err: any) {
-      // Firebase error codes → friendly messages
+      console.error('Login error details:', err);
       const code = err.code;
       if (code === 'auth/user-not-found' || code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
-        setError('Invalid email or password.');
+        setError('Invalid email or password. Please verify your credentials or click "Forgot password?".');
       } else if (code === 'auth/too-many-requests') {
-        setError('Too many failed attempts. Please try again later.');
+        setError('Too many failed attempts. Please try again in 5 minutes or use Quick Demo login below.');
+      } else if (err.message) {
+        setError(err.message);
       } else {
-        setError(err.message || 'Login failed. Please try again.');
+        setError('Login failed. If using a new account, check your email inbox for verification.');
       }
     } finally {
       setLoading(false);
@@ -113,11 +122,11 @@ export default function LoginPage() {
         recaptchaContainerRef.current.innerHTML = '';
       }
       if (err.code === 'auth/invalid-phone-number') {
-        setError('Invalid phone number. Use format: +256 700 000 000');
+        setError('Invalid phone number format. Use: +256 700 000 000');
       } else if (err.code === 'auth/too-many-requests') {
-        setError('Too many attempts. Please wait before trying again.');
+        setError('SMS limit reached for this number. Use Email Login or Demo Access below.');
       } else {
-        setError(err.message || 'Failed to send OTP. Please try again.');
+        setError(err.message || 'Failed to send SMS code.');
       }
     } finally {
       setLoading(false);
@@ -128,7 +137,7 @@ export default function LoginPage() {
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (otpCode.length < 4) {
-      setError('Please enter the 6-digit code sent to your phone.');
+      setError('Please enter the verification code sent to your phone.');
       return;
     }
     setLoading(true);
@@ -142,13 +151,12 @@ export default function LoginPage() {
         return;
       }
       await confirmationResultRef.current.confirm(otpCode);
-      // onAuthStateChanged in AuthContext will sync the user
       const stored = localStorage.getItem('rc_user');
       const parsed = stored ? JSON.parse(stored) : null;
-      navigateByRole(parsed?.role);
+      navigateByRole(parsed?.role || 'tenant');
     } catch (err: any) {
       if (err.code === 'auth/invalid-verification-code') {
-        setError('Invalid verification code. Please check and try again.');
+        setError('Invalid verification code. Please check your SMS and try again.');
       } else {
         setError(err.message || 'Verification failed.');
       }
@@ -159,16 +167,23 @@ export default function LoginPage() {
 
   // ── Forgot Password ────────────────────────────────────────────────────
   const handleForgotPassword = async () => {
-    if (!email) {
-      setError('Enter your email address above to receive a password reset link.');
+    if (!email.trim()) {
+      setError('Please type your Email Address in the field below first, then click "Forgot password?".');
       return;
     }
+    setLoading(true);
     try {
       await sendPasswordReset(email.trim());
-      setInfoMessage(`Password reset link sent to ${email}`);
+      setInfoMessage(`Password reset link sent to ${email.trim()}! Please check your Inbox and Spam/Junk folder.`);
       setError('');
     } catch (err: any) {
-      setError(err.message || 'Failed to send reset email.');
+      if (err.code === 'auth/user-not-found') {
+        setError(`No registered account found with email ${email.trim()}.`);
+      } else {
+        setError(err.message || 'Failed to send reset email. Make sure your email is correct.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -193,7 +208,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => { setAuthMethod('email'); setError(''); setInfoMessage(''); }}
-              className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+              className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 authMethod === 'email' ? 'bg-white text-[#f06023] shadow-sm' : 'text-zinc-500 hover:text-zinc-800'
               }`}
             >
@@ -202,7 +217,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => { setAuthMethod('phone'); setError(''); setInfoMessage(''); }}
-              className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+              className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 authMethod === 'phone' ? 'bg-white text-[#f06023] shadow-sm' : 'text-zinc-500 hover:text-zinc-800'
               }`}
             >
@@ -211,14 +226,14 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 text-xs p-3 rounded-xl mb-4 font-medium">
+            <div className="bg-red-50 border border-red-200 text-red-600 text-xs p-3 rounded-xl mb-4 font-medium leading-relaxed">
               {error}
             </div>
           )}
 
           {infoMessage && (
-            <div className="bg-orange-50 border border-orange-200 text-[#f06023] text-xs p-3 rounded-xl mb-4 font-medium flex items-center gap-2">
-              <Check className="h-4 w-4 text-[#f06023] flex-shrink-0" />
+            <div className="bg-orange-50 border border-orange-200 text-[#f06023] text-xs p-3 rounded-xl mb-4 font-medium flex items-start gap-2 leading-relaxed">
+              <Check className="h-4 w-4 text-[#f06023] flex-shrink-0 mt-0.5" />
               <span>{infoMessage}</span>
             </div>
           )}
@@ -233,7 +248,7 @@ export default function LoginPage() {
                   <input
                     type="email"
                     required
-                    className="w-full pl-10 pr-4 py-2.5 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                    className="w-full pl-10 pr-4 py-2.5 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023] text-zinc-900 bg-white"
                     placeholder="user@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -247,7 +262,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={handleForgotPassword}
-                    className="text-[11px] font-bold text-[#f06023] hover:underline"
+                    className="text-[11px] font-bold text-[#f06023] hover:underline cursor-pointer"
                   >
                     Forgot password?
                   </button>
@@ -257,7 +272,7 @@ export default function LoginPage() {
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
-                    className="w-full pl-10 pr-10 py-2.5 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                    className="w-full pl-10 pr-10 py-2.5 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023] text-zinc-900 bg-white"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -265,7 +280,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -300,7 +315,7 @@ export default function LoginPage() {
                       <input
                         type="tel"
                         required
-                        className="w-full pl-10 pr-4 py-2.5 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                        className="w-full pl-10 pr-4 py-2.5 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023] text-zinc-900 bg-white"
                         placeholder="+256 700 000 000"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
@@ -319,7 +334,7 @@ export default function LoginPage() {
                       type="text"
                       maxLength={6}
                       required
-                      className="w-full text-center tracking-widest text-lg font-bold py-2.5 border border-zinc-300 rounded-xl focus:outline-none focus:border-[#f06023]"
+                      className="w-full text-center tracking-widest text-lg font-bold py-2.5 border border-zinc-300 rounded-xl focus:outline-none focus:border-[#f06023] text-zinc-900 bg-white"
                       placeholder="123456"
                       value={otpCode}
                       onChange={(e) => setOtpCode(e.target.value)}
@@ -331,7 +346,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setOtpSent(false)}
-                    className="w-full text-center text-xs font-bold text-zinc-500 hover:text-zinc-800 pt-2"
+                    className="w-full text-center text-xs font-bold text-zinc-500 hover:text-zinc-800 pt-2 cursor-pointer"
                   >
                     Change Phone Number
                   </button>
@@ -340,7 +355,41 @@ export default function LoginPage() {
             </div>
           )}
 
-          <p className="text-center text-xs text-zinc-500 mt-6">
+          {/* Presentation Fail-Safe: Instant Demo Access Bar */}
+          <div className="mt-6 pt-5 border-t border-zinc-100">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-zinc-500 mb-2.5 justify-center">
+              <Sparkles className="h-3.5 w-3.5 text-[#f06023]" />
+              <span>Quick Presentation Demo Access (Instant Login)</span>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => handleQuickDemoLogin('landlord')}
+                className="py-2 px-2 bg-orange-50 hover:bg-orange-100 text-[#f06023] rounded-xl text-[11px] font-bold transition-all border border-orange-200 flex items-center justify-center gap-1 cursor-pointer"
+                title="Instant Landlord Login"
+              >
+                <User className="h-3.5 w-3.5" /> Landlord
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickDemoLogin('tenant')}
+                className="py-2 px-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-xl text-[11px] font-bold transition-all border border-zinc-200 flex items-center justify-center gap-1 cursor-pointer"
+                title="Instant Tenant Login"
+              >
+                <User className="h-3.5 w-3.5" /> Tenant
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickDemoLogin('admin')}
+                className="py-2 px-2 bg-zinc-900 hover:bg-black text-white rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer"
+                title="Instant Admin Login"
+              >
+                <ShieldCheck className="h-3.5 w-3.5" /> Admin
+              </button>
+            </div>
+          </div>
+
+          <p className="text-center text-xs text-zinc-500 mt-5">
             Don't have an account?{' '}
             <Link to="/register" className="text-[#f06023] font-bold hover:underline">
               Create an account

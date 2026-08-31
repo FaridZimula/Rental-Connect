@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Building2, ShieldCheck, Zap, ArrowRight, Info, Users } from 'lucide-react';
+import { Check, ArrowRight, Info } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHandshake, faShieldHalved, faBuildingUser, faCrown } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 
 export default function PricingSection() {
@@ -10,7 +12,7 @@ export default function PricingSection() {
     {
       id: 'pay-per-client',
       name: 'Pay Per Client',
-      icon: Users,
+      faIcon: faHandshake,
       badge: 'Pay As You Go',
       badgeColor: 'bg-[#f06023] text-white border border-[#f06023] shadow-sm',
       description: 'Zero upfront cost for landlords. Pay a success fee only when we bring a verified client tenant to your property.',
@@ -34,7 +36,7 @@ export default function PricingSection() {
     {
       id: 'standard',
       name: 'Landlord Standard',
-      icon: ShieldCheck,
+      faIcon: faShieldHalved,
       badge: 'Most Popular',
       badgeColor: 'bg-[#f06023] text-white border border-[#f06023] shadow-sm',
       description: 'Fixed monthly plan for active landlords. Keep 100% of your rental revenue with zero per-client commission.',
@@ -58,7 +60,7 @@ export default function PricingSection() {
     {
       id: 'agency',
       name: 'Agency & Enterprise',
-      icon: Building2,
+      faIcon: faBuildingUser,
       badge: 'Pro Agency',
       badgeColor: 'bg-[#f06023] text-white border border-[#f06023] shadow-sm',
       description: 'Built for real estate agencies, property managers, and developers managing large property portfolios.',
@@ -157,7 +159,6 @@ export default function PricingSection() {
         {/* Pricing Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-7xl mx-auto items-stretch">
           {plans.map((plan, index) => {
-            const IconComponent = plan.icon;
             const currentPrice = isAnnual ? plan.annualPrice : plan.monthlyPrice;
 
             return (
@@ -177,15 +178,15 @@ export default function PricingSection() {
                 {/* Popular Badge */}
                 {plan.isPopular && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#f06023] text-white font-extrabold text-[11px] uppercase tracking-wider px-4 py-1 rounded-full shadow-md flex items-center gap-1">
-                    <Zap className="h-3.5 w-3.5 fill-white" /> {plan.badge}
+                    <FontAwesomeIcon icon={faCrown} className="h-3 w-3 text-white" /> {plan.badge}
                   </div>
                 )}
 
                 <div>
-                  {/* Middle-Aligned Icon with Circular Orange Boundary */}
+                  {/* Middle-Aligned Icon with Realistic Solid FontAwesome Icon in Orange Circular Container */}
                   <div className="flex flex-col items-center justify-center text-center mb-4">
-                    <div className="h-14 w-14 rounded-full bg-[#f06023] border-2 border-[#f06023] text-white flex items-center justify-center shadow-md mb-3 group-hover:scale-105 transition-transform">
-                      <IconComponent className="h-7 w-7 text-white" />
+                    <div className="h-16 w-16 rounded-full bg-gradient-to-tr from-[#f06023] to-orange-500 border-2 border-[#f06023] text-white flex items-center justify-center shadow-lg shadow-orange-500/25 mb-3 group-hover:scale-110 transition-all duration-300">
+                      <FontAwesomeIcon icon={plan.faIcon} className="h-7 w-7 text-white drop-shadow-sm" />
                     </div>
                     {!plan.isPopular && (
                       <span className={`text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full border ${plan.badgeColor}`}>
@@ -215,7 +216,7 @@ export default function PricingSection() {
                             / client brought
                           </span>
                         </div>
-                        <p className="text-[11px] text-emerald-600 font-semibold mt-1">
+                        <p className="text-[11px] text-[#f06023] font-semibold mt-1">
                           USh 0 upfront • Pay only upon verified connection
                         </p>
                       </div>
