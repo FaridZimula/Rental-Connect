@@ -14,7 +14,7 @@ import { mockProperties } from '../data/mockData';
 import { Property, ListingReport, AuditLog } from '../types';
 
 export default function AdminDashboardPage() {
-  const [activeTab, setActiveTab] = useState<'verification' | 'users' | 'properties' | 'flagged' | 'audit' | 'analytics'>('verification');
+  const [activeTab, setActiveTab] = useState<'verification' | 'users' | 'properties' | 'flagged' | 'audit' | 'analytics' | 'post_property'>('verification');
 
   const [pendingProperties, setPendingProperties] = useState<Property[]>([]);
   const [allProperties, setAllProperties] = useState<Property[]>([]);
@@ -51,6 +51,22 @@ export default function AdminDashboardPage() {
   const [actionTarget, setActionTarget] = useState<{ id: string; type: 'reject' | 'suspend' } | null>(null);
   const [reason, setReason] = useState('');
   const [submittingAction, setSubmittingAction] = useState(false);
+
+  // Admin: Post / Edit Property State
+  const [showPropertyModal, setShowPropertyModal] = useState(false);
+  const [editingAdminPropertyId, setEditingAdminPropertyId] = useState<string | null>(null);
+  const [pTitle, setPTitle] = useState('');
+  const [pDescription, setPDescription] = useState('');
+  const [pType, setPType] = useState('apartment');
+  const [pListingType, setPListingType] = useState('rent');
+  const [pPrice, setPPrice] = useState('');
+  const [pZone, setPZone] = useState('');
+  const [pAddress, setPAddress] = useState('');
+  const [pBedrooms, setPBedrooms] = useState('1');
+  const [pBathrooms, setPBathrooms] = useState('1');
+  const [pPhotos, setPPhotos] = useState<string[]>([]);
+  const [pNewPhotoUrl, setPNewPhotoUrl] = useState('');
+  const [pSubmitting, setPSubmitting] = useState(false);
 
   const fetchAdminData = async () => {
     setLoading(true);
@@ -205,6 +221,80 @@ export default function AdminDashboardPage() {
     );
   };
 
+  const handleAdminDeleteProperty = (id: string) => {
+    if (!confirm('Delete this property listing from the platform?')) return;
+    const localSavedStr = localStorage.getItem('rc_custom_properties');
+    let localProps: Property[] = localSavedStr ? JSON.parse(localSavedStr) : [];
+    localProps = localProps.filter((p) => p.id !== id);
+    localStorage.setItem('rc_custom_properties', JSON.stringify(localProps));
+    setAllProperties((prev) => prev.filter((p) => p.id !== id));
+    window.dispatchEvent(new CustomEvent('rc_properties_updated'));
+  };
+
+  const openAdminCreateModal = () => {
+    setEditingAdminPropertyId(null);
+    setPTitle(''); setPDescription(''); setPType('apartment'); setPListingType('rent');
+    setPPrice(''); setPZone(''); setPAddress(''); setPBedrooms('1'); setPBathrooms('1');
+    setPPhotos([]); setPNewPhotoUrl('');
+    setShowPropertyModal(true);
+  };
+
+  const openAdminEditModal = (p: Property) => {
+    setEditingAdminPropertyId(p.id);
+    setPTitle(p.title); setPDescription(p.description); setPType(p.property_type);
+    setPListingType(p.listing_type); setPPrice(String(p.price)); setPZone(p.display_zone);
+    setPAddress(p.real_address || p.display_zone); setPBedrooms(String(p.bedrooms)); setPBathrooms(String(p.bathrooms));
+    setPPhotos(p.images?.map((i) => i.image_url) || []); setPNewPhotoUrl('');
+    setShowPropertyModal(true);
+  };
+
+  const handleAdminSaveProperty = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPSubmitting(true);
+    const propId = editingAdminPropertyId || `p_admin_${Date.now()}`;
+    const formattedImages = pPhotos.length > 0
+      ? pPhotos.map((url, idx) => ({ id: `img_${propId}_${idx}`, property_id: propId, image_url: url, is_primary: idx === 0 }))
+      : [{ id: `img_${propId}_default`, property_id: propId, image_url: 'https://images.pexels.com/photos/1918291/pexels-photo-1918291.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', is_primary: true }];
+
+    const savedProp: Property = {
+      id: propId,
+      owner_id: 'admin',
+      title: pTitle,
+      description: pDescription,
+      property_type: pType,
+      listing_type: pListingType,
+      price: Number(pPrice),
+      price_period: '/month',
+      display_zone: pZone,
+      real_address: pAddress || pZone,
+      bedrooms: Number(pBedrooms),
+      bathrooms: Number(pBathrooms),
+      area_sqft: 1200,
+      status: 'published',
+      is_available: true,
+      created_at: new Date().toISOString(),
+      images: formattedImages,
+      amenities: [],
+      owner: { full_name: 'Rental Connect Admin', phone: '+256 700 000 000' },
+    };
+
+    const localSavedStr = localStorage.getItem('rc_custom_properties');
+    let localProps: Property[] = localSavedStr ? JSON.parse(localSavedStr) : [];
+    const idx = localProps.findIndex((p) => p.id === propId);
+    if (idx >= 0) localProps[idx] = savedProp;
+    else localProps = [savedProp, ...localProps];
+    localStorage.setItem('rc_custom_properties', JSON.stringify(localProps));
+
+    setAllProperties((prev) => {
+      const without = prev.filter((p) => p.id !== propId);
+      return [savedProp, ...without];
+    });
+    window.dispatchEvent(new CustomEvent('rc_properties_updated'));
+    setShowPropertyModal(false);
+    setPSubmitting(false);
+  };
+
+
   const handleAddOwner = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!ownerEmail.trim() || !ownerPassword.trim()) return;
@@ -286,6 +376,13 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5">
+              <button
+                type="button"
+                onClick={openAdminCreateModal}
+                className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-md cursor-pointer active:scale-98"
+              >
+                <Building2 className="h-4 w-4" /> Post Property
+              </button>
               <button
                 type="button"
                 onClick={() => {
@@ -418,6 +515,17 @@ export default function AdminDashboardPage() {
               }`}
             >
               <BarChart3 className="h-4 w-4" /> Analytics & Plan Statistics
+            </button>
+
+            <button
+              onClick={() => { openAdminCreateModal(); setActiveTab('post_property'); }}
+              className={`pb-3 px-4 text-sm font-semibold transition-all border-b-2 flex items-center gap-2 whitespace-nowrap ${
+                activeTab === 'post_property'
+                  ? 'border-emerald-600 text-emerald-600'
+                  : 'border-transparent text-zinc-500 hover:text-zinc-800'
+              }`}
+            >
+              <Building2 className="h-4 w-4" /> Post New Property
             </button>
           </div>
 
@@ -719,16 +827,30 @@ export default function AdminDashboardPage() {
                                     </div>
                                   </td>
                                   <td className="p-4 text-right">
-                                    <button
-                                      onClick={() => handleTogglePropertyAvailability(p.id)}
-                                      className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-all ${
-                                        p.is_available !== false
-                                          ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200'
-                                          : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
-                                      }`}
-                                    >
-                                      {p.is_available !== false ? 'Mark as Booked' : 'Mark as Available'}
-                                    </button>
+                                    <div className="flex items-center justify-end gap-2">
+                                      <button
+                                        onClick={() => openAdminEditModal(p)}
+                                        className="px-3 py-1.5 rounded-xl font-bold text-xs transition-all bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200"
+                                      >
+                                        ✏️ Edit
+                                      </button>
+                                      <button
+                                        onClick={() => handleTogglePropertyAvailability(p.id)}
+                                        className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-all ${
+                                          p.is_available !== false
+                                            ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200'
+                                            : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
+                                        }`}
+                                      >
+                                        {p.is_available !== false ? 'Mark Booked' : 'Mark Available'}
+                                      </button>
+                                      <button
+                                        onClick={() => handleAdminDeleteProperty(p.id)}
+                                        className="px-3 py-1.5 rounded-xl font-bold text-xs transition-all bg-red-50 text-red-700 hover:bg-red-100 border border-red-200"
+                                      >
+                                        🗑️ Delete
+                                      </button>
+                                    </div>
                                   </td>
                                 </tr>
                               );
@@ -951,7 +1073,123 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* Add Property Owner Modal */}
+      {/* Admin: Add / Edit Property Modal */}
+      {showPropertyModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative overflow-y-auto max-h-[90vh]">
+            <button onClick={() => setShowPropertyModal(false)} className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600"><X className="h-5 w-5" /></button>
+
+            <div className="text-center mb-5">
+              <div className="h-14 w-14 rounded-full bg-emerald-600 flex items-center justify-center mx-auto mb-3 shadow-md">
+                <Building2 className="h-7 w-7 text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-zinc-900">{editingAdminPropertyId ? 'Edit Property Listing' : 'Post New Property'}</h3>
+              <p className="text-xs text-zinc-500 mt-1">Admin is posting directly on the platform. This listing goes live immediately.</p>
+            </div>
+
+            <form onSubmit={handleAdminSaveProperty} className="space-y-4">
+              {/* Title */}
+              <div>
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">Property Title <span className="text-[#f06023]">*</span></label>
+                <input required type="text" placeholder="e.g. Modern 3-Bedroom Apartment in Kololo" className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]" value={pTitle} onChange={(e) => setPTitle(e.target.value)} />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">Description <span className="text-[#f06023]">*</span></label>
+                <textarea required rows={3} placeholder="Describe the property, features, nearby landmarks..." className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]" value={pDescription} onChange={(e) => setPDescription(e.target.value)} />
+              </div>
+
+              {/* Type & Listing Type */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-700 mb-1">Property Type</label>
+                  <select className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023] bg-white" value={pType} onChange={(e) => setPType(e.target.value)}>
+                    <option value="apartment">Apartment / Flat</option>
+                    <option value="house">Residential House</option>
+                    <option value="hostel">Hostel Room</option>
+                    <option value="land">Land / Plot</option>
+                    <option value="vehicle">Vehicle (Car, SUV, Truck)</option>
+                    <option value="commercial">Commercial / Warehouse</option>
+                    <option value="machinery">Heavy Machinery & Tool</option>
+                    <option value="event_equipment">Event & Sound Gear</option>
+                    <option value="event_venue">Event Venue / Garden</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-700 mb-1">Listing Type</label>
+                  <select className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023] bg-white" value={pListingType} onChange={(e) => setPListingType(e.target.value)}>
+                    <option value="rent">For Rent</option>
+                    <option value="sale">For Sale</option>
+                    <option value="lease">For Lease</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Price, Zone, Address */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-700 mb-1">Price (UGX) <span className="text-[#f06023]">*</span></label>
+                  <input required type="number" placeholder="e.g. 1500000" className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]" value={pPrice} onChange={(e) => setPPrice(e.target.value)} />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-700 mb-1">Display Zone / Area <span className="text-[#f06023]">*</span></label>
+                  <input required type="text" placeholder="e.g. Kololo, Kampala" className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]" value={pZone} onChange={(e) => setPZone(e.target.value)} />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">Full Real Address</label>
+                <input type="text" placeholder="e.g. Plot 45, Kanjokya Street, Kampala" className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]" value={pAddress} onChange={(e) => setPAddress(e.target.value)} />
+              </div>
+
+              {/* Bedrooms & Bathrooms */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-700 mb-1">Bedrooms</label>
+                  <select className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023] bg-white" value={pBedrooms} onChange={(e) => setPBedrooms(e.target.value)}>
+                    {['1','2','3','4','5','6+'].map((n) => <option key={n} value={n}>{n} Bedroom{n !== '1' ? 's' : ''}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-700 mb-1">Bathrooms</label>
+                  <select className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023] bg-white" value={pBathrooms} onChange={(e) => setPBathrooms(e.target.value)}>
+                    {['1','2','3','4+'].map((n) => <option key={n} value={n}>{n} Bathroom{n !== '1' ? 's' : ''}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {/* Photos */}
+              <div>
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">Photo URLs (Paste image links)</label>
+                <div className="flex gap-2">
+                  <input type="url" placeholder="https://example.com/photo.jpg" className="flex-1 p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]" value={pNewPhotoUrl} onChange={(e) => setPNewPhotoUrl(e.target.value)} />
+                  <button type="button" onClick={() => { if (pNewPhotoUrl.trim()) { setPPhotos([...pPhotos, pNewPhotoUrl.trim()]); setPNewPhotoUrl(''); }}} className="px-4 py-2 bg-[#f06023] text-white rounded-xl text-xs font-bold hover:bg-[#d94b12] transition-all">Add</button>
+                </div>
+                {pPhotos.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {pPhotos.map((url, i) => (
+                      <div key={i} className="relative group">
+                        <img src={url} alt={`photo ${i+1}`} className="h-16 w-20 object-cover rounded-xl border border-zinc-200" />
+                        <button type="button" onClick={() => setPPhotos(pPhotos.filter((_, j) => j !== i))} className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">×</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-2 flex gap-2">
+                <Button variant="secondary" fullWidth type="button" onClick={() => setShowPropertyModal(false)}>Cancel</Button>
+                <Button variant="primary" fullWidth type="submit" disabled={pSubmitting}>
+                  {pSubmitting ? 'Saving...' : editingAdminPropertyId ? 'Save Changes' : 'Post Property Live'}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+
       {showAddOwnerModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
