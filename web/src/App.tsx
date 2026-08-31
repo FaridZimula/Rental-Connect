@@ -12,6 +12,8 @@ import LandlordDashboardPage from './pages/LandlordDashboardPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AdminLoginPage from './pages/AdminLoginPage';
+import { AuthProvider } from './contexts/AuthContext';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 function ScrollToTop() {
   const { pathname, search } = useLocation();
