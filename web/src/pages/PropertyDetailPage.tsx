@@ -108,18 +108,61 @@ export default function PropertyDetailPage() {
     e.preventDefault();
     if (!inquiryMsg.trim() || !id) return;
     setInquirySubmitting(true);
+
+    const tenantName = user?.full_name || user?.email?.split('@')[0] || 'A tenant';
+    const tenantPhone = user?.phone || 'N/A';
+    const propertyTitle = property?.title || 'a property';
+    const propertyZone = property?.display_zone || '';
+
+    // 1️⃣ Save to localStorage so admin dashboard can show alert
+    const newInquiry = {
+      id: `inq_${Date.now()}`,
+      property_id: id,
+      property_title: propertyTitle,
+      property_zone: propertyZone,
+      tenant_name: tenantName,
+      tenant_email: user?.email || '',
+      tenant_phone: tenantPhone,
+      message: inquiryMsg.trim(),
+      viewing_date: viewingDate || null,
+      created_at: new Date().toISOString(),
+      is_read: false,
+    };
+    const existingStr = localStorage.getItem('rc_admin_inquiries');
+    const existing = existingStr ? JSON.parse(existingStr) : [];
+    localStorage.setItem('rc_admin_inquiries', JSON.stringify([newInquiry, ...existing]));
+    window.dispatchEvent(new CustomEvent('rc_new_inquiry'));
+
+    // 2️⃣ Open WhatsApp with pre-filled message to admin number
+    const waText = encodeURIComponent(
+      `🏠 *New Rental Connect Inquiry*
+
+*Property:* ${propertyTitle} (${propertyZone})
+*From:* ${tenantName}
+*Email:* ${user?.email || 'N/A'}
+*Phone:* ${tenantPhone}
+*Viewing Date:* ${viewingDate || 'Not specified'}
+
+*Message:*
+${inquiryMsg.trim()}
+
+— Sent via Rental Connect`
+    );
+    window.open(`https://wa.me/256765458906?text=${waText}`, '_blank');
+
+    // 3️⃣ Try backend API in background (non-blocking)
     try {
       await inquiriesApi.create({
         property_id: id,
         message: inquiryMsg.trim(),
         viewing_date: viewingDate || undefined,
       });
-      setInquirySuccess(true);
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to send inquiry.');
-    } finally {
-      setInquirySubmitting(false);
+    } catch {
+      // Backend offline — WhatsApp + localStorage already handled it
     }
+
+    setInquirySuccess(true);
+    setInquirySubmitting(false);
   };
 
   const handleReportSubmit = async (e: React.FormEvent) => {
