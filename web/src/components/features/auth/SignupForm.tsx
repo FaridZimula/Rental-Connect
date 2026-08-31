@@ -30,10 +30,10 @@ const SignupForm = () => {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      if (user.role === 'owner') {
-        navigate('/hostel-owner', { replace: true });
+      if (user.role === 'landlord' || (user.role as any) === 'owner') {
+        navigate('/dashboard/landlord', { replace: true });
       } else {
-        navigate('/dashboard', { replace: true });
+        navigate('/dashboard/tenant', { replace: true });
       }
     }
   }, [isAuthenticated, user, navigate]);
@@ -102,15 +102,17 @@ const SignupForm = () => {
 
     setIsLoading(true);
     try {
+      const mappedRole = formData.role === 'owner' ? 'landlord' : 'tenant';
       await register({
         full_name: formData.name,
         email: formData.email,
         phone: formData.phone,
         password: formData.password,
-        role: formData.role,
+        role: mappedRole,
       });
-    } catch {
-      setErrors({ submit: 'Failed to create account. Please try again.' });
+      navigate(mappedRole === 'landlord' ? '/dashboard/landlord' : '/dashboard/tenant');
+    } catch (err: any) {
+      setErrors({ submit: err?.message || 'Failed to create account. Please try again.' });
     } finally {
       setIsLoading(false);
     }

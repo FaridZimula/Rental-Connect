@@ -17,12 +17,12 @@ const LoginForm = () => {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      if (user.role === 'owner') {
-        navigate('/hostel-owner', { replace: true });
+      if (user.role === 'landlord' || (user.role as any) === 'owner') {
+        navigate('/dashboard/landlord', { replace: true });
       } else if (user.role === 'admin') {
-        navigate('/hostel-broker', { replace: true });
+        navigate('/dashboard/admin', { replace: true });
       } else {
-        navigate('/dashboard', { replace: true });
+        navigate('/dashboard/tenant', { replace: true });
       }
     }
   }, [isAuthenticated, user, navigate]);
@@ -127,22 +127,12 @@ const LoginForm = () => {
           {isLoading ? 'Signing in...' : 'Sign in'}
         </Button>
         
-        {location.pathname !== '/hostel-owner/login' && (
-          <p className="text-center text-zinc-400 text-sm mt-6">
-            Don't have an account?{' '}
-            <Link to="/signup" className="text-orange-500 hover:text-orange-400 font-semibold transition-colors">
-              Sign up
-            </Link>
-          </p>
-        )}
-        {location.pathname === '/hostel-owner/login' && (
-          <p className="text-center text-zinc-400 text-sm mt-6">
-            Don't have an owner account?{' '}
-            <Link to="/hostel-owner/signup" className="text-orange-500 hover:text-orange-400 font-semibold transition-colors">
-              Sign up as owner
-            </Link>
-          </p>
-        )}
+        <p className="text-center text-zinc-400 text-sm mt-6">
+          Don't have an account?{' '}
+          <Link to="/register" className="text-orange-500 hover:text-orange-400 font-semibold transition-colors">
+            Sign up
+          </Link>
+        </p>
       </form>
     </motion.div>
   );

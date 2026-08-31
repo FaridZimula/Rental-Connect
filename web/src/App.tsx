@@ -46,6 +46,11 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
 
+            {/* Legacy route aliases */}
+            <Route path="/signup" element={<Navigate to="/register" replace />} />
+            <Route path="/hostel-owner/login" element={<Navigate to="/login" replace />} />
+            <Route path="/hostel-owner/signup" element={<Navigate to="/register" replace />} />
+
             {/* Dashboard routes */}
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard/tenant" element={<TenantDashboardPage />} />

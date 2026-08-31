@@ -90,7 +90,7 @@ const Footer = () => {
                 { to: '/', label: 'Home' },
                 { to: '/hostels', label: 'All Rentals' },
                 { to: '/universities', label: 'Campus Locations' },
-                { to: '/hostel-owner/login', label: 'List Your Rental' },
+                { to: '/register', label: 'List Your Rental' },
                 { to: '/contact', label: 'Contact Support' }
               ].map((link) => (
                 <motion.li 
