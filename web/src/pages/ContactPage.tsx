@@ -43,14 +43,13 @@ export default function ContactPage() {
         {/* Hero Header Section */}
         <section className="bg-zinc-950 text-white py-16 relative overflow-hidden mb-12">
           <div className="absolute top-0 right-0 w-96 h-96 bg-[#f06023]/15 rounded-full blur-3xl pointer-events-none" />
+          {/* Low opacity property background */}
+          <div
+            className="absolute inset-0 bg-center bg-cover opacity-[0.07] pointer-events-none"
+            style={{ backgroundImage: "url('/contact_hero_bg.png')" }}
+          />
           <div className="container mx-auto px-4 relative z-10 text-center max-w-3xl">
-            <motion.span
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#f06023]/20 text-[#f06023] border border-[#f06023]/30 text-xs font-bold uppercase tracking-wider mb-4"
-            >
-              <Sparkles className="h-3.5 w-3.5" /> We're Here To Help
-            </motion.span>
+
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -81,44 +80,44 @@ export default function ContactPage() {
 
                 <div className="space-y-5">
                   <div className="flex items-start gap-4">
-                    <div className="h-11 w-11 rounded-2xl bg-orange-50 border border-orange-200 text-[#f06023] flex items-center justify-center shrink-0">
+                    <div className="h-11 w-11 rounded-full bg-[#f06023] text-white flex items-center justify-center shrink-0 shadow-md">
                       <MapPin className="h-5 w-5" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400">Main HQ Office</h4>
-                      <p className="text-sm font-bold text-zinc-900 mt-0.5">Rental Connect House, Kampala</p>
-                      <p className="text-xs text-zinc-500">Kololo Hill Road & Kampala Rd, Uganda</p>
+                      <h4 className="text-xs font-bold uppercase tracking-wide text-[#f06023]">Main HQ Office</h4>
+                      <p className="text-sm font-bold text-zinc-900 mt-0.5">Kanjokya House, Kampala</p>
+                      <p className="text-xs text-zinc-500">Kanjokya Street, Kamwokya, Uganda</p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <div className="h-11 w-11 rounded-2xl bg-orange-50 border border-orange-200 text-[#f06023] flex items-center justify-center shrink-0">
+                    <div className="h-11 w-11 rounded-full bg-[#f06023] text-white flex items-center justify-center shrink-0 shadow-md">
                       <Phone className="h-5 w-5" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400">Phone & WhatsApp</h4>
+                      <h4 className="text-xs font-bold uppercase tracking-wide text-[#f06023]">Phone & WhatsApp</h4>
                       <p className="text-sm font-bold text-zinc-900 mt-0.5">+256 700 000 000</p>
                       <p className="text-xs text-zinc-500">+256 772 000 000 (Toll Free Line)</p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <div className="h-11 w-11 rounded-2xl bg-orange-50 border border-orange-200 text-[#f06023] flex items-center justify-center shrink-0">
+                    <div className="h-11 w-11 rounded-full bg-[#f06023] text-white flex items-center justify-center shrink-0 shadow-md">
                       <Mail className="h-5 w-5" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400">Email Address</h4>
+                      <h4 className="text-xs font-bold uppercase tracking-wide text-[#f06023]">Email Address</h4>
                       <p className="text-sm font-bold text-[#f06023] mt-0.5">support@rentalconnect.ug</p>
                       <p className="text-xs text-zinc-500">Fast response within 24 hours</p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <div className="h-11 w-11 rounded-2xl bg-orange-50 border border-orange-200 text-[#f06023] flex items-center justify-center shrink-0">
+                    <div className="h-11 w-11 rounded-full bg-[#f06023] text-white flex items-center justify-center shrink-0 shadow-md">
                       <Clock className="h-5 w-5" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400">Operating Hours</h4>
+                      <h4 className="text-xs font-bold uppercase tracking-wide text-[#f06023]">Operating Hours</h4>
                       <p className="text-sm font-bold text-zinc-900 mt-0.5">Monday – Saturday: 8:00 AM – 7:00 PM</p>
                       <p className="text-xs text-zinc-500">Sunday & Public Holidays: Emergency Support</p>
                     </div>
