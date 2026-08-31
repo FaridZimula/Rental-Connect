@@ -5,7 +5,8 @@ import { faHouseUser, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import { 
   ShieldCheck, CheckCircle2, XCircle, Users, Flag, Activity, Ban, ShieldAlert, 
   BarChart3, Clock, UserPlus, Shield, User, Mail, Key, X, Sparkles, Building2, 
-  Tag, Crown, Search, Filter, Phone, Image as ImageIcon, Eye, TrendingUp, Percent, Check
+  Tag, Crown, Search, Filter, Phone, Image as ImageIcon, Eye, TrendingUp, Percent, Check,
+  MessageSquare, Bell
 } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
@@ -14,7 +15,7 @@ import { mockProperties } from '../data/mockData';
 import { Property, ListingReport, AuditLog } from '../types';
 
 export default function AdminDashboardPage() {
-  const [activeTab, setActiveTab] = useState<'verification' | 'users' | 'properties' | 'flagged' | 'audit' | 'analytics' | 'post_property'>('verification');
+  const [activeTab, setActiveTab] = useState<'verification' | 'users' | 'properties' | 'flagged' | 'audit' | 'analytics' | 'post_property' | 'inquiries'>('verification');
 
   const [pendingProperties, setPendingProperties] = useState<Property[]>([]);
   const [allProperties, setAllProperties] = useState<Property[]>([]);
@@ -67,6 +68,13 @@ export default function AdminDashboardPage() {
   const [pPhotos, setPPhotos] = useState<string[]>([]);
   const [pNewPhotoUrl, setPNewPhotoUrl] = useState('');
   const [pSubmitting, setPSubmitting] = useState(false);
+
+  // Tenant Inquiries (from localStorage)
+  const [adminInquiries, setAdminInquiries] = useState<any[]>(() => {
+    const s = localStorage.getItem('rc_admin_inquiries');
+    return s ? JSON.parse(s) : [];
+  });
+  const unreadCount = adminInquiries.filter((i) => !i.is_read).length;
 
   const fetchAdminData = async () => {
     setLoading(true);
@@ -162,7 +170,31 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     fetchAdminData();
+
+    // Listen for new tenant inquiries in real-time
+    const loadInquiries = () => {
+      const s = localStorage.getItem('rc_admin_inquiries');
+      setAdminInquiries(s ? JSON.parse(s) : []);
+    };
+    window.addEventListener('rc_new_inquiry', loadInquiries);
+    window.addEventListener('storage', loadInquiries);
+    return () => {
+      window.removeEventListener('rc_new_inquiry', loadInquiries);
+      window.removeEventListener('storage', loadInquiries);
+    };
   }, []);
+
+  const markInquiryRead = (id: string) => {
+    const updated = adminInquiries.map((i) => i.id === id ? { ...i, is_read: true } : i);
+    setAdminInquiries(updated);
+    localStorage.setItem('rc_admin_inquiries', JSON.stringify(updated));
+  };
+
+  const deleteInquiry = (id: string) => {
+    const updated = adminInquiries.filter((i) => i.id !== id);
+    setAdminInquiries(updated);
+    localStorage.setItem('rc_admin_inquiries', JSON.stringify(updated));
+  };
 
   const handleApprove = async (propertyId: string) => {
     try {
@@ -365,14 +397,27 @@ export default function AdminDashboardPage() {
         <div className="container mx-auto px-4">
           {/* Header */}
           <div className="bg-zinc-900 text-white rounded-3xl p-6 mb-8 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="h-14 w-14 rounded-full bg-[#f06023] border-2 border-[#f06023] flex items-center justify-center font-extrabold text-xl shadow-md">
-                <ShieldCheck className="h-7 w-7 text-white" />
+              <div className="flex items-center gap-3">
+                <div className="h-14 w-14 rounded-full bg-[#f06023] border-2 border-[#f06023] flex items-center justify-center font-extrabold text-xl shadow-md">
+                  <ShieldCheck className="h-7 w-7 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-white">System Manager Console</h1>
+                  <p className="text-xs text-zinc-400">Platform Moderation, Verification & Audit Control</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white">System Manager Console</h1>
-                <p className="text-xs text-zinc-400">Platform Moderation, Verification & Audit Control</p>
-              </div>
+
+              {/* Unread Inquiry Bell */}
+              {unreadCount > 0 && (
+                <button
+                  onClick={() => setActiveTab('inquiries')}
+                  className="relative flex items-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-all shadow-md animate-pulse"
+                >
+                  <Bell className="h-4 w-4" />
+                  {unreadCount} New {unreadCount === 1 ? 'Inquiry' : 'Inquiries'}
+                  <span className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-white text-red-600 rounded-full text-[10px] font-extrabold flex items-center justify-center">{unreadCount}</span>
+                </button>
+              )}
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5">
@@ -526,6 +571,20 @@ export default function AdminDashboardPage() {
               }`}
             >
               <Building2 className="h-4 w-4" /> Post New Property
+            </button>
+
+            <button
+              onClick={() => setActiveTab('inquiries')}
+              className={`pb-3 px-4 text-sm font-semibold transition-all border-b-2 flex items-center gap-2 whitespace-nowrap relative ${
+                activeTab === 'inquiries'
+                  ? 'border-red-500 text-red-600'
+                  : 'border-transparent text-zinc-500 hover:text-zinc-800'
+              }`}
+            >
+              <MessageSquare className="h-4 w-4" /> Tenant Inquiries
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 right-1 h-4 w-4 bg-red-500 text-white text-[10px] font-extrabold rounded-full flex items-center justify-center">{unreadCount}</span>
+              )}
             </button>
           </div>
 
