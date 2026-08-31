@@ -185,9 +185,10 @@ export default function LoginPage() {
     }
   };
 
-  const handleInstantPasswordReset = (e: React.FormEvent) => {
+  const handleInstantPasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!resetEmail.trim()) {
+    const cleanEmail = resetEmail.trim();
+    if (!cleanEmail) {
       setResetModalError('Please enter your email address.');
       return;
     }
@@ -203,25 +204,32 @@ export default function LoginPage() {
     // Persist updated credentials locally
     const saved = localStorage.getItem('rc_user');
     const parsed = saved ? JSON.parse(saved) : null;
+    const userRole: UserRole = parsed?.role || 'landlord';
     const updatedUser = {
       ...(parsed || {}),
-      email: resetEmail.trim(),
+      email: cleanEmail,
       id: parsed?.id || `usr_${Date.now()}`,
-      full_name: parsed?.full_name || resetEmail.trim().split('@')[0],
-      role: parsed?.role || 'landlord',
+      full_name: parsed?.full_name || cleanEmail.split('@')[0],
+      role: userRole,
       is_verified: true,
     };
     localStorage.setItem('rc_user', JSON.stringify(updatedUser));
+    localStorage.setItem(`rc_pwd_${cleanEmail.toLowerCase()}`, newPassword);
 
-    // Fill form and present success banner
-    setEmail(resetEmail.trim());
+    // Auto-login session immediately
+    setEmail(cleanEmail);
     setPassword(newPassword);
-    setInfoMessage(`Password for ${resetEmail.trim()} updated successfully! Click "Log In to Account" below.`);
-    setError('');
     setShowResetModal(false);
     setNewPassword('');
     setConfirmNewPassword('');
     setResetModalError('');
+
+    try {
+      await login(cleanEmail, newPassword);
+      navigateByRole(userRole);
+    } catch (e) {
+      setInfoMessage(`Password for ${cleanEmail} updated! Click "Log In to Account" below.`);
+    }
   };
 
   return (
