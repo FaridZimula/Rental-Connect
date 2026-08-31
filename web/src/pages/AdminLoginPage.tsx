@@ -148,7 +148,7 @@ export default function AdminLoginPage() {
                 <input
                   type="email"
                   required
-                  placeholder="faridzimula602@gmail.com"
+                  placeholder="adminsupport@rentalconnect.com"
                   className="w-full pl-10 pr-4 py-2.5 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023] text-zinc-900 bg-white"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
