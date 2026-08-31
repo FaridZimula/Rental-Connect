@@ -26,45 +26,41 @@ function ScrollToTop() {
 function App() {
   const [showSplash, setShowSplash] = useState(true);
 
-  const handleSplashComplete = () => {
-    setShowSplash(false);
-  };
-
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        {showSplash ? (
-          <SplashScreen onComplete={handleSplashComplete} />
-        ) : (
-          <Router>
-            <ScrollToTop />
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<Home />} />
-              <Route path="/properties" element={<PropertiesPage />} />
-              <Route path="/properties/:id" element={<PropertyDetailPage />} />
+      <Router>
+        <AuthProvider>
+          <ScrollToTop />
+          {/* SplashScreen overlays as fixed layer — Router is ALWAYS mounted */}
+          {showSplash && (
+            <SplashScreen onComplete={() => setShowSplash(false)} />
+          )}
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/properties" element={<PropertiesPage />} />
+            <Route path="/properties/:id" element={<PropertyDetailPage />} />
 
-              {/* Auth routes */}
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
+            {/* Auth routes */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
-              {/* Legacy route aliases */}
-              <Route path="/signup" element={<Navigate to="/register" replace />} />
-              <Route path="/hostel-owner/login" element={<Navigate to="/login" replace />} />
-              <Route path="/hostel-owner/signup" element={<Navigate to="/register" replace />} />
+            {/* Legacy route aliases */}
+            <Route path="/signup" element={<Navigate to="/register" replace />} />
+            <Route path="/hostel-owner/login" element={<Navigate to="/login" replace />} />
+            <Route path="/hostel-owner/signup" element={<Navigate to="/register" replace />} />
 
-              {/* Dashboard routes */}
-              <Route path="/dashboard" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
-              <Route path="/dashboard/tenant" element={<ErrorBoundary><TenantDashboardPage /></ErrorBoundary>} />
-              <Route path="/dashboard/landlord" element={<ErrorBoundary><LandlordDashboardPage /></ErrorBoundary>} />
-              <Route path="/dashboard/admin" element={<ErrorBoundary><AdminDashboardPage /></ErrorBoundary>} />
+            {/* Dashboard routes */}
+            <Route path="/dashboard" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
+            <Route path="/dashboard/tenant" element={<ErrorBoundary><TenantDashboardPage /></ErrorBoundary>} />
+            <Route path="/dashboard/landlord" element={<ErrorBoundary><LandlordDashboardPage /></ErrorBoundary>} />
+            <Route path="/dashboard/admin" element={<ErrorBoundary><AdminDashboardPage /></ErrorBoundary>} />
 
-              {/* Fallbacks */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Router>
-        )}
-      </AuthProvider>
+            {/* Fallbacks */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AuthProvider>
+      </Router>
     </ErrorBoundary>
   );
 }
