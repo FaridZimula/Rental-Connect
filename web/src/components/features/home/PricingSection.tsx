@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Sparkles, Building2, ShieldCheck, Zap, ArrowRight, Info, Users } from 'lucide-react';
+import { Check, Building2, ShieldCheck, Zap, ArrowRight, Info, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function PricingSection() {
@@ -182,10 +182,10 @@ export default function PricingSection() {
                 )}
 
                 <div>
-                  {/* Top Card Info */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`p-3 rounded-2xl ${plan.isPopular ? 'bg-orange-50 text-[#f06023]' : 'bg-zinc-100 text-zinc-700'}`}>
-                      <IconComponent className="h-6 w-6" />
+                  {/* Middle-Aligned Icon with Circular Orange Boundary */}
+                  <div className="flex flex-col items-center justify-center text-center mb-4">
+                    <div className="h-14 w-14 rounded-full bg-[#f06023] border-2 border-[#f06023] text-white flex items-center justify-center shadow-md mb-3 group-hover:scale-105 transition-transform">
+                      <IconComponent className="h-7 w-7 text-white" />
                     </div>
                     {!plan.isPopular && (
                       <span className={`text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full border ${plan.badgeColor}`}>
@@ -194,18 +194,20 @@ export default function PricingSection() {
                     )}
                   </div>
 
-                  <h3 className="text-xl sm:text-2xl font-bold text-zinc-900 mb-2">
-                    {plan.name}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-zinc-500 mb-6 leading-relaxed">
-                    {plan.description}
-                  </p>
+                  <div className="text-center mb-6">
+                    <h3 className="text-xl sm:text-2xl font-bold text-zinc-900 mb-2">
+                      {plan.name}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-zinc-500 leading-relaxed max-w-xs mx-auto">
+                      {plan.description}
+                    </p>
+                  </div>
 
                   {/* Pricing Display */}
-                  <div className="mb-6 pb-6 border-b border-zinc-100">
+                  <div className="mb-6 pb-6 border-b border-zinc-100 text-center">
                     {plan.isPayPerClient ? (
                       <div>
-                        <div className="flex items-baseline gap-1.5">
+                        <div className="flex items-baseline justify-center gap-1.5">
                           <span className="text-3xl sm:text-4xl font-extrabold text-zinc-900 tracking-tight">
                             {formatPrice(plan.perClientFee)}
                           </span>
@@ -219,7 +221,7 @@ export default function PricingSection() {
                       </div>
                     ) : (
                       <div>
-                        <div className="flex items-baseline gap-1.5">
+                        <div className="flex items-baseline justify-center gap-1.5">
                           <span className="text-3xl sm:text-4xl font-extrabold text-zinc-900 tracking-tight">
                             {formatPrice(currentPrice)}
                           </span>
@@ -242,7 +244,7 @@ export default function PricingSection() {
 
                   {/* Feature Checklist */}
                   <div className="space-y-3 mb-8">
-                    <p className="text-xs font-bold uppercase text-zinc-400 tracking-wider mb-3">Landlord Benefits</p>
+                    <p className="text-xs font-bold uppercase text-zinc-400 tracking-wider mb-3 text-center sm:text-left">Landlord Benefits</p>
                     {plan.features.map((feature, fIdx) => (
                       <div key={fIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-700">
                         <div className={`mt-0.5 rounded-full p-0.5 shrink-0 ${plan.isPopular ? 'bg-orange-100 text-[#f06023]' : 'bg-zinc-100 text-zinc-800'}`}>
