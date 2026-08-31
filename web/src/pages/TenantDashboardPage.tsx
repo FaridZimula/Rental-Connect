@@ -79,7 +79,7 @@ export default function TenantDashboardPage() {
           {/* Header */}
           <div className="bg-white border border-zinc-200 rounded-3xl p-6 mb-8 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="h-14 w-14 rounded-2xl bg-[#f06023]/10 text-[#f06023] flex items-center justify-center font-extrabold text-xl">
+              <div className="h-14 w-14 rounded-full bg-[#f06023] border-2 border-[#f06023] text-white flex items-center justify-center font-extrabold text-xl shadow-md uppercase">
                 {user?.full_name?.charAt(0) || 'T'}
               </div>
               <div>
