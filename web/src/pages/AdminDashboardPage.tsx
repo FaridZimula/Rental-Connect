@@ -52,9 +52,51 @@ export default function AdminDashboardPage() {
       if (pendingRes.status === 'fulfilled' && Array.isArray(pendingRes.value)) setPendingProperties(pendingRes.value);
       else setPendingProperties([]);
 
-      if (usersRes.status === 'fulfilled' && Array.isArray(usersRes.value?.data)) setUsers(usersRes.value.data);
-      else if (usersRes.status === 'fulfilled' && Array.isArray(usersRes.value)) setUsers(usersRes.value);
-      else setUsers([]);
+      // Construct complete user list including system admins and added property owners
+      const defaultAdminUsers = [
+        { id: 'adm_1', full_name: 'Farid Zimula', email: 'faridzimula602@gmail.com', role: 'admin', is_active: true },
+        { id: 'adm_2', full_name: 'Rhines Mukiibi', email: 'mukiibirhines2001@gmail.com', role: 'admin', is_active: true },
+        { id: 'adm_3', full_name: 'Robert Tx', email: 'robtxpro002@gmail.com', role: 'admin', is_active: true },
+        { id: 'adm_4', full_name: 'Robert Mukiibi', email: 'mukiibirobert002@gmail.com', role: 'admin', is_active: true },
+      ];
+
+      const customAdminsStr = localStorage.getItem('rc_authorized_admins');
+      const customAdminEmails: string[] = customAdminsStr ? JSON.parse(customAdminsStr) : [];
+      const customAdminUsers = customAdminEmails.map((email, idx) => ({
+        id: `adm_custom_${idx}`,
+        full_name: email.split('@')[0],
+        email,
+        role: 'admin',
+        is_active: true,
+      }));
+
+      const registeredOwnersStr = localStorage.getItem('rc_registered_owners');
+      const registeredOwners: any[] = registeredOwnersStr ? JSON.parse(registeredOwnersStr) : [];
+      const localOwners = registeredOwners.map((o) => ({
+        id: o.id || `owner_${Date.now()}`,
+        full_name: o.full_name || o.email?.split('@')[0] || 'Property Owner',
+        email: o.email,
+        phone: o.phone,
+        role: 'landlord',
+        is_active: true,
+      }));
+
+      let fetchedUsers: any[] = [];
+      if (usersRes.status === 'fulfilled' && Array.isArray(usersRes.value?.data)) fetchedUsers = usersRes.value.data;
+      else if (usersRes.status === 'fulfilled' && Array.isArray(usersRes.value)) fetchedUsers = usersRes.value;
+
+      // Merge and deduplicate by email
+      const allUsersMap = new Map<string, any>();
+      [...defaultAdminUsers, ...customAdminUsers, ...localOwners, ...fetchedUsers].forEach((u) => {
+        if (u.email) {
+          const clean = u.email.toLowerCase().trim();
+          if (!allUsersMap.has(clean)) {
+            allUsersMap.set(clean, u);
+          }
+        }
+      });
+
+      setUsers(Array.from(allUsersMap.values()));
 
       if (reportsRes.status === 'fulfilled' && Array.isArray(reportsRes.value)) setReports(reportsRes.value);
       else setReports([]);
@@ -352,57 +394,110 @@ export default function AdminDashboardPage() {
 
               {/* User Management */}
               {activeTab === 'users' && (
-                <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-zinc-100 border-b border-zinc-200 text-zinc-600 uppercase font-semibold">
-                      <tr>
-                        <th className="p-4">User</th>
-                        <th className="p-4">Role</th>
-                        <th className="p-4">Account Status</th>
-                        <th className="p-4 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-zinc-100 text-zinc-800">
-                      {users.map((u) => (
-                        <tr key={u.id} className="hover:bg-zinc-50">
-                          <td className="p-4">
-                            <div className="font-bold text-zinc-900">{u.full_name}</div>
-                            <div className="text-zinc-400">{u.email}</div>
-                          </td>
-                          <td className="p-4 capitalize">
-                            <span className="bg-zinc-100 text-zinc-700 px-2.5 py-1 rounded-full font-semibold">
-                              {u.role}
-                            </span>
-                          </td>
-                          <td className="p-4">
-                            <span
-                              className={`px-2.5 py-1 rounded-full font-semibold ${
-                                u.is_active !== false
-                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                  : 'bg-red-50 text-red-700 border border-red-200'
-                              }`}
-                            >
-                              {u.is_active !== false ? 'Active' : 'Disabled'}
-                            </span>
-                          </td>
-                          <td className="p-4 text-right">
-                            {u.role !== 'admin' && (
-                              <button
-                                onClick={() => handleToggleUserActive(u.id)}
-                                className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
-                                  u.is_active !== false
-                                    ? 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
-                                    : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200'
+                <div className="space-y-4">
+                  {/* User Management Toolbar */}
+                  <div className="bg-white border border-zinc-200 rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                      <h3 className="font-bold text-zinc-900 text-base flex items-center gap-2">
+                        <Users className="h-5 w-5 text-[#f06023]" /> System Users & Account Control
+                      </h3>
+                      <p className="text-xs text-zinc-500 mt-0.5">
+                        Manage system administrators, pre-authorized property owners, and tenant client accounts.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowAddOwnerModal(true);
+                          setOwnerSuccessMsg('');
+                        }}
+                        className="px-3.5 py-2 bg-[#f06023] hover:bg-[#d94b12] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm cursor-pointer active:scale-98"
+                      >
+                        <UserPlus className="h-3.5 w-3.5" /> + Add Property Owner
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowAddAdminModal(true);
+                          setAdminSuccessMsg('');
+                        }}
+                        className="px-3.5 py-2 bg-zinc-900 hover:bg-black text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm cursor-pointer active:scale-98"
+                      >
+                        <Shield className="h-3.5 w-3.5 text-[#f06023]" /> + Add System Admin
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Users Table */}
+                  <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-zinc-100 border-b border-zinc-200 text-zinc-600 uppercase font-semibold">
+                        <tr>
+                          <th className="p-4">User</th>
+                          <th className="p-4">Role</th>
+                          <th className="p-4">Account Status</th>
+                          <th className="p-4 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-100 text-zinc-800">
+                        {users.map((u) => (
+                          <tr key={u.id} className="hover:bg-zinc-50">
+                            <td className="p-4">
+                              <div className="font-bold text-zinc-900 flex items-center gap-1.5">
+                                {u.full_name}
+                                {u.role === 'admin' && (
+                                  <span className="bg-orange-100 text-[#f06023] text-[9px] font-extrabold px-1.5 py-0.5 rounded border border-orange-200">
+                                    ADMIN
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-zinc-400">{u.email} {u.phone ? `• ${u.phone}` : ''}</div>
+                            </td>
+                            <td className="p-4">
+                              <span
+                                className={`px-2.5 py-1 rounded-full font-bold text-[10px] uppercase shadow-sm ${
+                                  u.role === 'admin'
+                                    ? 'bg-[#f06023] text-white'
+                                    : u.role === 'landlord' || u.role === 'owner'
+                                    ? 'bg-zinc-900 text-white'
+                                    : 'bg-zinc-100 text-zinc-700'
                                 }`}
                               >
-                                {u.is_active !== false ? 'Disable Account' : 'Enable Account'}
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                                {u.role === 'landlord' || u.role === 'owner' ? 'Property Owner' : u.role}
+                              </span>
+                            </td>
+                            <td className="p-4">
+                              <span
+                                className={`px-2.5 py-1 rounded-full font-semibold ${
+                                  u.is_active !== false
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    : 'bg-red-50 text-red-700 border border-red-200'
+                                }`}
+                              >
+                                {u.is_active !== false ? 'Active' : 'Disabled'}
+                              </span>
+                            </td>
+                            <td className="p-4 text-right">
+                              {u.role !== 'admin' && (
+                                <button
+                                  onClick={() => handleToggleUserActive(u.id)}
+                                  className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
+                                    u.is_active !== false
+                                      ? 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
+                                      : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200'
+                                  }`}
+                                >
+                                  {u.is_active !== false ? 'Disable Account' : 'Enable Account'}
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
 
