@@ -34,7 +34,7 @@ export default function LoginPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resetModalError, setResetModalError] = useState('');
 
-  const { login, sendPasswordReset, user, isAuthenticated, setDemoUser, signInWithGoogle } = useAuth();
+  const { login, sendPasswordReset, user, isAuthenticated, setDemoUser, signInWithGoogle, logout } = useAuth();
   const navigate = useNavigate();
 
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -92,23 +92,16 @@ export default function LoginPage() {
     setGoogleError('');
     setError('');
     try {
-      // We need to know the Google email before fully signing in.
-      // signInWithGoogle will open the popup; on success we check the email.
-      // We temporarily sign in, grab the email, then verify an account exists.
       await signInWithGoogle('tenant', false);
-
-      // After sign-in, check if this Google email has a pre-existing account:
+      // After sign-in syncUserWithBackend will have stored the user in rc_user
       const stored = localStorage.getItem('rc_user');
       const parsed = stored ? JSON.parse(stored) : null;
-
       if (!parsed?.email) {
-        // No local account — reject
-        const { logout } = useAuth();
+        // No matching account found — sign out and reject
+        logout();
         setGoogleError('No account found for this Google address. Please register first, then sign in with Google.');
-        setGoogleLoading(false);
         return;
       }
-
       navigateByRole(parsed?.role || 'tenant');
     } catch (err: any) {
       setGoogleError(err.message || 'Google sign-in failed. Please try again.');
