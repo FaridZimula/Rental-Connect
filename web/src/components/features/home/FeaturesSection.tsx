@@ -1,35 +1,43 @@
 import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Filter, MessageSquare, Flag, Activity, CheckCircle } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faShieldHalved, 
+  faSliders, 
+  faComments, 
+  faTriangleExclamation, 
+  faChartLine, 
+  faCircleCheck 
+} from '@fortawesome/free-solid-svg-icons';
 
 const features = [
   {
-    icon: <ShieldCheck className="h-6 w-6 text-white" />,
+    faIcon: faShieldHalved,
     title: 'Listing Verification',
     description: 'System managers review and approve every property before it goes public, eliminating fake listings and agent scams.',
   },
   {
-    icon: <Filter className="h-6 w-6 text-white" />,
+    faIcon: faSliders,
     title: 'Advanced Search & Filters',
     description: 'Filter rental properties by zone, exact price range, property type (apartment, house, studio), bedrooms, and amenities.',
   },
   {
-    icon: <MessageSquare className="h-6 w-6 text-white" />,
+    faIcon: faComments,
     title: 'Direct Landlord Inquiries',
     description: 'Tenants send inquiries and request property viewings directly to verified landlords without intermediary friction.',
   },
   {
-    icon: <Flag className="h-6 w-6 text-white" />,
+    faIcon: faTriangleExclamation,
     title: 'Fraud Reporting & Flagging',
     description: 'Report suspicious, duplicate, or outdated listings instantly. System administrators review reports and take immediate action.',
   },
   {
-    icon: <Activity className="h-6 w-6 text-white" />,
+    faIcon: faChartLine,
     title: 'Audit & System Monitoring',
     description: 'Comprehensive activity logs record administrative actions, approvals, and moderations to maintain platform integrity.',
   },
   {
-    icon: <CheckCircle className="h-6 w-6 text-white" />,
+    faIcon: faCircleCheck,
     title: 'Realtime Availability Control',
     description: 'Landlords update vacancy status in real-time, while stale listings are automatically flagged to ensure fresh data.',
   },
@@ -99,8 +107,8 @@ const FeaturesSection = () => {
               whileHover={{ y: -4 }}
             >
               <div className="flex flex-col items-center text-center w-full">
-                <div className="h-14 w-14 rounded-full bg-[#f06023] border-2 border-[#f06023] text-white flex items-center justify-center mb-5 group-hover:scale-110 transition-transform shadow-md">
-                  {feature.icon}
+                <div className="h-16 w-16 rounded-full bg-gradient-to-tr from-[#f06023] to-orange-500 border-2 border-[#f06023] text-white flex items-center justify-center mb-5 group-hover:scale-110 transition-transform shadow-md shadow-orange-500/20">
+                  <FontAwesomeIcon icon={feature.faIcon} className="h-7 w-7 text-white drop-shadow-sm" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-bold mb-3 text-zinc-900 group-hover:text-[#f06023] transition-colors text-center">
                   {feature.title}
