@@ -41,11 +41,10 @@ export default function ContactPage() {
     <Layout>
       <div className="bg-zinc-50 min-h-screen pt-24 pb-20 text-zinc-900">
         {/* Hero Header Section */}
-        <section className="bg-zinc-950 text-white py-16 relative overflow-hidden mb-12">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[#f06023]/15 rounded-full blur-3xl pointer-events-none" />
+        <section className="bg-black text-white py-16 relative overflow-hidden mb-12">
           {/* Low opacity property background */}
           <div
-            className="absolute inset-0 bg-center bg-cover opacity-[0.07] pointer-events-none"
+            className="absolute inset-0 bg-center bg-cover opacity-[0.15] pointer-events-none"
             style={{ backgroundImage: "url('/contact_hero_bg.png')" }}
           />
           <div className="container mx-auto px-4 relative z-10 text-center max-w-3xl">
