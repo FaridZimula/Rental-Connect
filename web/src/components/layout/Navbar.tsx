@@ -97,6 +97,17 @@ const Navbar = () => {
                 >
                   Browse Properties
                 </NavLink>
+                <NavLink
+                  to="/contact"
+                  className={({ isActive }) =>
+                    clsx(
+                      'text-sm font-medium transition-colors hover:text-[#f06023]',
+                      isActive ? 'text-[#f06023] font-semibold' : 'text-zinc-700'
+                    )
+                  }
+                >
+                  Contact Us
+                </NavLink>
 
                 {/* Quick Search */}
                 <form onSubmit={handleSearchSubmit} className="relative flex items-center bg-zinc-100 rounded-full px-3 py-1.5 border border-zinc-200 focus-within:border-[#f06023] focus-within:bg-white w-48 lg:w-60 transition-all">

@@ -12,6 +12,7 @@ import LandlordDashboardPage from './pages/LandlordDashboardPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AdminLoginPage from './pages/AdminLoginPage';
+import ContactPage from './pages/ContactPage';
 import { AuthProvider } from './contexts/AuthContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
 
@@ -42,6 +43,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/properties" element={<PropertiesPage />} />
             <Route path="/properties/:id" element={<PropertyDetailPage />} />
+            <Route path="/contact" element={<ContactPage />} />
 
             {/* Auth routes */}
             <Route path="/login" element={<LoginPage />} />

@@ -30,7 +30,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
     <AnimatePresence>
       {isLoading && (
         <motion.div
-          className="fixed inset-0 flex flex-col items-center justify-center bg-white z-50 overflow-hidden"
+          className="fixed inset-0 w-screen h-screen flex flex-col items-center justify-center bg-white z-[99999] overflow-hidden"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
