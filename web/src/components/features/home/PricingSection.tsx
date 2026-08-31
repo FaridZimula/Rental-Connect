@@ -15,7 +15,7 @@ export default function PricingSection() {
       faIcon: faHandshake,
       badge: 'Pay As You Go',
       badgeColor: 'bg-[#f06023] text-white border border-[#f06023] shadow-sm',
-      description: 'Zero upfront cost for landlords. Pay a success fee only when we bring a verified client tenant to your property.',
+      description: 'Zero upfront cost for property owners. Pay a success fee only when we bring a verified client tenant to your property.',
       isPayPerClient: true,
       perClientFee: 50000,
       monthlyPrice: 0,
@@ -35,11 +35,11 @@ export default function PricingSection() {
     },
     {
       id: 'standard',
-      name: 'Landlord Standard',
+      name: 'Property Owner Standard',
       faIcon: faShieldHalved,
       badge: 'Most Popular',
       badgeColor: 'bg-[#f06023] text-white border border-[#f06023] shadow-sm',
-      description: 'Fixed monthly plan for active landlords. Keep 100% of your rental revenue with zero per-client commission.',
+      description: 'Fixed monthly plan for active property owners. Keep 100% of your rental revenue with zero per-client commission.',
       isPayPerClient: false,
       monthlyPrice: 150000,
       annualPrice: 120000, // equivalent monthly rate when billed annually
@@ -50,7 +50,7 @@ export default function PricingSection() {
       features: [
         'Up to 5 Active Property Listings',
         '0% Lead Fees (Unlimited Clients)',
-        'Verified Landlord Trust Badge',
+        'Verified Owner Trust Badge',
         'Direct WhatsApp & Instant Inquiries',
         'High-Res Photo Gallery (Up to 15 photos)',
         'Real-time Availability Status Control',
@@ -106,7 +106,7 @@ export default function PricingSection() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-3xl sm:text-4xl md:text-5xl font-display font-extrabold text-zinc-900 tracking-tight mb-4"
           >
-            Simple Plans for <span className="text-[#f06023]">Landlords & Owners</span>
+            Simple Plans for <span className="text-[#f06023]">Property Owners</span>
           </motion.h2>
 
           <motion.p
@@ -245,7 +245,7 @@ export default function PricingSection() {
 
                   {/* Feature Checklist */}
                   <div className="space-y-3 mb-8">
-                    <p className="text-xs font-bold uppercase text-zinc-400 tracking-wider mb-3 text-center sm:text-left">Landlord Benefits</p>
+                    <p className="text-xs font-bold uppercase text-zinc-400 tracking-wider mb-3 text-center sm:text-left">Property Owner Benefits</p>
                     {plan.features.map((feature, fIdx) => (
                       <div key={fIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-700">
                         <div className={`mt-0.5 rounded-full p-0.5 shrink-0 ${plan.isPopular ? 'bg-orange-100 text-[#f06023]' : 'bg-zinc-100 text-zinc-800'}`}>

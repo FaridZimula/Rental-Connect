@@ -23,8 +23,8 @@ const features = [
   },
   {
     faIcon: faComments,
-    title: 'Direct Landlord Inquiries',
-    description: 'Tenants send inquiries and request property viewings directly to verified landlords without intermediary friction.',
+    title: 'Direct Property Owner Inquiries',
+    description: 'Tenants send inquiries and request property viewings directly to verified property owners without intermediary friction.',
   },
   {
     faIcon: faTriangleExclamation,
@@ -39,7 +39,7 @@ const features = [
   {
     faIcon: faCircleCheck,
     title: 'Realtime Availability Control',
-    description: 'Landlords update vacancy status in real-time, while stale listings are automatically flagged to ensure fresh data.',
+    description: 'Property owners update vacancy status in real-time, while stale listings are automatically flagged to ensure fresh data.',
   },
 ];
 

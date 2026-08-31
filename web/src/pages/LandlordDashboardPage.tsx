@@ -365,8 +365,8 @@ export default function LandlordDashboardPage() {
                 {user?.full_name?.charAt(0) || 'L'}
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-zinc-900">{user?.full_name || 'Landlord'}</h1>
-                <p className="text-xs text-zinc-500">{user?.email} • Landlord / Broker Dashboard</p>
+                <h1 className="text-2xl font-bold text-zinc-900">{user?.full_name || 'Property Owner'}</h1>
+                <p className="text-xs text-zinc-500">{user?.email} • Property Owner / Broker Dashboard</p>
               </div>
             </div>
 
@@ -539,7 +539,7 @@ export default function LandlordDashboardPage() {
             /* Profile Tab */
             <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm max-w-xl">
               <h3 className="text-lg font-bold text-zinc-900 mb-4 flex items-center gap-2">
-                <User className="h-5 w-5 text-[#f06023]" /> Edit Landlord / Broker Profile
+                <User className="h-5 w-5 text-[#f06023]" /> Edit Property Owner / Broker Profile
               </h3>
 
               {profileMsg && (

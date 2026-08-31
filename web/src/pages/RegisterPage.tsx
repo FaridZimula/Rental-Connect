@@ -132,7 +132,7 @@ export default function RegisterPage() {
                 role === 'landlord' ? 'bg-white text-[#f06023] shadow-sm' : 'text-zinc-500 hover:text-zinc-800'
               }`}
             >
-              <Building className="h-4 w-4" /> Landlord / Broker
+              <Building className="h-4 w-4" /> Property Owner / Broker
             </button>
           </div>
 
@@ -252,7 +252,7 @@ export default function RegisterPage() {
             </label>
 
             <Button variant="primary" fullWidth size="lg" type="submit" disabled={loading || !agreeTerms}>
-              {loading ? 'Creating Account...' : `Register as ${role === 'tenant' ? 'Tenant' : 'Landlord'}`}
+              {loading ? 'Creating Account...' : `Register as ${role === 'tenant' ? 'Tenant' : 'Property Owner'}`}
             </Button>
           </form>
 
@@ -268,7 +268,7 @@ export default function RegisterPage() {
                 onClick={() => handleQuickDemo('landlord')}
                 className="py-2 px-2 bg-orange-50 hover:bg-orange-100 text-[#f06023] rounded-xl text-[11px] font-bold transition-all border border-orange-200 flex items-center justify-center gap-1 cursor-pointer"
               >
-                <User className="h-3.5 w-3.5" /> Landlord
+                <User className="h-3.5 w-3.5" /> Property Owner
               </button>
               <button
                 type="button"

@@ -355,7 +355,7 @@ export default function PropertyDetailPage() {
                       }
                     }}
                   >
-                    {isAuthenticated ? 'Send Inquiry to Landlord' : 'Log In to Inquire'}
+                    {isAuthenticated ? 'Send Inquiry to Property Owner' : 'Log In to Inquire'}
                   </Button>
 
                   <button
@@ -393,7 +393,7 @@ export default function PropertyDetailPage() {
                 <CheckCircle2 className="h-12 w-12 text-emerald-500 mx-auto mb-3" />
                 <h3 className="text-xl font-bold text-zinc-900 mb-1">Inquiry Sent!</h3>
                 <p className="text-zinc-600 text-sm mb-6">
-                  Your message has been sent to the landlord. Check your Tenant Dashboard for updates.
+                  Your message has been sent to the property owner. Check your Tenant Dashboard for updates.
                 </p>
                 <Button variant="primary" fullWidth onClick={() => setShowInquiryModal(false)}>
                   Close
@@ -402,7 +402,7 @@ export default function PropertyDetailPage() {
             ) : (
               <form onSubmit={handleInquirySubmit} className="space-y-4">
                 <h3 className="text-xl font-bold text-zinc-900 mb-1">Inquire About Property</h3>
-                <p className="text-xs text-zinc-500">Send a direct inquiry message to the landlord.</p>
+                <p className="text-xs text-zinc-500">Send a direct inquiry message to the property owner.</p>
 
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 mb-1">Message</label>

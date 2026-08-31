@@ -150,7 +150,7 @@ export default function TenantDashboardPage() {
                     <div className="bg-white rounded-2xl p-12 text-center border border-zinc-200">
                       <MessageSquare className="h-12 w-12 text-zinc-300 mx-auto mb-3" />
                       <h3 className="text-lg font-bold text-zinc-700">No Inquiries Sent Yet</h3>
-                      <p className="text-zinc-500 text-xs mt-1">Browse properties and send inquiries to landlords.</p>
+                      <p className="text-zinc-500 text-xs mt-1">Browse properties and send inquiries to property owners.</p>
                     </div>
                   ) : (
                     inquiries.map((inq) => (
@@ -186,7 +186,7 @@ export default function TenantDashboardPage() {
                         {inq.response ? (
                           <div className="bg-emerald-50/70 p-3.5 rounded-xl text-xs text-emerald-900 border border-emerald-200">
                             <div className="font-bold flex items-center gap-1 text-emerald-800 mb-1">
-                              <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Landlord Response:
+                              <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Property Owner Response:
                             </div>
                             <p>{inq.response}</p>
                             {inq.landlord?.phone && (
@@ -197,7 +197,7 @@ export default function TenantDashboardPage() {
                           </div>
                         ) : (
                           <p className="text-[11px] text-zinc-400 flex items-center gap-1">
-                            <Clock className="h-3 w-3" /> Waiting for landlord reply...
+                            <Clock className="h-3 w-3" /> Waiting for property owner reply...
                           </p>
                         )}
                       </div>

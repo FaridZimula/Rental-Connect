@@ -420,9 +420,9 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => handleQuickDemoLogin('landlord')}
                 className="py-2 px-2 bg-orange-50 hover:bg-orange-100 text-[#f06023] rounded-xl text-[11px] font-bold transition-all border border-orange-200 flex items-center justify-center gap-1 cursor-pointer"
-                title="Instant Landlord Login"
+                title="Instant Owner Login"
               >
-                <User className="h-3.5 w-3.5" /> Landlord
+                <User className="h-3.5 w-3.5" /> Property Owner
               </button>
               <button
                 type="button"

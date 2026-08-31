@@ -427,7 +427,7 @@ export default function AdminDashboardPage() {
                             <span className="font-bold text-blue-700">{analytics?.users?.tenants ?? 0}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-purple-600">Landlords / Brokers:</span>
+                            <span className="text-purple-600">Property Owners / Brokers:</span>
                             <span className="font-bold text-purple-700">{analytics?.users?.landlords ?? 0}</span>
                           </div>
                         </div>
@@ -466,7 +466,7 @@ export default function AdminDashboardPage() {
             <h3 className="text-lg font-bold text-zinc-900 mb-2">
               {actionTarget.type === 'reject' ? 'Reject Property Listing' : 'Suspend Property Listing'}
             </h3>
-            <p className="text-xs text-zinc-500 mb-4">Provide a reason for the landlord notification log.</p>
+            <p className="text-xs text-zinc-500 mb-4">Provide a reason for the property owner notification log.</p>
 
             <form onSubmit={handleActionSubmit} className="space-y-4">
               <textarea
