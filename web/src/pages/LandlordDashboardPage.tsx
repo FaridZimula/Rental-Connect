@@ -1,12 +1,50 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Building2, Plus, MessageSquare, CheckCircle2, Clock, Trash2, Eye, EyeOff, X, Edit2, User, Phone, Image as ImageIcon, Upload, Sparkles, AlertCircle, Crown, Star } from 'lucide-react';
+import { Building2, Plus, MessageSquare, CheckCircle2, Clock, Trash2, Eye, EyeOff, X, Edit2, User, Phone, Image as ImageIcon, Upload, Sparkles, AlertCircle, Crown, Star, Calendar, Tag } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import { useAuth } from '../contexts/AuthContext';
 import { propertiesApi, inquiriesApi, authApi } from '../lib/api';
 import { Property, Inquiry } from '../types';
 import { mockProperties } from '../data/mockData';
+
+const TYPE_LABELS: Record<string, string> = {
+  apartment: 'Apartment / Flat',
+  house: 'Residential House',
+  studio: 'Studio Unit',
+  hostel: 'Hostel Room',
+  land: 'Land / Plot',
+  commercial: 'Commercial / Warehouse',
+  vehicle: 'Vehicle (Car, SUV, Truck)',
+  machinery: 'Heavy Machinery & Tool',
+  event_equipment: 'Event & Sound Gear',
+  event_venue: 'Event Venue / Garden',
+  agro_machinery: 'Farm Machinery & Agro Asset',
+  medical_equipment: 'Medical & Healthcare Gear',
+  solar_power: 'Solar & Renewable Energy',
+  fashion_attire: 'Formal Wear & Attire',
+  it_hardware: 'IT & Computing Tech',
+  watercraft: 'Marine & Watercraft',
+  camping_sports: 'Camping & Sports Gear',
+};
+
+const formatDatePosted = (dateStr?: string) => {
+  if (!dateStr) return 'Posted recently';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return 'Posted recently';
+    const now = new Date();
+    const diffHours = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60));
+    if (diffHours < 1) return 'Posted just now';
+    if (diffHours < 24) return `Posted ${diffHours}h ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays === 1) return 'Posted yesterday';
+    if (diffDays < 7) return `Posted ${diffDays} days ago`;
+    return `Posted ${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+  } catch {
+    return 'Posted recently';
+  }
+};
 
 const AVAILABLE_AMENITIES = [
   'Water Supply',
@@ -164,8 +202,36 @@ export default function LandlordDashboardPage() {
     }
   };
 
+  const notifyRealtimeUpdates = () => {
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new CustomEvent('rc_properties_updated'));
+  };
+
   useEffect(() => {
     fetchData();
+
+    const handleSync = () => {
+      const localSavedStr = localStorage.getItem('rc_custom_properties');
+      if (localSavedStr) {
+        try {
+          const localProps: Property[] = JSON.parse(localSavedStr);
+          if (localProps.length > 0) {
+            setProperties((prev) => {
+              const localIds = new Set(localProps.map((p) => p.id));
+              return [...localProps, ...prev.filter((p) => !localIds.has(p.id))];
+            });
+          }
+        } catch {}
+      }
+    };
+
+    window.addEventListener('storage', handleSync);
+    window.addEventListener('rc_properties_updated', handleSync);
+
+    return () => {
+      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('rc_properties_updated', handleSync);
+    };
   }, []);
 
   const openCreateModal = () => {
@@ -289,11 +355,12 @@ export default function LandlordDashboardPage() {
       }
       localStorage.setItem('rc_custom_properties', JSON.stringify(localProps));
 
-      // Update state
+      // Update state & notify real-time sync
       setProperties((prev) => {
         const withoutTarget = prev.filter((p) => p.id !== propId);
         return [savedProp, ...withoutTarget];
       });
+      notifyRealtimeUpdates();
 
       setShowAddModal(false);
     } catch (err: any) {
@@ -322,6 +389,7 @@ export default function LandlordDashboardPage() {
         return p;
       })
     );
+    notifyRealtimeUpdates();
   };
 
   const handleDeleteProperty = async (id: string) => {
@@ -336,6 +404,7 @@ export default function LandlordDashboardPage() {
       localProps = localProps.filter((p) => p.id !== id);
       localStorage.setItem('rc_custom_properties', JSON.stringify(localProps));
     }
+    notifyRealtimeUpdates();
   };
 
   const handleSendResponse = async (e: React.FormEvent) => {
@@ -442,7 +511,7 @@ export default function LandlordDashboardPage() {
                         )}
                       </div>
                       <div>
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
                           <span
                             className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full text-white shadow-sm ${
                               p.status === 'published'
@@ -456,6 +525,12 @@ export default function LandlordDashboardPage() {
                           </span>
                           <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full text-white shadow-sm ${p.is_available ? 'bg-zinc-900' : 'bg-zinc-500'}`}>
                             {p.is_available ? 'Available' : 'Marked Occupied'}
+                          </span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-50 text-[#f06023] border border-orange-200 shadow-sm capitalize flex items-center gap-1">
+                            <Tag className="h-3 w-3 text-[#f06023]" /> {TYPE_LABELS[p.property_type] || p.property_type}
+                          </span>
+                          <span className="text-[10px] font-semibold text-zinc-500 flex items-center gap-1 ml-0.5">
+                            <Calendar className="h-3 w-3 text-zinc-400" /> {formatDatePosted(p.created_at)}
                           </span>
                         </div>
                         <h3 className="font-bold text-zinc-900 text-base">{p.title}</h3>
