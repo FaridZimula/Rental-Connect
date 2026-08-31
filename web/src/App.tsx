@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
 import TenantDashboardPage from './pages/TenantDashboardPage';
 import LandlordDashboardPage from './pages/LandlordDashboardPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
+import NotFoundPage from './pages/NotFoundPage';
 import { AuthProvider } from './contexts/AuthContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
 
@@ -56,8 +57,8 @@ function App() {
             <Route path="/dashboard/landlord" element={<ErrorBoundary><LandlordDashboardPage /></ErrorBoundary>} />
             <Route path="/dashboard/admin" element={<ErrorBoundary><AdminDashboardPage /></ErrorBoundary>} />
 
-            {/* Fallbacks */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            {/* Fallback 404 Not Found Page */}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </AuthProvider>
       </Router>
