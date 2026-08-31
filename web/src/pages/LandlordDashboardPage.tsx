@@ -10,7 +10,7 @@ import { mockProperties } from '../data/mockData';
 
 const AVAILABLE_AMENITIES = [
   'Water Supply',
-  'Electricity (Umeme)',
+  'Electricity (UEDCL)',
   'Security Guard',
   'Parking Space',
   'WiFi Internet',
