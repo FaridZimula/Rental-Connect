@@ -1096,6 +1096,96 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
               )}
+
+              {/* Tenant Inquiries Tab */}
+              {activeTab === 'inquiries' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <h3 className="text-base font-bold text-zinc-900 flex items-center gap-2">
+                        <MessageSquare className="h-5 w-5 text-red-500" /> Tenant Inquiries
+                      </h3>
+                      <p className="text-xs text-zinc-500 mt-0.5">All property inquiries submitted by tenants. Forwarded to WhatsApp +256 765 458 906.</p>
+                    </div>
+                    {adminInquiries.length > 0 && (
+                      <button
+                        onClick={() => {
+                          const marked = adminInquiries.map((i) => ({ ...i, is_read: true }));
+                          setAdminInquiries(marked);
+                          localStorage.setItem('rc_admin_inquiries', JSON.stringify(marked));
+                        }}
+                        className="text-xs font-bold text-zinc-500 hover:text-zinc-800 px-3 py-1.5 border border-zinc-200 rounded-xl hover:bg-zinc-50 transition-all"
+                      >
+                        Mark all as read
+                      </button>
+                    )}
+                  </div>
+
+                  {adminInquiries.length === 0 ? (
+                    <div className="bg-white rounded-2xl p-12 text-center border border-zinc-200">
+                      <MessageSquare className="h-12 w-12 text-zinc-300 mx-auto mb-3" />
+                      <h3 className="text-lg font-bold text-zinc-700">No Inquiries Yet</h3>
+                      <p className="text-zinc-500 text-xs mt-1">When tenants send inquiries, they will appear here and be forwarded to WhatsApp.</p>
+                    </div>
+                  ) : (
+                    adminInquiries.map((inq) => (
+                      <div
+                        key={inq.id}
+                        className={`bg-white border rounded-2xl p-5 shadow-sm transition-all ${!inq.is_read ? 'border-red-300 ring-1 ring-red-200' : 'border-zinc-200'}`}
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              {!inq.is_read && (
+                                <span className="bg-red-100 text-red-600 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase border border-red-200">New</span>
+                              )}
+                              <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">🏠 {inq.property_title}</span>
+                              {inq.property_zone && <span className="text-[11px] text-zinc-400">• {inq.property_zone}</span>}
+                            </div>
+
+                            <p className="text-sm font-bold text-zinc-900 mb-1">{inq.tenant_name}</p>
+                            <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-[11px] text-zinc-500 mb-2">
+                              <span>📧 {inq.tenant_email || 'N/A'}</span>
+                              <span>📞 {inq.tenant_phone || 'N/A'}</span>
+                              {inq.viewing_date && <span>📅 Viewing: {inq.viewing_date}</span>}
+                              <span>🕐 {new Date(inq.created_at).toLocaleString()}</span>
+                            </div>
+
+                            <p className="text-sm text-zinc-700 bg-zinc-50 rounded-xl p-3 border border-zinc-100 leading-relaxed">
+                              {inq.message}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-col gap-2 shrink-0">
+                            <a
+                              href={`https://wa.me/256765458906?text=${encodeURIComponent(`Re: Inquiry from ${inq.tenant_name} about ${inq.property_title}`)}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all"
+                            >
+                              <Phone className="h-3.5 w-3.5" /> WhatsApp Reply
+                            </a>
+                            {!inq.is_read && (
+                              <button
+                                onClick={() => markInquiryRead(inq.id)}
+                                className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-xl text-xs font-bold transition-all"
+                              >
+                                Mark as Read
+                              </button>
+                            )}
+                            <button
+                              onClick={() => deleteInquiry(inq.id)}
+                              className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold transition-all border border-red-200"
+                            >
+                              🗑️ Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </>
           )}
         </div>
