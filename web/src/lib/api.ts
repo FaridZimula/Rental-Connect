@@ -10,10 +10,15 @@ export const api = axios.create({
 
 // Attach fresh Firebase ID token on every request
 api.interceptors.request.use(async (config) => {
-  const currentUser = auth.currentUser;
-  if (currentUser) {
-    const token = await currentUser.getIdToken();
-    config.headers.Authorization = `Bearer ${token}`;
+  try {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const token = await currentUser.getIdToken();
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch (e) {
+    // Firebase token refresh failed (offline, expired, etc.) — proceed without auth header
+    console.warn('Could not attach Firebase auth token:', e);
   }
   return config;
 });

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface SplashScreenProps {
@@ -7,16 +7,18 @@ interface SplashScreenProps {
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   useEffect(() => {
-    // Display splashscreen for 2.5 seconds
+    // Display splashscreen for 2.5 seconds — timer runs exactly once
     const timer = setTimeout(() => {
       setIsLoading(false);
-      onComplete();
+      onCompleteRef.current();
     }, 2500);
 
     return () => clearTimeout(timer);
-  }, [onComplete]);
+  }, []); // empty deps: run once on mount
 
   const containerVariants = {
     hidden: { opacity: 0 },
