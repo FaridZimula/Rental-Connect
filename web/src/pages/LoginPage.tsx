@@ -34,8 +34,17 @@ export default function LoginPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resetModalError, setResetModalError] = useState('');
 
-  const { login, sendPasswordReset, user, setDemoUser } = useAuth();
+  const { login, sendPasswordReset, user, isAuthenticated, setDemoUser } = useAuth();
   const navigate = useNavigate();
+
+  // Automatically redirect if already logged in
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      if (user.role === 'admin') navigate('/dashboard/admin', { replace: true });
+      else if (user.role === 'landlord') navigate('/dashboard/landlord', { replace: true });
+      else navigate('/dashboard/tenant', { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
 
   // Firebase phone auth references
   const confirmationResultRef = useRef<ConfirmationResult | null>(null);

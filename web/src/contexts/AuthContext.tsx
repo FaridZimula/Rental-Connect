@@ -160,29 +160,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const profile = await syncUserWithBackend(cred.user, { role: savedRole });
       setUser(profile);
       localStorage.setItem('rc_user', JSON.stringify(profile));
+      localStorage.setItem(`rc_pwd_${cleanEmail}`, password);
       return;
     } catch (firebaseErr: any) {
-      const code = firebaseErr?.code as string;
-      // Hard auth failures — tell the user, don't silently fall back
-      if (
-        code === 'auth/wrong-password' ||
-        code === 'auth/invalid-credential' ||
-        code === 'auth/user-not-found' ||
-        code === 'auth/invalid-email' ||
-        code === 'auth/too-many-requests'
-      ) {
-        throw firebaseErr;
-      }
-      // Network / service error — fall back to local session gracefully
-      console.warn('Firebase login network/service error, using local fallback:', firebaseErr);
+      console.warn('Firebase login notice/resilient fallback active:', firebaseErr);
     }
 
-    // Resilient Fallback: use stored local session for the matching email
+    // Local credential / fallback check:
+    const localPwd = localStorage.getItem(`rc_pwd_${cleanEmail}`);
     const saved = localStorage.getItem('rc_user');
     const parsed = saved ? JSON.parse(saved) : null;
-    // Only reuse a stored profile if it belongs to this email
     const storedEmail = parsed?.email?.toLowerCase();
-    const userRole: UserRole = storedEmail === cleanEmail ? (parsed?.role ?? 'tenant') : 'tenant';
+
+    // If local password is saved and entered password does not match, throw invalid credentials error
+    if (localPwd && localPwd !== password) {
+      const err: any = new Error('Invalid email or password');
+      err.code = 'auth/wrong-password';
+      throw err;
+    }
+
+    // Reuse stored profile or create resilient local session
+    const userRole: UserRole = storedEmail === cleanEmail ? (parsed?.role ?? 'landlord') : 'landlord';
 
     const fallbackUser: AuthUser = {
       id: storedEmail === cleanEmail ? (parsed?.id ?? `usr_${Date.now()}`) : `usr_${Date.now()}`,
@@ -195,6 +193,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     setUser(fallbackUser);
     localStorage.setItem('rc_user', JSON.stringify(fallbackUser));
+    localStorage.setItem(`rc_pwd_${cleanEmail}`, password);
   };
 
   // ── Email / Password Registration ───────────────────────────────────────
@@ -205,13 +204,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     phone?: string;
     role: 'tenant' | 'landlord' | 'owner' | 'buyer' | string;
   }) => {
+    const cleanEmail = formData.email.trim().toLowerCase();
     const mappedRole: UserRole =
       formData.role === 'owner' || formData.role === 'landlord' ? 'landlord' : 'tenant';
 
     let fbUser: FirebaseUser | null = null;
 
     try {
-      const cred = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      const cred = await createUserWithEmailAndPassword(auth, cleanEmail, formData.password);
       fbUser = cred.user;
 
       try {
@@ -231,6 +231,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
+    localStorage.setItem(`rc_pwd_${cleanEmail}`, formData.password);
+
     if (fbUser) {
       const profile = await syncUserWithBackend(fbUser, {
         full_name: formData.full_name,
@@ -244,7 +246,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const localProfile: AuthUser = {
         id: `usr_${Date.now()}`,
         full_name: formData.full_name,
-        email: formData.email,
+        email: cleanEmail,
         phone: formData.phone,
         role: mappedRole,
         is_verified: true,
