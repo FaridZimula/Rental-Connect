@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Mail, Phone, LockKeyhole, Check, Eye, EyeOff, Sparkles, User, ShieldCheck, X, KeyRound } from 'lucide-react';
+import { Lock, Mail, Phone, LockKeyhole, Check, Eye, EyeOff, Sparkles, User, ShieldCheck, X, KeyRound, Building2 } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import { useAuth, UserRole } from '../contexts/AuthContext';
@@ -14,6 +14,7 @@ import type { ConfirmationResult } from 'firebase/auth';
 
 export default function LoginPage() {
   const [authMethod, setAuthMethod] = useState<'email' | 'phone'>('email');
+  const [loginRole, setLoginRole] = useState<'tenant' | 'landlord'>('tenant');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -92,17 +93,18 @@ export default function LoginPage() {
     setGoogleError('');
     setError('');
     try {
-      await signInWithGoogle('tenant', false);
-      // After sign-in syncUserWithBackend will have stored the user in rc_user
+      await signInWithGoogle(loginRole, false);
       const stored = localStorage.getItem('rc_user');
       const parsed = stored ? JSON.parse(stored) : null;
       if (!parsed?.email) {
-        // No matching account found — sign out and reject
         logout();
         setGoogleError('No account found for this Google address. Please register first, then sign in with Google.');
         return;
       }
-      navigateByRole(parsed?.role || 'tenant');
+      // Apply chosen role to session
+      const updated = { ...parsed, role: parsed.role === 'admin' ? 'admin' : loginRole };
+      localStorage.setItem('rc_user', JSON.stringify(updated));
+      navigateByRole(updated.role);
     } catch (err: any) {
       setGoogleError(err.message || 'Google sign-in failed. Please try again.');
     } finally {
@@ -284,7 +286,35 @@ export default function LoginPage() {
             <p className="text-xs text-zinc-500 mt-1">Sign in to your Rental Connect account</p>
           </div>
 
-          {/* Auth Method Switcher Tabs */}
+          {/* Role Selector */}
+          <div className="mb-5">
+            <p className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider text-center mb-2">Sign in as</p>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setLoginRole('tenant')}
+                className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all border-2 cursor-pointer ${
+                  loginRole === 'tenant'
+                    ? 'bg-zinc-900 text-white border-zinc-900 shadow-md'
+                    : 'bg-white text-zinc-500 border-zinc-200 hover:border-zinc-300'
+                }`}
+              >
+                <User className="h-3.5 w-3.5" /> Tenant
+              </button>
+              <button
+                type="button"
+                onClick={() => setLoginRole('landlord')}
+                className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all border-2 cursor-pointer ${
+                  loginRole === 'landlord'
+                    ? 'bg-[#f06023] text-white border-[#f06023] shadow-md'
+                    : 'bg-white text-zinc-500 border-zinc-200 hover:border-zinc-300'
+                }`}
+              >
+                <Building2 className="h-3.5 w-3.5" /> Property Owner
+              </button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-1.5 p-1 bg-zinc-100 rounded-xl mb-5 text-xs font-bold">
             <button
               type="button"
