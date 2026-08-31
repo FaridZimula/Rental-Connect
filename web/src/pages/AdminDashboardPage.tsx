@@ -1,20 +1,31 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, CheckCircle2, XCircle, Users, Flag, Activity, Ban, ShieldAlert, BarChart3, Clock, UserPlus, Shield, User, Mail, Key, X, Sparkles } from 'lucide-react';
+import { 
+  ShieldCheck, CheckCircle2, XCircle, Users, Flag, Activity, Ban, ShieldAlert, 
+  BarChart3, Clock, UserPlus, Shield, User, Mail, Key, X, Sparkles, Building2, 
+  Tag, Crown, Search, Filter, Phone, Image as ImageIcon, Eye, TrendingUp, Percent, Check
+} from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
-import { adminApi, reportsApi } from '../lib/api';
+import { adminApi, reportsApi, propertiesApi } from '../lib/api';
+import { mockProperties } from '../data/mockData';
 import { Property, ListingReport, AuditLog } from '../types';
 
 export default function AdminDashboardPage() {
-  const [activeTab, setActiveTab] = useState<'verification' | 'users' | 'flagged' | 'audit' | 'analytics'>('verification');
+  const [activeTab, setActiveTab] = useState<'verification' | 'users' | 'properties' | 'flagged' | 'audit' | 'analytics'>('verification');
 
   const [pendingProperties, setPendingProperties] = useState<Property[]>([]);
+  const [allProperties, setAllProperties] = useState<Property[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [reports, setReports] = useState<ListingReport[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  // Property Filters
+  const [propertySearch, setPropertySearch] = useState('');
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState('all');
 
   // Add Property Owner Modal State
   const [showAddOwnerModal, setShowAddOwnerModal] = useState(false);
@@ -22,6 +33,7 @@ export default function AdminDashboardPage() {
   const [ownerEmail, setOwnerEmail] = useState('');
   const [ownerPassword, setOwnerPassword] = useState('');
   const [ownerPhone, setOwnerPhone] = useState('');
+  const [ownerPlan, setOwnerPlan] = useState<'basic' | 'pay-per-client' | 'premium'>('pay-per-client');
   const [addingOwner, setAddingOwner] = useState(false);
   const [ownerSuccessMsg, setOwnerSuccessMsg] = useState('');
 
@@ -41,16 +53,33 @@ export default function AdminDashboardPage() {
   const fetchAdminData = async () => {
     setLoading(true);
     try {
-      const [pendingRes, usersRes, reportsRes, auditRes, analyticsRes] = await Promise.allSettled([
+      const [pendingRes, usersRes, reportsRes, auditRes, analyticsRes, propertiesRes] = await Promise.allSettled([
         adminApi.pending(),
         adminApi.users(),
         reportsApi.adminAll(),
         adminApi.auditLogs(),
         adminApi.analytics(),
+        propertiesApi.list(),
       ]);
 
       if (pendingRes.status === 'fulfilled' && Array.isArray(pendingRes.value)) setPendingProperties(pendingRes.value);
       else setPendingProperties([]);
+
+      // Aggregate All Properties (API + Custom Local + Mock Data)
+      let backendProps: Property[] = [];
+      if (propertiesRes.status === 'fulfilled' && Array.isArray(propertiesRes.value?.data)) backendProps = propertiesRes.value.data;
+      else if (propertiesRes.status === 'fulfilled' && Array.isArray(propertiesRes.value)) backendProps = propertiesRes.value;
+
+      const customPropsStr = localStorage.getItem('rc_custom_properties');
+      const customProps: Property[] = customPropsStr ? JSON.parse(customPropsStr) : [];
+
+      const propsMap = new Map<string, Property>();
+      [...customProps, ...backendProps, ...mockProperties].forEach((p) => {
+        if (p && p.id) propsMap.set(p.id, p);
+      });
+
+      const aggregatedProperties = Array.from(propsMap.values());
+      setAllProperties(aggregatedProperties);
 
       // Construct complete user list including system admins and added property owners
       const defaultAdminUsers = [
@@ -78,6 +107,7 @@ export default function AdminDashboardPage() {
         email: o.email,
         phone: o.phone,
         role: 'landlord',
+        plan: o.plan || 'pay-per-client',
         is_active: true,
       }));
 
@@ -156,6 +186,23 @@ export default function AdminDashboardPage() {
     } catch {}
   };
 
+  const handleTogglePropertyAvailability = async (propertyId: string) => {
+    try {
+      await propertiesApi.toggleAvailability(propertyId);
+    } catch {}
+
+    const customPropsStr = localStorage.getItem('rc_custom_properties');
+    let customProps: Property[] = customPropsStr ? JSON.parse(customPropsStr) : [];
+    customProps = customProps.map((p) =>
+      p.id === propertyId ? { ...p, is_available: !p.is_available } : p
+    );
+    localStorage.setItem('rc_custom_properties', JSON.stringify(customProps));
+
+    setAllProperties((prev) =>
+      prev.map((p) => (p.id === propertyId ? { ...p, is_available: !p.is_available } : p))
+    );
+  };
+
   const handleAddOwner = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!ownerEmail.trim() || !ownerPassword.trim()) return;
@@ -169,11 +216,13 @@ export default function AdminDashboardPage() {
       email: cleanEmail,
       phone: ownerPhone.trim() || undefined,
       role: 'landlord',
+      plan: ownerPlan,
       created_at: new Date().toISOString(),
     };
 
-    // Save temporary password
+    // Save temporary password and user plan
     localStorage.setItem(`rc_pwd_${cleanEmail}`, ownerPassword);
+    localStorage.setItem(`rc_user_plan_${cleanEmail}`, ownerPlan);
 
     // Save in registered owners storage
     const registeredOwnersStr = localStorage.getItem('rc_registered_owners');
@@ -181,11 +230,12 @@ export default function AdminDashboardPage() {
     registeredOwners = [newOwner, ...registeredOwners.filter((o: any) => o.email?.toLowerCase() !== cleanEmail)];
     localStorage.setItem('rc_registered_owners', JSON.stringify(registeredOwners));
 
-    setOwnerSuccessMsg(`Property Owner "${cleanEmail}" added successfully! They can now log in via Google or password.`);
+    setOwnerSuccessMsg(`Property Owner "${cleanEmail}" registered under "${ownerPlan.toUpperCase()}" plan!`);
     setOwnerName('');
     setOwnerEmail('');
     setOwnerPassword('');
     setOwnerPhone('');
+    setOwnerPlan('pay-per-client');
     setAddingOwner(false);
     fetchAdminData();
   };
@@ -258,26 +308,47 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Stat Cards Overview */}
-          {analytics && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              <div className="bg-white border border-zinc-200 p-4 rounded-2xl shadow-sm">
-                <p className="text-xs text-zinc-400 font-semibold uppercase">Pending Verification</p>
-                <p className="text-2xl font-extrabold text-amber-500 mt-1">{analytics.properties?.pending ?? 0}</p>
-              </div>
-              <div className="bg-white border border-zinc-200 p-4 rounded-2xl shadow-sm">
-                <p className="text-xs text-zinc-400 font-semibold uppercase">Published Properties</p>
-                <p className="text-2xl font-extrabold text-emerald-600 mt-1">{analytics.properties?.published ?? 0}</p>
-              </div>
-              <div className="bg-white border border-zinc-200 p-4 rounded-2xl shadow-sm">
-                <p className="text-xs text-zinc-400 font-semibold uppercase">Registered Users</p>
-                <p className="text-2xl font-extrabold text-zinc-900 mt-1">{analytics.users?.total ?? 0}</p>
-              </div>
-              <div className="bg-white border border-zinc-200 p-4 rounded-2xl shadow-sm">
-                <p className="text-xs text-zinc-400 font-semibold uppercase">Pending Flagged Reports</p>
-                <p className="text-2xl font-extrabold text-red-500 mt-1">{analytics.reports?.pending ?? 0}</p>
-              </div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3.5 mb-8">
+            <div className="bg-white border border-zinc-200 p-4 rounded-2xl shadow-sm">
+              <p className="text-[11px] text-zinc-400 font-bold uppercase tracking-wider">Total Properties</p>
+              <p className="text-2xl font-extrabold text-zinc-900 mt-1">{allProperties.length}</p>
+              <p className="text-[10px] text-zinc-400 mt-0.5">Live catalog listings</p>
             </div>
-          )}
+
+            <div className="bg-white border border-zinc-200 p-4 rounded-2xl shadow-sm">
+              <p className="text-[11px] text-emerald-600 font-bold uppercase tracking-wider">Booked / Occupied</p>
+              <p className="text-2xl font-extrabold text-emerald-600 mt-1">
+                {allProperties.filter((p) => p.is_available === false).length}
+              </p>
+              <p className="text-[10px] text-zinc-400 mt-0.5">
+                {allProperties.length > 0
+                  ? `${Math.round((allProperties.filter((p) => p.is_available === false).length / allProperties.length) * 100)}% booking rate`
+                  : '0% booking rate'}
+              </p>
+            </div>
+
+            <div className="bg-white border border-zinc-200 p-4 rounded-2xl shadow-sm">
+              <p className="text-[11px] text-amber-500 font-bold uppercase tracking-wider">Pending Verification</p>
+              <p className="text-2xl font-extrabold text-amber-500 mt-1">{pendingProperties.length}</p>
+              <p className="text-[10px] text-zinc-400 mt-0.5">Awaiting moderation</p>
+            </div>
+
+            <div className="bg-white border border-zinc-200 p-4 rounded-2xl shadow-sm">
+              <p className="text-[11px] text-[#f06023] font-bold uppercase tracking-wider">Property Owners</p>
+              <p className="text-2xl font-extrabold text-[#f06023] mt-1">
+                {users.filter((u) => u.role === 'landlord' || u.role === 'owner').length}
+              </p>
+              <p className="text-[10px] text-zinc-400 mt-0.5">Verified owner accounts</p>
+            </div>
+
+            <div className="bg-white border border-zinc-200 p-4 rounded-2xl shadow-sm col-span-2 sm:col-span-1">
+              <p className="text-[11px] text-zinc-500 font-bold uppercase tracking-wider">System Admins</p>
+              <p className="text-2xl font-extrabold text-zinc-900 mt-1">
+                {users.filter((u) => u.role === 'admin').length}
+              </p>
+              <p className="text-[10px] text-zinc-400 mt-0.5">Console moderators</p>
+            </div>
+          </div>
 
           {/* Navigation Tabs */}
           <div className="flex space-x-2 border-b border-zinc-200 mb-8 overflow-x-auto">
@@ -301,6 +372,17 @@ export default function AdminDashboardPage() {
               }`}
             >
               <Users className="h-4 w-4" /> User Management ({users.length})
+            </button>
+
+            <button
+              onClick={() => setActiveTab('properties')}
+              className={`pb-3 px-4 text-sm font-semibold transition-all border-b-2 flex items-center gap-2 whitespace-nowrap ${
+                activeTab === 'properties'
+                  ? 'border-[#f06023] text-[#f06023]'
+                  : 'border-transparent text-zinc-500 hover:text-zinc-800'
+              }`}
+            >
+              <Building2 className="h-4 w-4" /> Live Properties Catalog ({allProperties.length})
             </button>
 
             <button
@@ -333,7 +415,7 @@ export default function AdminDashboardPage() {
                   : 'border-transparent text-zinc-500 hover:text-zinc-800'
               }`}
             >
-              <BarChart3 className="h-4 w-4" /> System Analytics
+              <BarChart3 className="h-4 w-4" /> Analytics & Plan Statistics
             </button>
           </div>
 
@@ -436,7 +518,7 @@ export default function AdminDashboardPage() {
                       <thead className="bg-zinc-100 border-b border-zinc-200 text-zinc-600 uppercase font-semibold">
                         <tr>
                           <th className="p-4">User</th>
-                          <th className="p-4">Role</th>
+                          <th className="p-4">Role & Plan Tier</th>
                           <th className="p-4">Account Status</th>
                           <th className="p-4 text-right">Actions</th>
                         </tr>
@@ -456,17 +538,24 @@ export default function AdminDashboardPage() {
                               <div className="text-zinc-400">{u.email} {u.phone ? `• ${u.phone}` : ''}</div>
                             </td>
                             <td className="p-4">
-                              <span
-                                className={`px-2.5 py-1 rounded-full font-bold text-[10px] uppercase shadow-sm ${
-                                  u.role === 'admin'
-                                    ? 'bg-[#f06023] text-white'
-                                    : u.role === 'landlord' || u.role === 'owner'
-                                    ? 'bg-zinc-900 text-white'
-                                    : 'bg-zinc-100 text-zinc-700'
-                                }`}
-                              >
-                                {u.role === 'landlord' || u.role === 'owner' ? 'Property Owner' : u.role}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={`px-2.5 py-1 rounded-full font-bold text-[10px] uppercase shadow-sm ${
+                                    u.role === 'admin'
+                                      ? 'bg-[#f06023] text-white'
+                                      : u.role === 'landlord' || u.role === 'owner'
+                                      ? 'bg-zinc-900 text-white'
+                                      : 'bg-zinc-100 text-zinc-700'
+                                  }`}
+                                >
+                                  {u.role === 'landlord' || u.role === 'owner' ? 'Property Owner' : u.role}
+                                </span>
+                                {(u.role === 'landlord' || u.role === 'owner') && (
+                                  <span className="bg-orange-50 text-[#f06023] border border-orange-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
+                                    {u.plan ? u.plan.replace(/-/g, ' ') : 'Pay Per Client'}
+                                  </span>
+                                )}
+                              </div>
                             </td>
                             <td className="p-4">
                               <span
@@ -501,6 +590,154 @@ export default function AdminDashboardPage() {
                 </div>
               )}
 
+              {/* Live Properties Catalog */}
+              {activeTab === 'properties' && (
+                <div className="space-y-4">
+                  {/* Filter & Search Bar */}
+                  <div className="bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="relative w-full md:w-80">
+                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 h-4 w-4" />
+                      <input
+                        type="text"
+                        placeholder="Search title, zone, or landlord..."
+                        className="w-full pl-10 pr-4 py-2 border border-zinc-300 rounded-xl text-xs focus:outline-none focus:border-[#f06023]"
+                        value={propertySearch}
+                        onChange={(e) => setPropertySearch(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                      <div className="flex items-center gap-1.5 text-xs text-zinc-500">
+                        <Filter className="h-3.5 w-3.5 text-[#f06023]" /> Category:
+                        <select
+                          className="p-2 border border-zinc-300 rounded-xl text-xs focus:outline-none focus:border-[#f06023] bg-white font-medium"
+                          value={selectedCategoryFilter}
+                          onChange={(e) => setSelectedCategoryFilter(e.target.value)}
+                        >
+                          <option value="all">All Categories</option>
+                          <option value="apartment">Apartments & Houses</option>
+                          <option value="hostel">Student Hostels</option>
+                          <option value="vehicle">Vehicles & Transport</option>
+                          <option value="land">Plots & Land</option>
+                          <option value="equipment">Equipments & Tools</option>
+                        </select>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 text-xs text-zinc-500">
+                        Status:
+                        <select
+                          className="p-2 border border-zinc-300 rounded-xl text-xs focus:outline-none focus:border-[#f06023] bg-white font-medium"
+                          value={selectedStatusFilter}
+                          onChange={(e) => setSelectedStatusFilter(e.target.value)}
+                        >
+                          <option value="all">All Statuses</option>
+                          <option value="available">Available Only</option>
+                          <option value="booked">Booked / Occupied</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Properties Table */}
+                  <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs">
+                        <thead className="bg-zinc-100 border-b border-zinc-200 text-zinc-600 uppercase font-semibold">
+                          <tr>
+                            <th className="p-4">Property & Category</th>
+                            <th className="p-4">Price & Zone</th>
+                            <th className="p-4">Property Owner / Landlord</th>
+                            <th className="p-4">Status & Photos</th>
+                            <th className="p-4 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-zinc-100 text-zinc-800">
+                          {allProperties
+                            .filter((p) => {
+                              const matchesSearch =
+                                !propertySearch.trim() ||
+                                p.title.toLowerCase().includes(propertySearch.toLowerCase()) ||
+                                p.display_zone.toLowerCase().includes(propertySearch.toLowerCase()) ||
+                                p.owner?.full_name?.toLowerCase().includes(propertySearch.toLowerCase());
+                              const matchesCat =
+                                selectedCategoryFilter === 'all' || p.property_type === selectedCategoryFilter;
+                              const matchesStatus =
+                                selectedStatusFilter === 'all' ||
+                                (selectedStatusFilter === 'available' && p.is_available !== false) ||
+                                (selectedStatusFilter === 'booked' && p.is_available === false);
+                              return matchesSearch && matchesCat && matchesStatus;
+                            })
+                            .map((p) => {
+                              const primaryImage =
+                                p.images?.find((img) => img.is_primary)?.image_url ||
+                                p.images?.[0]?.image_url ||
+                                'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=600&q=80';
+                              return (
+                                <tr key={p.id} className="hover:bg-zinc-50">
+                                  <td className="p-4">
+                                    <div className="flex items-center gap-3">
+                                      <img
+                                        src={primaryImage}
+                                        alt={p.title}
+                                        className="h-12 w-16 object-cover rounded-xl border border-zinc-200 shrink-0"
+                                      />
+                                      <div>
+                                        <h4 className="font-bold text-zinc-900 line-clamp-1">{p.title}</h4>
+                                        <span className="inline-block mt-0.5 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-orange-50 text-[#f06023] rounded-md border border-orange-200">
+                                          {p.property_type || 'Property'}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="p-4">
+                                    <div className="font-extrabold text-zinc-900">
+                                      UGX {Number(p.price).toLocaleString()}
+                                      <span className="text-[10px] text-zinc-500 font-normal">{p.price_period || '/month'}</span>
+                                    </div>
+                                    <div className="text-zinc-500 text-[11px] mt-0.5">{p.display_zone}</div>
+                                  </td>
+                                  <td className="p-4">
+                                    <div className="font-bold text-zinc-900">{p.owner?.full_name || 'Verified Owner'}</div>
+                                    <div className="text-zinc-400 text-[11px]">{p.owner?.phone || 'Contact Available'}</div>
+                                  </td>
+                                  <td className="p-4">
+                                    <div className="flex items-center gap-2">
+                                      <span
+                                        className={`px-2.5 py-1 rounded-full font-bold text-[10px] uppercase ${
+                                          p.is_available !== false
+                                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                            : 'bg-amber-50 text-amber-700 border border-amber-200'
+                                        }`}
+                                      >
+                                        {p.is_available !== false ? '🟢 Available' : '🟡 Booked / Occupied'}
+                                      </span>
+                                      <span className="text-[11px] text-zinc-400 font-semibold">
+                                        📷 {p.images?.length || 1} {p.images?.length === 1 ? 'photo' : 'photos'}
+                                      </span>
+                                    </div>
+                                  </td>
+                                  <td className="p-4 text-right">
+                                    <button
+                                      onClick={() => handleTogglePropertyAvailability(p.id)}
+                                      className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-all ${
+                                        p.is_available !== false
+                                          ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200'
+                                          : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
+                                      }`}
+                                    >
+                                      {p.is_available !== false ? 'Mark as Booked' : 'Mark as Available'}
+                                    </button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Flagged Reports */}
               {activeTab === 'flagged' && (
                 <div className="space-y-4">
@@ -513,40 +750,34 @@ export default function AdminDashboardPage() {
                   ) : (
                     reports.map((rep) => (
                       <div key={rep.id} className="bg-white border border-zinc-200 rounded-2xl p-5 shadow-sm space-y-3">
-                        <div className="flex justify-between items-start">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           <div>
                             <span className="bg-red-50 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-200 uppercase">
-                              Report Reason: {rep.reason}
+                              {rep.reason}
                             </span>
-                            <h4 className="font-bold text-zinc-900 text-sm mt-1">
-                              Property: {rep.property?.title || 'Unknown Property'}
-                            </h4>
-                            <p className="text-xs text-zinc-500">Reported by: {rep.reporter?.full_name} ({rep.reporter?.email})</p>
+                            <h3 className="font-bold text-zinc-900 text-base mt-1">{rep.property?.title}</h3>
+                            <p className="text-xs text-zinc-500">Reported by: {rep.reporter?.full_name}</p>
                           </div>
 
                           <div className="flex items-center gap-2">
-                            {rep.status === 'pending' && (
-                              <>
-                                <button
-                                  onClick={() => handleResolveReport(rep.id, 'action_taken')}
-                                  className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold"
-                                >
-                                  Take Action
-                                </button>
-                                <button
-                                  onClick={() => handleResolveReport(rep.id, 'dismissed')}
-                                  className="px-3 py-1.5 bg-zinc-200 hover:bg-zinc-300 text-zinc-700 rounded-xl text-xs font-bold"
-                                >
-                                  Dismiss
-                                </button>
-                              </>
-                            )}
+                            <button
+                              onClick={() => handleResolveReport(rep.id, 'dismissed')}
+                              className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-xl text-xs font-bold transition-all"
+                            >
+                              Dismiss Report
+                            </button>
+                            <button
+                              onClick={() => setActionTarget({ id: rep.property_id, type: 'suspend' })}
+                              className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all"
+                            >
+                              Suspend Listing
+                            </button>
                           </div>
                         </div>
 
                         {rep.details && (
-                          <p className="text-xs text-zinc-700 bg-zinc-50 p-3 rounded-xl border border-zinc-200/60">
-                            Details: {rep.details}
+                          <p className="text-xs text-zinc-600 bg-zinc-50 p-3 rounded-xl border border-zinc-200/60">
+                            {rep.details}
                           </p>
                         )}
                       </div>
@@ -558,93 +789,125 @@ export default function AdminDashboardPage() {
               {/* Audit Logs */}
               {activeTab === 'audit' && (
                 <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-zinc-100 border-b border-zinc-200 text-zinc-600 uppercase font-semibold">
-                      <tr>
-                        <th className="p-4">Timestamp</th>
-                        <th className="p-4">Action</th>
-                        <th className="p-4">Target Type</th>
-                        <th className="p-4">Target ID</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-zinc-100 text-zinc-800">
-                      {auditLogs.map((log) => (
-                        <tr key={log.id} className="hover:bg-zinc-50 font-mono text-[11px]">
-                          <td className="p-4 text-zinc-500">{new Date(log.created_at).toLocaleString()}</td>
-                          <td className="p-4 font-bold text-[#f06023]">{log.action}</td>
-                          <td className="p-4 uppercase">{log.target_type}</td>
-                          <td className="p-4 text-zinc-400 truncate max-w-[150px]">{log.target_id}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <div className="p-4 border-b border-zinc-100 font-bold text-zinc-900 text-sm">
+                    Platform Action Logs
+                  </div>
+                  <div className="divide-y divide-zinc-100 text-xs">
+                    {auditLogs.length === 0 ? (
+                      <div className="p-8 text-center text-zinc-400">No system audit logs logged yet.</div>
+                    ) : (
+                      auditLogs.map((log) => (
+                        <div key={log.id} className="p-4 flex items-center justify-between">
+                          <div>
+                            <span className="font-bold text-zinc-800">{log.action}</span>
+                            <span className="text-zinc-500 ml-2">• by {log.admin?.full_name || 'System Admin'}</span>
+                          </div>
+                          <span className="text-zinc-400 text-[11px]">
+                            {new Date(log.created_at).toLocaleString()}
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
               )}
 
-              {/* Analytics Overview */}
+              {/* Analytics & Subscription Statistics */}
               {activeTab === 'analytics' && (
                 <div className="space-y-6">
-                  <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm">
-                    <h3 className="text-lg font-bold text-zinc-900 mb-4 flex items-center gap-2">
-                      <BarChart3 className="h-5 w-5 text-[#f06023]" /> Platform Performance & Operations Summary
+                  {/* Subscription Tiers Statistics */}
+                  <div className="bg-white border border-zinc-200 rounded-3xl p-6 shadow-sm">
+                    <h3 className="text-base font-bold text-zinc-900 mb-1 flex items-center gap-2">
+                      <Crown className="h-5 w-5 text-[#f06023]" /> Property Owner Subscription Tiers Breakdown
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4">
-                        <h4 className="text-xs font-bold text-zinc-500 uppercase mb-2">Property Listings</h4>
-                        <div className="space-y-2 text-xs font-medium">
-                          <div className="flex justify-between">
-                            <span className="text-zinc-600">Total Listings:</span>
-                            <span className="font-bold text-zinc-900">{analytics?.properties?.total ?? 0}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-emerald-600">Published / Active:</span>
-                            <span className="font-bold text-emerald-700">{analytics?.properties?.published ?? 0}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-amber-600">Pending Review:</span>
-                            <span className="font-bold text-amber-700">{analytics?.properties?.pending ?? 0}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-red-600">Rejected / Suspended:</span>
-                            <span className="font-bold text-red-700">{analytics?.properties?.rejected ?? 0}</span>
-                          </div>
+                    <p className="text-xs text-zinc-500 mb-6">Distribution of plans across registered property owners.</p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="p-4 bg-orange-50/60 border border-orange-200 rounded-2xl">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-xs font-bold uppercase text-[#f06023]">Pay Per Client Tier</span>
+                          <span className="text-xs font-bold bg-[#f06023] text-white px-2 py-0.5 rounded-full">Pay As You Go</span>
                         </div>
+                        <p className="text-2xl font-extrabold text-zinc-900">
+                          {users.filter((u) => (u.role === 'landlord' || u.role === 'owner') && (!u.plan || u.plan === 'pay-per-client')).length}
+                        </p>
+                        <p className="text-xs text-zinc-500 mt-1">Zero upfront cost • Fee per client lead</p>
                       </div>
 
-                      <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4">
-                        <h4 className="text-xs font-bold text-zinc-500 uppercase mb-2">User Distribution</h4>
-                        <div className="space-y-2 text-xs font-medium">
-                          <div className="flex justify-between">
-                            <span className="text-zinc-600">Total Users:</span>
-                            <span className="font-bold text-zinc-900">{analytics?.users?.total ?? 0}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-blue-600">Tenants / Customers:</span>
-                            <span className="font-bold text-blue-700">{analytics?.users?.tenants ?? 0}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-purple-600">Property Owners / Brokers:</span>
-                            <span className="font-bold text-purple-700">{analytics?.users?.landlords ?? 0}</span>
-                          </div>
+                      <div className="p-4 bg-purple-50/60 border border-purple-200 rounded-2xl">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-xs font-bold uppercase text-purple-700">Premium Owner Tier</span>
+                          <span className="text-xs font-bold bg-purple-600 text-white px-2 py-0.5 rounded-full">Unlimited</span>
                         </div>
+                        <p className="text-2xl font-extrabold text-zinc-900">
+                          {users.filter((u) => (u.role === 'landlord' || u.role === 'owner') && u.plan === 'premium').length}
+                        </p>
+                        <p className="text-xs text-zinc-500 mt-1">Unlimited Photos • Animated frontend gallery</p>
                       </div>
 
-                      <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4">
-                        <h4 className="text-xs font-bold text-zinc-500 uppercase mb-2">Inquiries & Reports</h4>
-                        <div className="space-y-2 text-xs font-medium">
-                          <div className="flex justify-between">
-                            <span className="text-zinc-600">Total Inquiries:</span>
-                            <span className="font-bold text-zinc-900">{analytics?.inquiries?.total ?? 0}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-red-600">Flagged Reports:</span>
-                            <span className="font-bold text-red-700">{analytics?.reports?.pending ?? 0}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-zinc-500">Audit Actions Tracked:</span>
-                            <span className="font-bold text-zinc-700">{auditLogs.length}</span>
-                          </div>
+                      <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-2xl">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-xs font-bold uppercase text-zinc-700">Basic Listing Tier</span>
+                          <span className="text-xs font-bold bg-zinc-700 text-white px-2 py-0.5 rounded-full">Free</span>
                         </div>
+                        <p className="text-2xl font-extrabold text-zinc-900">
+                          {users.filter((u) => (u.role === 'landlord' || u.role === 'owner') && u.plan === 'basic').length}
+                        </p>
+                        <p className="text-xs text-zinc-500 mt-1">5 Photos Maximum limit</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Booking & Occupancy Metrics */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-white border border-zinc-200 rounded-3xl p-6 shadow-sm space-y-4">
+                      <h4 className="font-bold text-zinc-900 text-sm flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-[#f06023]" /> Booking Performance & Success Rate
+                      </h4>
+                      <div className="space-y-3">
+                        <div className="flex justify-between text-xs font-semibold text-zinc-700">
+                          <span>Occupancy Ratio:</span>
+                          <span>
+                            {allProperties.length > 0
+                              ? `${Math.round((allProperties.filter((p) => p.is_available === false).length / allProperties.length) * 100)}%`
+                              : '0%'}
+                          </span>
+                        </div>
+                        <div className="w-full bg-zinc-100 rounded-full h-3 overflow-hidden">
+                          <div
+                            className="bg-emerald-500 h-3 rounded-full transition-all duration-500"
+                            style={{
+                              width: `${
+                                allProperties.length > 0
+                                  ? Math.round((allProperties.filter((p) => p.is_available === false).length / allProperties.length) * 100)
+                                  : 0
+                              }%`,
+                            }}
+                          />
+                        </div>
+                        <p className="text-xs text-zinc-500 leading-relaxed">
+                          {allProperties.filter((p) => p.is_available === false).length} out of {allProperties.length} listings have been successfully booked by tenants on Rental Connect.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="bg-white border border-zinc-200 rounded-3xl p-6 shadow-sm space-y-4">
+                      <h4 className="font-bold text-zinc-900 text-sm flex items-center gap-2">
+                        <Tag className="h-4 w-4 text-[#f06023]" /> Categories Listing Distribution
+                      </h4>
+                      <div className="space-y-2 text-xs">
+                        {[
+                          { label: 'Apartments & Houses', count: allProperties.filter((p) => p.property_type === 'apartment' || p.property_type === 'house' || !p.property_type).length },
+                          { label: 'Student Hostels', count: allProperties.filter((p) => p.property_type === 'hostel').length },
+                          { label: 'Vehicles & Transport', count: allProperties.filter((p) => p.property_type === 'vehicle').length },
+                          { label: 'Commercial & Plots', count: allProperties.filter((p) => p.property_type === 'land').length },
+                          { label: 'Tools & Equipment', count: allProperties.filter((p) => p.property_type === 'equipment').length },
+                        ].map((cat) => (
+                          <div key={cat.label} className="flex justify-between items-center p-2 bg-zinc-50 rounded-xl">
+                            <span className="font-medium text-zinc-700">{cat.label}</span>
+                            <span className="font-bold bg-white px-2.5 py-0.5 rounded-lg border border-zinc-200 text-zinc-900">{cat.count} listings</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -758,6 +1021,28 @@ export default function AdminDashboardPage() {
                   value={ownerPhone}
                   onChange={(e) => setOwnerPhone(e.target.value)}
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                  Assign Subscription Plan Tier <span className="text-[#f06023]">*</span>
+                </label>
+                <select
+                  className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023] bg-white font-medium text-zinc-900"
+                  value={ownerPlan}
+                  onChange={(e: any) => setOwnerPlan(e.target.value)}
+                >
+                  <option value="pay-per-client">🤝 Pay Per Client (Pay As You Go - Zero Upfront)</option>
+                  <option value="premium">👑 Premium Owner Plan (Unlimited Photos + Verified Badge)</option>
+                  <option value="basic">🆓 Basic Listing Plan (5 Photos Limit)</option>
+                </select>
+                <p className="text-[10px] text-zinc-400 mt-1">
+                  {ownerPlan === 'premium'
+                    ? '✨ Premium tier unlocks unlimited photos per property and priority search ranking.'
+                    : ownerPlan === 'pay-per-client'
+                    ? '🤝 Zero upfront cost. Pay per client inquiry lead.'
+                    : '📷 Basic tier is limited to 5 photos per property listing.'}
+                </p>
               </div>
 
               <div className="pt-2 flex gap-2">
