@@ -80,13 +80,14 @@ export default function LandlordDashboardPage() {
     setLoading(true);
     try {
       const [propsData, inqData] = await Promise.all([
-        propertiesApi.myProperties(),
-        inquiriesApi.landlordInquiries(),
+        propertiesApi.myProperties().catch(() => null),
+        inquiriesApi.landlordInquiries().catch(() => null),
       ]);
-      setProperties(propsData.length > 0 ? propsData : mockProperties);
-      setInquiries(inqData);
+      setProperties(Array.isArray(propsData) && propsData.length > 0 ? propsData : mockProperties);
+      setInquiries(Array.isArray(inqData) ? inqData : []);
     } catch {
       setProperties(mockProperties);
+      setInquiries([]);
     } finally {
       setLoading(false);
     }

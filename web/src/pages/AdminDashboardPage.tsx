@@ -32,10 +32,20 @@ export default function AdminDashboardPage() {
         adminApi.analytics(),
       ]);
 
-      if (pendingRes.status === 'fulfilled') setPendingProperties(pendingRes.value);
-      if (usersRes.status === 'fulfilled') setUsers(usersRes.value.data || []);
-      if (reportsRes.status === 'fulfilled') setReports(reportsRes.value || []);
-      if (auditRes.status === 'fulfilled') setAuditLogs(auditRes.value.data || []);
+      if (pendingRes.status === 'fulfilled' && Array.isArray(pendingRes.value)) setPendingProperties(pendingRes.value);
+      else setPendingProperties([]);
+
+      if (usersRes.status === 'fulfilled' && Array.isArray(usersRes.value?.data)) setUsers(usersRes.value.data);
+      else if (usersRes.status === 'fulfilled' && Array.isArray(usersRes.value)) setUsers(usersRes.value);
+      else setUsers([]);
+
+      if (reportsRes.status === 'fulfilled' && Array.isArray(reportsRes.value)) setReports(reportsRes.value);
+      else setReports([]);
+
+      if (auditRes.status === 'fulfilled' && Array.isArray(auditRes.value?.data)) setAuditLogs(auditRes.value.data);
+      else if (auditRes.status === 'fulfilled' && Array.isArray(auditRes.value)) setAuditLogs(auditRes.value);
+      else setAuditLogs([]);
+
       if (analyticsRes.status === 'fulfilled') setAnalytics(analyticsRes.value);
     } catch {
     } finally {

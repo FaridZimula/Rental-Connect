@@ -51,9 +51,23 @@ export default function TenantDashboardPage() {
       favoritesApi.list(),
       reportsApi.myReports(),
     ]).then(([inqRes, favRes, repRes]) => {
-      if (inqRes.status === 'fulfilled') setInquiries(inqRes.value);
-      if (favRes.status === 'fulfilled') setFavorites(favRes.value.map((f: any) => f.property || f));
-      if (repRes.status === 'fulfilled') setReports(repRes.value);
+      if (inqRes.status === 'fulfilled' && Array.isArray(inqRes.value)) {
+        setInquiries(inqRes.value);
+      } else {
+        setInquiries([]);
+      }
+
+      if (favRes.status === 'fulfilled' && Array.isArray(favRes.value)) {
+        setFavorites(favRes.value.map((f: any) => f.property || f));
+      } else {
+        setFavorites([]);
+      }
+
+      if (repRes.status === 'fulfilled' && Array.isArray(repRes.value)) {
+        setReports(repRes.value);
+      } else {
+        setReports([]);
+      }
       setLoading(false);
     });
   }, []);
