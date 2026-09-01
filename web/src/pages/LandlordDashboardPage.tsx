@@ -4,7 +4,7 @@ import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import { useAuth } from '../contexts/AuthContext';
 import { propertiesApi, inquiriesApi, authApi } from '../lib/api';
-import { firestoreProperties } from '../lib/firebaseStore';
+import { supabasePropertiesStore } from '../lib/supabaseStore';
 import { Property, Inquiry } from '../types';
 import { mockProperties } from '../data/mockData';
 
@@ -371,8 +371,8 @@ export default function LandlordDashboardPage() {
       }
       localStorage.setItem('rc_custom_properties', JSON.stringify(localProps));
 
-      // Sync to Firestore Cloud Store for multi-browser / multi-device access
-      firestoreProperties.saveProperty(savedProp).catch(() => {});
+      // Sync to Supabase Cloud Store for multi-browser / real-time cross-device access
+      supabasePropertiesStore.saveProperty(savedProp).catch(() => {});
 
       // Update state & notify real-time sync
       setProperties((prev) => {

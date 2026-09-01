@@ -8,7 +8,7 @@ import {
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import { adminApi, reportsApi, propertiesApi } from '../lib/api';
-import { firestoreProperties } from '../lib/firebaseStore';
+import { supabasePropertiesStore } from '../lib/supabaseStore';
 import { mockProperties } from '../data/mockData';
 import { Property, ListingReport, AuditLog } from '../types';
 
@@ -78,25 +78,25 @@ export default function AdminDashboardPage() {
   const fetchAdminData = async () => {
     setLoading(true);
     try {
-      const [pendingRes, usersRes, reportsRes, auditRes, analyticsRes, propertiesRes, firestorePending, firestoreAll] = await Promise.allSettled([
+      const [pendingRes, usersRes, reportsRes, auditRes, analyticsRes, propertiesRes, supabasePending, supabaseAll] = await Promise.allSettled([
         adminApi.pending(),
         adminApi.users(),
         reportsApi.adminAll(),
         adminApi.auditLogs(),
         adminApi.analytics(),
         propertiesApi.list(),
-        firestoreProperties.getPendingProperties(),
-        firestoreProperties.getAllCustomProperties(),
+        supabasePropertiesStore.getPendingProperties(),
+        supabasePropertiesStore.getAllCustomProperties(),
       ]);
 
       let cloudPending: Property[] = [];
-      if (firestorePending.status === 'fulfilled' && Array.isArray(firestorePending.value)) {
-        cloudPending = firestorePending.value;
+      if (supabasePending.status === 'fulfilled' && Array.isArray(supabasePending.value)) {
+        cloudPending = supabasePending.value;
       }
 
       let cloudAll: Property[] = [];
-      if (firestoreAll.status === 'fulfilled' && Array.isArray(firestoreAll.value)) {
-        cloudAll = firestoreAll.value;
+      if (supabaseAll.status === 'fulfilled' && Array.isArray(supabaseAll.value)) {
+        cloudAll = supabaseAll.value;
       }
 
       let backendPending: Property[] = [];
@@ -191,7 +191,7 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     fetchAdminData();
 
-    // Listen for new tenant inquiries & property updates in real-time
+    // Listen for new tenant inquiries & property updates in real-time (localStorage events)
     const loadInquiries = () => {
       const s = localStorage.getItem('rc_admin_inquiries');
       setAdminInquiries(s ? JSON.parse(s) : []);
@@ -204,10 +204,44 @@ export default function AdminDashboardPage() {
     window.addEventListener('rc_new_inquiry', loadInquiries);
     window.addEventListener('rc_properties_updated', handleSync);
     window.addEventListener('storage', handleSync);
+
+    // ── Supabase Realtime subscription for instant verification queue updates ──
+    const realtimeChannel = supabasePropertiesStore.subscribeToChanges({
+      onInsert: (newProp) => {
+        // New property submitted — add to pending queue immediately if pending
+        if (newProp.status === 'pending_review') {
+          setPendingProperties((prev) => {
+            const exists = prev.some((p) => p.id === newProp.id);
+            return exists ? prev : [newProp, ...prev];
+          });
+        }
+        setAllProperties((prev) => {
+          const exists = prev.some((p) => p.id === newProp.id);
+          return exists ? prev : [newProp, ...prev];
+        });
+      },
+      onUpdate: (updatedProp) => {
+        // Status changed — update verification queue and all properties live
+        setPendingProperties((prev) =>
+          updatedProp.status === 'pending_review'
+            ? prev.map((p) => (p.id === updatedProp.id ? updatedProp : p))
+            : prev.filter((p) => p.id !== updatedProp.id)
+        );
+        setAllProperties((prev) =>
+          prev.map((p) => (p.id === updatedProp.id ? updatedProp : p))
+        );
+      },
+      onDelete: (id) => {
+        setPendingProperties((prev) => prev.filter((p) => p.id !== id));
+        setAllProperties((prev) => prev.filter((p) => p.id !== id));
+      },
+    });
+
     return () => {
       window.removeEventListener('rc_new_inquiry', loadInquiries);
       window.removeEventListener('rc_properties_updated', handleSync);
       window.removeEventListener('storage', handleSync);
+      supabasePropertiesStore.unsubscribe(realtimeChannel);
     };
   }, []);
 
@@ -230,7 +264,7 @@ export default function AdminDashboardPage() {
       void err;
     }
 
-    firestoreProperties.updatePropertyStatus(propertyId, 'published').catch(() => {});
+    supabasePropertiesStore.updatePropertyStatus(propertyId, 'published').catch(() => {});
 
     const customPropsStr = localStorage.getItem('rc_custom_properties');
     if (customPropsStr) {
@@ -263,7 +297,7 @@ export default function AdminDashboardPage() {
       void err;
     }
 
-    firestoreProperties.updatePropertyStatus(actionTarget.id, newStatus, actionReason).catch(() => {});
+    supabasePropertiesStore.updatePropertyStatus(actionTarget.id, newStatus, actionReason).catch(() => {});
 
     const customPropsStr = localStorage.getItem('rc_custom_properties');
     if (customPropsStr) {

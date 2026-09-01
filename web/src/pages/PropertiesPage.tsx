@@ -6,7 +6,7 @@ import Layout from '../components/layout/Layout';
 import PropertyCard, { PropertySummary } from '../components/features/properties/PropertyCard';
 import PropertyFilters, { FilterState } from '../components/features/properties/PropertyFilters';
 import { propertiesApi } from '../lib/api';
-import { firestoreProperties } from '../lib/firebaseStore';
+import { supabasePropertiesStore } from '../lib/supabaseStore';
 import { mockProperties } from '../data/mockData';
 
 const EMPTY_FILTERS: FilterState = {
@@ -150,10 +150,10 @@ export default function PropertiesPage() {
         apiData = [];
       }
 
-      // Fetch cloud properties from Firestore for cross-browser / cross-device sync
+      // Fetch cloud properties from Supabase for cross-browser / cross-device real-time sync
       let cloudProps: PropertySummary[] = [];
       try {
-        cloudProps = await firestoreProperties.getAllCustomProperties();
+        cloudProps = await supabasePropertiesStore.getAllCustomProperties();
       } catch {
         cloudProps = [];
       }
