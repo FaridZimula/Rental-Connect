@@ -18,10 +18,28 @@ export class CreatePropertyDto {
   @IsNotEmpty()
   description: string;
 
-  @IsEnum(['apartment', 'house', 'studio', 'hostel', 'land', 'commercial'])
+  @IsEnum([
+    'apartment',
+    'house',
+    'studio',
+    'hostel',
+    'commercial',
+    'land',
+    'vehicle',
+    'machinery',
+    'event_equipment',
+    'event_venue',
+    'agro_machinery',
+    'medical_equipment',
+    'solar_power',
+    'fashion_attire',
+    'it_hardware',
+    'watercraft',
+    'camping_sports',
+  ])
   property_type: string;
 
-  @IsEnum(['rent', 'sale'])
+  @IsEnum(['rent', 'lease', 'sale'])
   listing_type: string;
 
   @Type(() => Number)

@@ -7,11 +7,29 @@ export class QueryPropertiesDto {
   zone?: string;
 
   @IsOptional()
-  @IsEnum(['rent', 'sale'])
+  @IsEnum(['rent', 'lease', 'sale'])
   listing_type?: string;
 
   @IsOptional()
-  @IsEnum(['apartment', 'house', 'studio', 'hostel', 'land', 'commercial'])
+  @IsEnum([
+    'apartment',
+    'house',
+    'studio',
+    'hostel',
+    'commercial',
+    'land',
+    'vehicle',
+    'machinery',
+    'event_equipment',
+    'event_venue',
+    'agro_machinery',
+    'medical_equipment',
+    'solar_power',
+    'fashion_attire',
+    'it_hardware',
+    'watercraft',
+    'camping_sports',
+  ])
   property_type?: string;
 
   @IsOptional()

@@ -300,19 +300,19 @@ export default function LandlordDashboardPage() {
         real_lng: 32.5825,
       };
 
-      // Try API update in background
+      let createdApiProp: any = null;
       try {
         if (editingPropertyId) {
-          await propertiesApi.update(editingPropertyId, payload);
+          createdApiProp = await propertiesApi.update(editingPropertyId, payload);
         } else {
-          await propertiesApi.create(payload);
+          createdApiProp = await propertiesApi.create(payload);
         }
       } catch (err) {
         console.warn('Backend API update notice/offline mode active:', err);
       }
 
       // Build updated property object with custom photos
-      const propId = editingPropertyId || `p_${Date.now()}`;
+      const propId = createdApiProp?.id || editingPropertyId || `p_${Date.now()}`;
       const formattedImages = propertyPhotos.length > 0
         ? propertyPhotos.map((url, idx) => ({
             id: `img_${propId}_${idx}`,
