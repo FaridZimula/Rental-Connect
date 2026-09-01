@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, ChevronLeft, ChevronRight, Camera } from 'lucide-react';
+import { Eye, ChevronLeft, ChevronRight, Camera, ShoppingBag, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Property } from '../../../types';
 
@@ -37,6 +37,37 @@ const TYPE_LABELS: Record<string, string> = {
 export default function PropertyCard({ property }: { property: PropertySummary }) {
   const images = property.images && property.images.length > 0 ? property.images : [];
   const [currentImgIdx, setCurrentImgIdx] = useState(0);
+
+  const [isInCart, setIsInCart] = useState<boolean>(() => {
+    try {
+      const s = localStorage.getItem('rc_cart_properties');
+      if (!s) return false;
+      const list: Property[] = JSON.parse(s);
+      return list.some((p) => p.id === property.id);
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const s = localStorage.getItem('rc_cart_properties');
+      let list: Property[] = s ? JSON.parse(s) : [];
+      if (isInCart) {
+        list = list.filter((p) => p.id !== property.id);
+        setIsInCart(false);
+      } else {
+        list = [property, ...list.filter((p) => p.id !== property.id)];
+        setIsInCart(true);
+      }
+      localStorage.setItem('rc_cart_properties', JSON.stringify(list));
+      window.dispatchEvent(new CustomEvent('rc_cart_updated'));
+    } catch (err) {
+      void err;
+    }
+  };
 
   const prevImage = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -152,11 +183,24 @@ export default function PropertyCard({ property }: { property: PropertySummary }
             </span>
           </div>
 
-          <Link to={`/properties/${property.id}`}>
-            <button className="w-full bg-[#f06023] hover:bg-[#d94b12] text-white font-bold py-2.5 rounded-xl transition-all duration-300 text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-98 cursor-pointer">
-              <Eye className="h-3.5 w-3.5 text-white" /> View Details
+          <div className="grid grid-cols-2 gap-2">
+            <Link to={`/properties/${property.id}`} className="w-full">
+              <button className="w-full bg-zinc-900 hover:bg-black text-white font-bold py-2 rounded-xl transition-all text-xs flex items-center justify-center gap-1 shadow-sm active:scale-98 cursor-pointer">
+                <Eye className="h-3.5 w-3.5" /> Details
+              </button>
+            </Link>
+            <button
+              onClick={toggleCart}
+              className={`w-full font-bold py-2 rounded-xl transition-all text-xs flex items-center justify-center gap-1 shadow-sm active:scale-98 cursor-pointer ${
+                isInCart
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                  : 'bg-[#f06023] hover:bg-[#d94b12] text-white'
+              }`}
+            >
+              {isInCart ? <Check className="h-3.5 w-3.5" /> : <ShoppingBag className="h-3.5 w-3.5" />}
+              {isInCart ? 'In Cart' : '+ Cart'}
             </button>
-          </Link>
+          </div>
         </div>
       </div>
     </div>

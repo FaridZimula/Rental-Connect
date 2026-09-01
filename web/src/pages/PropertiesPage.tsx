@@ -150,7 +150,7 @@ export default function PropertiesPage() {
       }
 
       const customPropsStr = localStorage.getItem('rc_custom_properties');
-      const customProps: any[] = customPropsStr ? JSON.parse(customPropsStr) : [];
+      const customProps: PropertySummary[] = customPropsStr ? JSON.parse(customPropsStr) : [];
       const publishedCustomProps = customProps.filter((p) => p.status === 'published');
 
       // Combine API items, published custom items, and mock items, deduplicating by ID

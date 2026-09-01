@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Building2, Plus, MessageSquare, CheckCircle2, Clock, Trash2, Eye, EyeOff, X, Edit2, User, Phone, Image as ImageIcon, Upload, Sparkles, AlertCircle, Crown, Star, Calendar, Tag } from 'lucide-react';
+import { Building2, Plus, MessageSquare, Trash2, Eye, EyeOff, X, Edit2, User, Image as ImageIcon, Upload, Sparkles, AlertCircle, Calendar, Tag } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import { useAuth } from '../contexts/AuthContext';
@@ -173,6 +172,16 @@ export default function LandlordDashboardPage() {
   const [responseText, setResponseText] = useState('');
   const [responding, setResponding] = useState(false);
 
+  const filterUserProperties = (list: Property[]): Property[] => {
+    if (!user) return [];
+    return list.filter((p) => {
+      if (p.owner_id && user.id && p.owner_id === user.id) return true;
+      if (p.owner?.email && user.email && p.owner.email.toLowerCase() === user.email.toLowerCase()) return true;
+      if (user.email && p.owner_id === `owner_${user.email}`) return true;
+      return false;
+    });
+  };
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -183,19 +192,24 @@ export default function LandlordDashboardPage() {
 
       const localSavedStr = localStorage.getItem('rc_custom_properties');
       const localProps: Property[] = localSavedStr ? JSON.parse(localSavedStr) : [];
+      const userLocalProps = filterUserProperties(localProps);
 
-      let mergedProps: Property[] = Array.isArray(propsData) && propsData.length > 0 ? propsData : mockProperties;
-      if (localProps.length > 0) {
-        const localIds = new Set(localProps.map((p) => p.id));
-        mergedProps = [...localProps, ...mergedProps.filter((p) => !localIds.has(p.id))];
+      let apiProps: Property[] = [];
+      if (Array.isArray(propsData) && propsData.length > 0) {
+        apiProps = propsData;
       }
 
-      setProperties(mergedProps);
+      const propsMap = new Map<string, Property>();
+      [...userLocalProps, ...apiProps].forEach((p) => {
+        if (p && p.id) propsMap.set(p.id, p);
+      });
+
+      setProperties(Array.from(propsMap.values()));
       setInquiries(Array.isArray(inqData) ? inqData : []);
     } catch {
       const localSavedStr = localStorage.getItem('rc_custom_properties');
       const localProps: Property[] = localSavedStr ? JSON.parse(localSavedStr) : [];
-      setProperties(localProps.length > 0 ? [...localProps, ...mockProperties] : mockProperties);
+      setProperties(filterUserProperties(localProps));
       setInquiries([]);
     } finally {
       setLoading(false);
@@ -215,13 +229,10 @@ export default function LandlordDashboardPage() {
       if (localSavedStr) {
         try {
           const localProps: Property[] = JSON.parse(localSavedStr);
-          if (localProps.length > 0) {
-            setProperties((prev) => {
-              const localIds = new Set(localProps.map((p) => p.id));
-              return [...localProps, ...prev.filter((p) => !localIds.has(p.id))];
-            });
-          }
-        } catch {}
+          setProperties(filterUserProperties(localProps));
+        } catch (err) {
+          void err;
+        }
       }
     };
 
@@ -232,7 +243,7 @@ export default function LandlordDashboardPage() {
       window.removeEventListener('storage', handleSync);
       window.removeEventListener('rc_properties_updated', handleSync);
     };
-  }, []);
+  }, [user]);
 
   const openCreateModal = () => {
     setEditingPropertyId(null);
@@ -320,7 +331,7 @@ export default function LandlordDashboardPage() {
 
       const savedProp: Property = {
         id: propId,
-        owner_id: user?.id || 'owner1',
+        owner_id: user?.id || (user?.email ? `owner_${user.email}` : `owner_${Date.now()}`),
         title,
         description,
         property_type: propertyType,
@@ -341,7 +352,11 @@ export default function LandlordDashboardPage() {
           amenity_id: `a_${idx}`,
           amenity: { id: `a_${idx}`, name: a },
         })),
-        owner: { full_name: user?.full_name || 'Landlord', phone: user?.phone || '+256 772 123456' },
+        owner: {
+          full_name: user?.full_name || 'Landlord',
+          email: user?.email,
+          phone: user?.phone || '+256 772 123456',
+        },
       };
 
       // Persist in localStorage
@@ -363,7 +378,7 @@ export default function LandlordDashboardPage() {
       notifyRealtimeUpdates();
 
       setShowAddModal(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Save listing error:', err);
     } finally {
       setSubmitting(false);
@@ -373,7 +388,9 @@ export default function LandlordDashboardPage() {
   const handleToggleAvailability = async (id: string) => {
     try {
       await propertiesApi.toggleAvailability(id).catch(() => {});
-    } catch {}
+    } catch (err) {
+      void err;
+    }
     setProperties((prev) =>
       prev.map((p) => {
         if (p.id === id) {
@@ -396,7 +413,9 @@ export default function LandlordDashboardPage() {
     if (!confirm('Are you sure you want to delete this listing?')) return;
     try {
       await propertiesApi.delete(id).catch(() => {});
-    } catch {}
+    } catch (err) {
+      void err;
+    }
     setProperties((prev) => prev.filter((p) => p.id !== id));
     const localSavedStr = localStorage.getItem('rc_custom_properties');
     if (localSavedStr) {

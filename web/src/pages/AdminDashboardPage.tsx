@@ -1,11 +1,8 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHouseUser, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import { 
-  ShieldCheck, CheckCircle2, XCircle, Users, Flag, Activity, Ban, ShieldAlert, 
-  BarChart3, Clock, UserPlus, Shield, User, Mail, Key, X, Sparkles, Building2, 
-  Tag, Crown, Search, Filter, Phone, Image as ImageIcon, Eye, TrendingUp, Percent, Check,
+  ShieldCheck, CheckCircle2, XCircle, Users, Flag, Activity, 
+  BarChart3, UserPlus, Shield, X, Building2, 
+  Tag, Crown, Search, Filter, Phone, TrendingUp, 
   MessageSquare, Bell
 } from 'lucide-react';
 import Layout from '../components/layout/Layout';
@@ -22,7 +19,8 @@ export default function AdminDashboardPage() {
   const [users, setUsers] = useState<any[]>([]);
   const [reports, setReports] = useState<ListingReport[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
-  const [analytics, setAnalytics] = useState<any>(null);
+  const [analytics, setAnalytics] = useState<unknown>(null);
+  void analytics;
   const [loading, setLoading] = useState(true);
 
   // Property Filters
@@ -215,7 +213,9 @@ export default function AdminDashboardPage() {
   const handleApprove = async (propertyId: string) => {
     try {
       await adminApi.approve(propertyId).catch(() => {});
-    } catch {}
+    } catch (err) {
+      void err;
+    }
 
     const customPropsStr = localStorage.getItem('rc_custom_properties');
     if (customPropsStr) {
@@ -223,7 +223,9 @@ export default function AdminDashboardPage() {
         let customProps: Property[] = JSON.parse(customPropsStr);
         customProps = customProps.map((p) => (p.id === propertyId ? { ...p, status: 'published' } : p));
         localStorage.setItem('rc_custom_properties', JSON.stringify(customProps));
-      } catch {}
+      } catch (err) {
+        void err;
+      }
     }
 
     fetchAdminData();
@@ -240,7 +242,9 @@ export default function AdminDashboardPage() {
       } else {
         await adminApi.suspend(actionTarget.id, reason.trim()).catch(() => {});
       }
-    } catch {}
+    } catch (err) {
+      void err;
+    }
 
     const customPropsStr = localStorage.getItem('rc_custom_properties');
     if (customPropsStr) {
@@ -249,7 +253,9 @@ export default function AdminDashboardPage() {
         const newStatus = actionTarget.type === 'reject' ? 'rejected' : 'suspended';
         customProps = customProps.map((p) => (p.id === actionTarget.id ? { ...p, status: newStatus } : p));
         localStorage.setItem('rc_custom_properties', JSON.stringify(customProps));
-      } catch {}
+      } catch (err) {
+        void err;
+      }
     }
 
     setActionTarget(null);
@@ -263,20 +269,26 @@ export default function AdminDashboardPage() {
     try {
       await adminApi.toggleUserActive(userId);
       fetchAdminData();
-    } catch {}
+    } catch (err) {
+      void err;
+    }
   };
 
   const handleResolveReport = async (reportId: string, status: string) => {
     try {
       await reportsApi.resolve(reportId, status, 'Resolved by system manager.');
       fetchAdminData();
-    } catch {}
+    } catch (err) {
+      void err;
+    }
   };
 
   const handleTogglePropertyAvailability = async (propertyId: string) => {
     try {
       await propertiesApi.toggleAvailability(propertyId);
-    } catch {}
+    } catch (err) {
+      void err;
+    }
 
     const customPropsStr = localStorage.getItem('rc_custom_properties');
     let customProps: Property[] = customPropsStr ? JSON.parse(customPropsStr) : [];
@@ -414,7 +426,7 @@ export default function AdminDashboardPage() {
 
     // Save in authorized admins list
     const authorizedAdminsStr = localStorage.getItem('rc_authorized_admins');
-    let authorizedAdmins: string[] = authorizedAdminsStr ? JSON.parse(authorizedAdminsStr) : [];
+    const authorizedAdmins: string[] = authorizedAdminsStr ? JSON.parse(authorizedAdminsStr) : [];
     if (!authorizedAdmins.includes(cleanEmail)) {
       authorizedAdmins.push(cleanEmail);
       localStorage.setItem('rc_authorized_admins', JSON.stringify(authorizedAdmins));

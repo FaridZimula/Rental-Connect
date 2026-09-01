@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
 import TenantDashboardPage from './pages/TenantDashboardPage';
 import LandlordDashboardPage from './pages/LandlordDashboardPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
+import CartPage from './pages/CartPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import ContactPage from './pages/ContactPage';
@@ -43,6 +44,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/properties" element={<PropertiesPage />} />
             <Route path="/properties/:id" element={<PropertyDetailPage />} />
+            <Route path="/cart" element={<ErrorBoundary><CartPage /></ErrorBoundary>} />
             <Route path="/contact" element={<ContactPage />} />
 
             {/* Auth routes */}
@@ -57,7 +59,7 @@ function App() {
 
             {/* Dashboard routes */}
             <Route path="/dashboard" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
-            <Route path="/dashboard/tenant" element={<ErrorBoundary><TenantDashboardPage /></ErrorBoundary>} />
+            <Route path="/dashboard/tenant" element={<Navigate to="/cart" replace />} />
             <Route path="/dashboard/landlord" element={<ErrorBoundary><LandlordDashboardPage /></ErrorBoundary>} />
             <Route path="/dashboard/admin" element={<ErrorBoundary><AdminDashboardPage /></ErrorBoundary>} />
 

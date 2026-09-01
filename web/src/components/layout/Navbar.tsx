@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { 
-  Search, Menu, X, Building, Home, User, LogOut, ChevronDown
+  Search, Menu, X, Building, Home, User, LogOut, ChevronDown, ShoppingBag
 } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -35,9 +35,35 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [cartCount, setCartCount] = useState<number>(() => {
+    try {
+      const s = localStorage.getItem('rc_cart_properties');
+      return s ? JSON.parse(s).length : 0;
+    } catch {
+      return 0;
+    }
+  });
+
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const updateCart = () => {
+      try {
+        const s = localStorage.getItem('rc_cart_properties');
+        setCartCount(s ? JSON.parse(s).length : 0);
+      } catch {
+        setCartCount(0);
+      }
+    };
+    window.addEventListener('storage', updateCart);
+    window.addEventListener('rc_cart_updated', updateCart);
+    return () => {
+      window.removeEventListener('storage', updateCart);
+      window.removeEventListener('rc_cart_updated', updateCart);
+    };
+  }, []);
 
   const isOwnerOrAdminPage =
     location.pathname.startsWith('/admin') ||
@@ -50,13 +76,6 @@ const Navbar = () => {
     if (searchTerm.trim()) {
       navigate(`/properties?search=${encodeURIComponent(searchTerm.trim())}`);
     }
-  };
-
-  const getDashboardPath = () => {
-    if (!user) return '/login';
-    if (user.role === 'admin') return '/dashboard/admin';
-    if (user.role === 'landlord') return '/dashboard/landlord';
-    return '/dashboard/tenant';
   };
 
   return (
@@ -99,6 +118,23 @@ const Navbar = () => {
                   Browse Properties
                 </NavLink>
                 <NavLink
+                  to="/cart"
+                  className={({ isActive }) =>
+                    clsx(
+                      'text-sm font-medium transition-colors hover:text-[#f06023] flex items-center gap-1.5 relative',
+                      isActive ? 'text-[#f06023] font-semibold' : 'text-zinc-700'
+                    )
+                  }
+                >
+                  <ShoppingBag className="h-4 w-4 text-[#f06023]" />
+                  Rental Cart
+                  {cartCount > 0 && (
+                    <span className="bg-[#f06023] text-white text-[10px] font-black h-4 w-4 rounded-full flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
+                </NavLink>
+                <NavLink
                   to="/contact"
                   className={({ isActive }) =>
                     clsx(
@@ -127,13 +163,31 @@ const Navbar = () => {
             {/* Auth / Dashboard Controls */}
             {isAuthenticated && user ? (
               <div className="flex items-center space-x-3">
-                <NavLink
-                  to={getDashboardPath()}
-                  className="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 capitalize"
-                >
-                  <User className="h-4 w-4 text-[#f06023]" />
-                  Dashboard ({user.role === 'landlord' ? 'property owner' : user.role})
-                </NavLink>
+                {user.role === 'admin' ? (
+                  <NavLink
+                    to="/dashboard/admin"
+                    className="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold px-4 py-2 rounded-xl transition-all flex items-center gap-1.5"
+                  >
+                    <User className="h-4 w-4 text-[#f06023]" />
+                    Admin Console
+                  </NavLink>
+                ) : user.role === 'landlord' ? (
+                  <NavLink
+                    to="/dashboard/landlord"
+                    className="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold px-4 py-2 rounded-xl transition-all flex items-center gap-1.5"
+                  >
+                    <User className="h-4 w-4 text-[#f06023]" />
+                    Property Owner Console
+                  </NavLink>
+                ) : (
+                  <NavLink
+                    to="/cart"
+                    className="bg-orange-50 hover:bg-orange-100 text-[#f06023] border border-orange-200 text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-2"
+                  >
+                    <ShoppingBag className="h-4 w-4 text-[#f06023]" />
+                    Rental Cart ({cartCount})
+                  </NavLink>
+                )}
                 <button
                   onClick={logout}
                   className="p-2 text-zinc-500 hover:text-red-600 transition-colors"
