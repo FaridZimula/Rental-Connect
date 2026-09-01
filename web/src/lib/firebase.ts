@@ -35,6 +35,7 @@ const googleProvider = new GoogleAuthProvider();
 // ─── Exports ─────────────────────────────────────────────────────────────────
 
 export {
+  app,
   auth,
   googleProvider,
   RecaptchaVerifier,

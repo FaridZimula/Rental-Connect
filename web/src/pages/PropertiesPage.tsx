@@ -6,6 +6,7 @@ import Layout from '../components/layout/Layout';
 import PropertyCard, { PropertySummary } from '../components/features/properties/PropertyCard';
 import PropertyFilters, { FilterState } from '../components/features/properties/PropertyFilters';
 import { propertiesApi } from '../lib/api';
+import { firestoreProperties } from '../lib/firebaseStore';
 import { mockProperties } from '../data/mockData';
 
 const EMPTY_FILTERS: FilterState = {
@@ -149,9 +150,24 @@ export default function PropertiesPage() {
         apiData = [];
       }
 
+      // Fetch cloud properties from Firestore for cross-browser / cross-device sync
+      let cloudProps: PropertySummary[] = [];
+      try {
+        cloudProps = await firestoreProperties.getAllCustomProperties();
+      } catch {
+        cloudProps = [];
+      }
+
       const customPropsStr = localStorage.getItem('rc_custom_properties');
-      const customProps: PropertySummary[] = customPropsStr ? JSON.parse(customPropsStr) : [];
-      const publishedCustomProps = customProps.filter((p) => p.status === 'published');
+      const localCustomProps: PropertySummary[] = customPropsStr ? JSON.parse(customPropsStr) : [];
+
+      // Merge cloud + local cache — cloud takes priority on status
+      const cloudMap = new Map<string, PropertySummary>();
+      [...localCustomProps, ...cloudProps].forEach((p) => {
+        if (p && p.id) cloudMap.set(p.id, p);
+      });
+      const mergedCustomProps = Array.from(cloudMap.values());
+      const publishedCustomProps = mergedCustomProps.filter((p) => p.status === 'published');
 
       // Combine API items, published custom items, and mock items, deduplicating by ID
       const combined = [...publishedCustomProps, ...apiData, ...mockProperties]

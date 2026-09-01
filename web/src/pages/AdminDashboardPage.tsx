@@ -8,6 +8,7 @@ import {
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import { adminApi, reportsApi, propertiesApi } from '../lib/api';
+import { firestoreProperties } from '../lib/firebaseStore';
 import { mockProperties } from '../data/mockData';
 import { Property, ListingReport, AuditLog } from '../types';
 
@@ -77,14 +78,26 @@ export default function AdminDashboardPage() {
   const fetchAdminData = async () => {
     setLoading(true);
     try {
-      const [pendingRes, usersRes, reportsRes, auditRes, analyticsRes, propertiesRes] = await Promise.allSettled([
+      const [pendingRes, usersRes, reportsRes, auditRes, analyticsRes, propertiesRes, firestorePending, firestoreAll] = await Promise.allSettled([
         adminApi.pending(),
         adminApi.users(),
         reportsApi.adminAll(),
         adminApi.auditLogs(),
         adminApi.analytics(),
         propertiesApi.list(),
+        firestoreProperties.getPendingProperties(),
+        firestoreProperties.getAllCustomProperties(),
       ]);
+
+      let cloudPending: Property[] = [];
+      if (firestorePending.status === 'fulfilled' && Array.isArray(firestorePending.value)) {
+        cloudPending = firestorePending.value;
+      }
+
+      let cloudAll: Property[] = [];
+      if (firestoreAll.status === 'fulfilled' && Array.isArray(firestoreAll.value)) {
+        cloudAll = firestoreAll.value;
+      }
 
       let backendPending: Property[] = [];
       if (pendingRes.status === 'fulfilled' && Array.isArray(pendingRes.value)) {
@@ -96,18 +109,18 @@ export default function AdminDashboardPage() {
       const localPending = customProps.filter((p) => p.status === 'pending_review');
 
       const pendingMap = new Map<string, Property>();
-      [...localPending, ...backendPending].forEach((p) => {
-        if (p && p.id) pendingMap.set(p.id, p);
+      [...cloudPending, ...localPending, ...backendPending].forEach((p) => {
+        if (p && p.id && p.status === 'pending_review') pendingMap.set(p.id, p);
       });
       setPendingProperties(Array.from(pendingMap.values()));
 
-      // Aggregate All Properties (API + Custom Local + Mock Data)
+      // Aggregate All Properties (API + Cloud + Custom Local + Mock Data)
       let backendProps: Property[] = [];
       if (propertiesRes.status === 'fulfilled' && Array.isArray(propertiesRes.value?.data)) backendProps = propertiesRes.value.data;
       else if (propertiesRes.status === 'fulfilled' && Array.isArray(propertiesRes.value)) backendProps = propertiesRes.value;
 
       const propsMap = new Map<string, Property>();
-      [...customProps, ...backendProps, ...mockProperties].forEach((p) => {
+      [...cloudAll, ...customProps, ...backendProps, ...mockProperties].forEach((p) => {
         if (p && p.id) propsMap.set(p.id, p);
       });
 
@@ -217,6 +230,8 @@ export default function AdminDashboardPage() {
       void err;
     }
 
+    firestoreProperties.updatePropertyStatus(propertyId, 'published').catch(() => {});
+
     const customPropsStr = localStorage.getItem('rc_custom_properties');
     if (customPropsStr) {
       try {
@@ -236,15 +251,19 @@ export default function AdminDashboardPage() {
     e.preventDefault();
     if (!actionTarget || !reason.trim()) return;
     setSubmittingAction(true);
+    const actionReason = reason.trim();
+    const newStatus = actionTarget.type === 'reject' ? 'rejected' : 'suspended';
     try {
       if (actionTarget.type === 'reject') {
-        await adminApi.reject(actionTarget.id, reason.trim()).catch(() => {});
+        await adminApi.reject(actionTarget.id, actionReason).catch(() => {});
       } else {
-        await adminApi.suspend(actionTarget.id, reason.trim()).catch(() => {});
+        await adminApi.suspend(actionTarget.id, actionReason).catch(() => {});
       }
     } catch (err) {
       void err;
     }
+
+    firestoreProperties.updatePropertyStatus(actionTarget.id, newStatus, actionReason).catch(() => {});
 
     const customPropsStr = localStorage.getItem('rc_custom_properties');
     if (customPropsStr) {
