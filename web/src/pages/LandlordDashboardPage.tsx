@@ -332,7 +332,7 @@ export default function LandlordDashboardPage() {
         bedrooms: Number(bedrooms),
         bathrooms: Number(bathrooms),
         area_sqft: 1200,
-        status: 'published',
+        status: 'pending_review',
         is_available: true,
         created_at: new Date().toISOString(),
         images: formattedImages,

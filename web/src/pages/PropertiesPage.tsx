@@ -149,10 +149,14 @@ export default function PropertiesPage() {
         apiData = [];
       }
 
-      // Combine API items and mock items, deduplicating by ID
-      const combined = [...apiData, ...mockProperties].filter(
-        (item, index, self) => index === self.findIndex((t) => t.id === item.id),
-      );
+      const customPropsStr = localStorage.getItem('rc_custom_properties');
+      const customProps: any[] = customPropsStr ? JSON.parse(customPropsStr) : [];
+      const publishedCustomProps = customProps.filter((p) => p.status === 'published');
+
+      // Combine API items, published custom items, and mock items, deduplicating by ID
+      const combined = [...publishedCustomProps, ...apiData, ...mockProperties]
+        .filter((item, index, self) => index === self.findIndex((t) => t.id === item.id))
+        .filter((item) => !item.status || item.status === 'published');
 
       // ALWAYS strictly filter the items by category and filters
       const filtered = filterMockProperties(combined, f);
@@ -168,6 +172,16 @@ export default function PropertiesPage() {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    const handleSync = () => fetchProperties(filters, page);
+    window.addEventListener('rc_properties_updated', handleSync);
+    window.addEventListener('storage', handleSync);
+    return () => {
+      window.removeEventListener('rc_properties_updated', handleSync);
+      window.removeEventListener('storage', handleSync);
+    };
+  }, [filters, page, fetchProperties]);
 
   useEffect(() => {
     const t = setTimeout(() => {

@@ -88,16 +88,25 @@ export default function AdminDashboardPage() {
         propertiesApi.list(),
       ]);
 
-      if (pendingRes.status === 'fulfilled' && Array.isArray(pendingRes.value)) setPendingProperties(pendingRes.value);
-      else setPendingProperties([]);
+      let backendPending: Property[] = [];
+      if (pendingRes.status === 'fulfilled' && Array.isArray(pendingRes.value)) {
+        backendPending = pendingRes.value;
+      }
+
+      const customPropsStr = localStorage.getItem('rc_custom_properties');
+      const customProps: Property[] = customPropsStr ? JSON.parse(customPropsStr) : [];
+      const localPending = customProps.filter((p) => p.status === 'pending_review');
+
+      const pendingMap = new Map<string, Property>();
+      [...localPending, ...backendPending].forEach((p) => {
+        if (p && p.id) pendingMap.set(p.id, p);
+      });
+      setPendingProperties(Array.from(pendingMap.values()));
 
       // Aggregate All Properties (API + Custom Local + Mock Data)
       let backendProps: Property[] = [];
       if (propertiesRes.status === 'fulfilled' && Array.isArray(propertiesRes.value?.data)) backendProps = propertiesRes.value.data;
       else if (propertiesRes.status === 'fulfilled' && Array.isArray(propertiesRes.value)) backendProps = propertiesRes.value;
-
-      const customPropsStr = localStorage.getItem('rc_custom_properties');
-      const customProps: Property[] = customPropsStr ? JSON.parse(customPropsStr) : [];
 
       const propsMap = new Map<string, Property>();
       [...customProps, ...backendProps, ...mockProperties].forEach((p) => {
@@ -171,16 +180,23 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     fetchAdminData();
 
-    // Listen for new tenant inquiries in real-time
+    // Listen for new tenant inquiries & property updates in real-time
     const loadInquiries = () => {
       const s = localStorage.getItem('rc_admin_inquiries');
       setAdminInquiries(s ? JSON.parse(s) : []);
     };
+    const handleSync = () => {
+      fetchAdminData();
+      loadInquiries();
+    };
+
     window.addEventListener('rc_new_inquiry', loadInquiries);
-    window.addEventListener('storage', loadInquiries);
+    window.addEventListener('rc_properties_updated', handleSync);
+    window.addEventListener('storage', handleSync);
     return () => {
       window.removeEventListener('rc_new_inquiry', loadInquiries);
-      window.removeEventListener('storage', loadInquiries);
+      window.removeEventListener('rc_properties_updated', handleSync);
+      window.removeEventListener('storage', handleSync);
     };
   }, []);
 
@@ -198,9 +214,20 @@ export default function AdminDashboardPage() {
 
   const handleApprove = async (propertyId: string) => {
     try {
-      await adminApi.approve(propertyId);
-      fetchAdminData();
+      await adminApi.approve(propertyId).catch(() => {});
     } catch {}
+
+    const customPropsStr = localStorage.getItem('rc_custom_properties');
+    if (customPropsStr) {
+      try {
+        let customProps: Property[] = JSON.parse(customPropsStr);
+        customProps = customProps.map((p) => (p.id === propertyId ? { ...p, status: 'published' } : p));
+        localStorage.setItem('rc_custom_properties', JSON.stringify(customProps));
+      } catch {}
+    }
+
+    fetchAdminData();
+    window.dispatchEvent(new CustomEvent('rc_properties_updated'));
   };
 
   const handleActionSubmit = async (e: React.FormEvent) => {
@@ -209,17 +236,27 @@ export default function AdminDashboardPage() {
     setSubmittingAction(true);
     try {
       if (actionTarget.type === 'reject') {
-        await adminApi.reject(actionTarget.id, reason.trim());
+        await adminApi.reject(actionTarget.id, reason.trim()).catch(() => {});
       } else {
-        await adminApi.suspend(actionTarget.id, reason.trim());
+        await adminApi.suspend(actionTarget.id, reason.trim()).catch(() => {});
       }
-      setActionTarget(null);
-      setReason('');
-      fetchAdminData();
-    } catch {
-    } finally {
-      setSubmittingAction(false);
+    } catch {}
+
+    const customPropsStr = localStorage.getItem('rc_custom_properties');
+    if (customPropsStr) {
+      try {
+        let customProps: Property[] = JSON.parse(customPropsStr);
+        const newStatus = actionTarget.type === 'reject' ? 'rejected' : 'suspended';
+        customProps = customProps.map((p) => (p.id === actionTarget.id ? { ...p, status: newStatus } : p));
+        localStorage.setItem('rc_custom_properties', JSON.stringify(customProps));
+      } catch {}
     }
+
+    setActionTarget(null);
+    setReason('');
+    fetchAdminData();
+    window.dispatchEvent(new CustomEvent('rc_properties_updated'));
+    setSubmittingAction(false);
   };
 
   const handleToggleUserActive = async (userId: string) => {
@@ -418,7 +455,6 @@ export default function AdminDashboardPage() {
                   <span className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-white text-red-600 rounded-full text-[10px] font-extrabold flex items-center justify-center">{unreadCount}</span>
                 </button>
               )}
-            </div>
 
             <div className="flex flex-wrap items-center gap-2.5">
               <button
