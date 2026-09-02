@@ -121,11 +121,11 @@ export default function BookingForm({ room, onSuccess, onCancel }: BookingFormPr
             </div>
             <div className="flex justify-between">
               <span>Floor</span>
-              <span className="font-medium">{room.floor_number}</span>
+              <span className="font-medium">{(room as any).floor_number || 'N/A'}</span>
             </div>
             <div className="flex justify-between">
               <span>Category</span>
-              <span className="font-medium">{room.room_category}</span>
+              <span className="font-medium">{(room as any).room_category || room.type}</span>
             </div>
             <div className="flex justify-between">
               <span>Type</span>
@@ -184,3 +184,4 @@ export default function BookingForm({ room, onSuccess, onCancel }: BookingFormPr
       </form>
     </motion.div>
   );
+}

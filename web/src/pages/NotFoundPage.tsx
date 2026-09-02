@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, Search, Compass, MapPinOff, ArrowRight, Building2, Car, HardHat, Music } from 'lucide-react';
+import { Home, Search, MapPinOff, Building2, Car, HardHat, Music } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 

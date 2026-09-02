@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Paperclip, Image, File, X, Search, MoreVertical, ArrowLeft, LogOut } from 'lucide-react';
+import { Send, Paperclip, Image, File, Search, MoreVertical, ArrowLeft, LogOut, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -104,6 +104,7 @@ const MessagingSystem: React.FC<{ userRole: 'broker' | 'owner' }> = ({ userRole 
   const [searchQuery, setSearchQuery] = useState('');
   const [isAttachmentMenuOpen, setIsAttachmentMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  void isLoading;
   const [showConversations, setShowConversations] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);

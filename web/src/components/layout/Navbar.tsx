@@ -48,6 +48,13 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const getDashboardPath = () => {
+    if (!user) return '/login';
+    if (user.role === 'admin') return '/dashboard/admin';
+    if (user.role === 'landlord') return '/dashboard/landlord';
+    return '/cart';
+  };
+
   useEffect(() => {
     const updateCart = () => {
       try {

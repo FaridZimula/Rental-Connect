@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { 
   ShoppingBag, Trash2, Calendar, MapPin, Phone, MessageSquare, 
   CheckCircle2, ArrowRight, User, Clock, ShieldCheck, Building2,
-  Tag, X, Sparkles, Send
+  X
 } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
@@ -134,9 +134,11 @@ export default function CartPage() {
       // Local storage fallback inquiry log
       const localInquiriesStr = localStorage.getItem('rc_tenant_inquiries');
       let localInquiries = localInquiriesStr ? JSON.parse(localInquiriesStr) : [];
-      const newInq = {
+      const newInq: Inquiry = {
         id: `inq_${Date.now()}`,
         property_id: selectedProperty.id,
+        tenant_id: user?.id || '',
+        landlord_id: selectedProperty.owner_id || '',
         property: selectedProperty,
         message: inquiryMessage.trim(),
         viewing_date: viewingDate || undefined,

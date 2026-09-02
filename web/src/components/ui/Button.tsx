@@ -11,7 +11,8 @@ type ButtonProps = {
   iconPosition?: 'left' | 'right';
   disabled?: boolean;
   className?: string;
-  onClick?: () => void;
+  type?: 'button' | 'submit' | 'reset';
+  onClick?: (e?: any) => void;
 };
 
 const Button = ({
@@ -23,6 +24,7 @@ const Button = ({
   iconPosition = 'left',
   disabled = false,
   className = '',
+  type = 'button',
   onClick,
 }: ButtonProps) => {
   const baseClasses = 'rounded-full font-medium transition-all duration-300 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2';
@@ -45,6 +47,7 @@ const Button = ({
   
   return (
     <motion.button
+      type={type}
       whileHover={{ scale: disabled ? 1 : 1.02 }}
       whileTap={{ scale: disabled ? 1 : 0.98 }}
       className={clsx(

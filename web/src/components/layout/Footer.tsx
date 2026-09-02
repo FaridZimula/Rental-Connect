@@ -1,4 +1,4 @@
-import { Building, Mail, Phone, MapPin, Facebook, Twitter, Instagram, ArrowUp } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, ArrowUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 

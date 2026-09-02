@@ -8,13 +8,12 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   PieChart,
   Pie,
   Cell
 } from 'recharts';
-import { Calendar, TrendingUp, Users, Building, DollarSign, Star, Filter } from 'lucide-react';
+import { Calendar, TrendingUp, Building, DollarSign, Star, Filter } from 'lucide-react';
 
 interface AnalyticsData {
   bookings: {
@@ -42,8 +41,10 @@ interface AnalyticsData {
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
 const AnalyticsDashboard: React.FC<{ userRole: 'broker' | 'owner' }> = ({ userRole }) => {
+  void userRole;
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('month');
   const [isLoading, setIsLoading] = useState(false);
+  void isLoading; void setIsLoading;
 
   // TODO: Replace with actual data from API
   const mockData: AnalyticsData = {
@@ -265,7 +266,7 @@ const AnalyticsDashboard: React.FC<{ userRole: 'broker' | 'owner' }> = ({ userRo
                   fill="#8884d8"
                   dataKey="count"
                 >
-                  {mockData.bookings.byStatus.map((entry, index) => (
+                  {mockData.bookings.byStatus.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>

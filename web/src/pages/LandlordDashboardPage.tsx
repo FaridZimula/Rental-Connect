@@ -6,7 +6,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { propertiesApi, inquiriesApi, authApi } from '../lib/api';
 import { supabasePropertiesStore } from '../lib/supabaseStore';
 import { Property, Inquiry } from '../types';
-import { mockProperties } from '../data/mockData';
 
 const TYPE_LABELS: Record<string, string> = {
   apartment: 'Apartment / Flat',
@@ -335,8 +334,8 @@ export default function LandlordDashboardPage() {
         owner_id: user?.id || (user?.email ? `owner_${user.email}` : `owner_${Date.now()}`),
         title,
         description,
-        property_type: propertyType,
-        listing_type: listingType,
+        property_type: propertyType as any,
+        listing_type: listingType as any,
         price: Number(price),
         price_period: '/month',
         display_zone: displayZone,

@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { MessageSquare, Loader } from 'lucide-react';
 import { Message, Profile } from '../../../lib/types';
-import { db } from '../../../lib/supabase';
 import { useAuth } from '../../../contexts/AuthContext';
 
 type ConversationListProps = {
@@ -19,6 +18,7 @@ type Conversation = {
 export default function ConversationList({ onSelectUser }: ConversationListProps) {
   const { user } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  void setConversations;
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

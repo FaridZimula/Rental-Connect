@@ -11,6 +11,8 @@ import { adminApi, reportsApi, propertiesApi } from '../lib/api';
 import { supabasePropertiesStore } from '../lib/supabaseStore';
 import { mockProperties } from '../data/mockData';
 import { Property, ListingReport, AuditLog } from '../types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHouseUser, faUserShield } from '@fortawesome/free-solid-svg-icons';
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<'verification' | 'users' | 'properties' | 'flagged' | 'audit' | 'analytics' | 'post_property' | 'inquiries'>('verification');
@@ -395,8 +397,8 @@ export default function AdminDashboardPage() {
       owner_id: 'admin',
       title: pTitle,
       description: pDescription,
-      property_type: pType,
-      listing_type: pListingType,
+      property_type: pType as any,
+      listing_type: pListingType as any,
       price: Number(pPrice),
       price_period: '/month',
       display_zone: pZone,
@@ -1084,7 +1086,7 @@ export default function AdminDashboardPage() {
                         <div key={log.id} className="p-4 flex items-center justify-between">
                           <div>
                             <span className="font-bold text-zinc-800">{log.action}</span>
-                            <span className="text-zinc-500 ml-2">• by {log.admin?.full_name || 'System Admin'}</span>
+                            <span className="text-zinc-500 ml-2">• by {(log as any).admin?.full_name || 'System Admin'}</span>
                           </div>
                           <span className="text-zinc-400 text-[11px]">
                             {new Date(log.created_at).toLocaleString()}
@@ -1181,11 +1183,11 @@ export default function AdminDashboardPage() {
                       </h4>
                       <div className="space-y-2 text-xs">
                         {[
-                          { label: 'Apartments & Houses', count: allProperties.filter((p) => p.property_type === 'apartment' || p.property_type === 'house' || !p.property_type).length },
-                          { label: 'Student Hostels', count: allProperties.filter((p) => p.property_type === 'hostel').length },
-                          { label: 'Vehicles & Transport', count: allProperties.filter((p) => p.property_type === 'vehicle').length },
-                          { label: 'Commercial & Plots', count: allProperties.filter((p) => p.property_type === 'land').length },
-                          { label: 'Tools & Equipment', count: allProperties.filter((p) => p.property_type === 'equipment').length },
+                          { label: 'Apartments & Houses', count: allProperties.filter((p) => (p.property_type as string) === 'apartment' || (p.property_type as string) === 'house' || !p.property_type).length },
+                          { label: 'Student Hostels', count: allProperties.filter((p) => (p.property_type as string) === 'hostel').length },
+                          { label: 'Vehicles & Transport', count: allProperties.filter((p) => (p.property_type as string) === 'vehicle').length },
+                          { label: 'Commercial & Plots', count: allProperties.filter((p) => (p.property_type as string) === 'land').length },
+                          { label: 'Tools & Equipment', count: allProperties.filter((p) => (p.property_type as string) === 'equipment').length },
                         ].map((cat) => (
                           <div key={cat.label} className="flex justify-between items-center p-2 bg-zinc-50 rounded-xl">
                             <span className="font-medium text-zinc-700">{cat.label}</span>

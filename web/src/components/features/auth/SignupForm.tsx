@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { UserPlus, Mail, Lock, User, Phone, School, ArrowRight } from 'lucide-react';
+import { UserPlus, Mail, Lock, User, Phone, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../../contexts/AuthContext';
 import Button from '../../ui/Button';
-import { universities } from '../../../data/mockData';
 
 const SignupForm = () => {
   const [step, setStep] = useState(1);

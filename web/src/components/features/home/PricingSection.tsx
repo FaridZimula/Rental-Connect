@@ -83,7 +83,7 @@ export default function PricingSection() {
     },
   ];
 
-  const formatPrice = (amount: number) => {
+  const formatPrice = (amount: number = 0) => {
     return new Intl.NumberFormat('en-UG', {
       style: 'currency',
       currency: 'UGX',

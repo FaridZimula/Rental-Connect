@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Mail, Phone, LockKeyhole, Check, Eye, EyeOff, Sparkles, User, ShieldCheck, X, KeyRound, Building2 } from 'lucide-react';
+import { Lock, Mail, Phone, LockKeyhole, Check, Eye, EyeOff, User, X, KeyRound, Building2 } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import { useAuth, UserRole } from '../contexts/AuthContext';
@@ -86,6 +86,7 @@ export default function LoginPage() {
     setDemoUser(role);
     navigateByRole(role);
   };
+  void handleQuickDemoLogin;
 
   // ── Google Sign-In (existing accounts only) ─────────────────────────────
   const handleGoogleLogin = async () => {

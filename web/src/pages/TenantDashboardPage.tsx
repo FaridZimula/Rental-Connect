@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Heart, MessageSquare, Flag, MapPin, Calendar, Clock, CheckCircle2, User, Phone, Save } from 'lucide-react';
+import { Heart, MessageSquare, Flag, MapPin, Calendar, Clock, CheckCircle2, User } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import PropertyCard from '../components/features/properties/PropertyCard';

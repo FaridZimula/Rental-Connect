@@ -78,7 +78,7 @@ function filterMockProperties(items: PropertySummary[], f: FilterState): Propert
     }
 
     // 4. Max price
-    if (f.price_max && item.price > Number(f.price_max)) {
+    if (f.price_max && Number(item.price) > Number(f.price_max)) {
       return false;
     }
 

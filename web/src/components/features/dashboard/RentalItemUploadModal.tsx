@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { X, Upload, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../../ui/Button';
-import { Hostel } from '../../../types';
+import { Property } from '../../../types';
 
 interface RentalItemUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onUploadSuccess?: (newItem: Partial<Hostel>) => void;
+  onUploadSuccess?: (newItem: Partial<Property>) => void;
 }
 
 export default function RentalItemUploadModal({
@@ -40,7 +40,7 @@ export default function RentalItemUploadModal({
       ? amenitiesInput.split(',').map((a) => a.trim()).filter(Boolean)
       : ['Verified Owner', 'Security', 'Fast Booking'];
 
-    const newItem: Partial<Hostel> = {
+    const newItem: any = {
       id: `rental-${Date.now()}`,
       name: title,
       description: description || `Quality ${category} listing available for rent in ${locationName}. Verified owner/broker item.`,

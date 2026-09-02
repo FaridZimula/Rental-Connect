@@ -7,7 +7,6 @@ import PropertyDetailPage from './pages/PropertyDetailPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import Dashboard from './pages/Dashboard';
-import TenantDashboardPage from './pages/TenantDashboardPage';
 import LandlordDashboardPage from './pages/LandlordDashboardPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import CartPage from './pages/CartPage';
