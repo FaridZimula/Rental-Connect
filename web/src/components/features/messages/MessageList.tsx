@@ -7,6 +7,8 @@ import { db } from '../../../lib/supabase';
 import { useAuth } from '../../../contexts/AuthContext';
 import Button from '../../ui/Button';
 
+import { supabaseMessages } from '../../../lib/supabaseService';
+
 type MessageListProps = {
   otherUser: Profile;
   bookingId?: string;
@@ -26,7 +28,7 @@ export default function MessageList({ otherUser, bookingId }: MessageListProps) 
     const loadMessages = async () => {
       try {
         const messages = await db.messages.getConversation(user.id, otherUser.id);
-        setMessages(messages);
+        setMessages(messages || []);
       } catch (error) {
         console.error('Failed to load messages:', error);
       } finally {
@@ -35,6 +37,24 @@ export default function MessageList({ otherUser, bookingId }: MessageListProps) 
     };
 
     loadMessages();
+
+    // Subscribe to live incoming chat messages via Supabase Realtime
+    const channel = supabaseMessages.subscribeToConversation(
+      user.id,
+      otherUser.id,
+      (incomingMsg) => {
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === incomingMsg.id)) return prev;
+          return [...prev, incomingMsg];
+        });
+      },
+    );
+
+    return () => {
+      if (channel) {
+        channel.unsubscribe();
+      }
+    };
   }, [user, otherUser.id]);
 
   useEffect(() => {

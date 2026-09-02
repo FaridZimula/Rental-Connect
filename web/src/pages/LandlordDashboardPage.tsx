@@ -5,6 +5,7 @@ import Button from '../components/ui/Button';
 import { useAuth } from '../contexts/AuthContext';
 import { propertiesApi, inquiriesApi, authApi } from '../lib/api';
 import { supabasePropertiesStore } from '../lib/supabaseStore';
+import { supabaseInquiries } from '../lib/supabaseService';
 import { Property, Inquiry } from '../types';
 
 const TYPE_LABELS: Record<string, string> = {
@@ -239,9 +240,27 @@ export default function LandlordDashboardPage() {
     window.addEventListener('storage', handleSync);
     window.addEventListener('rc_properties_updated', handleSync);
 
+    // Subscribe to live property status updates via Supabase Realtime
+    const propertyChannel = supabasePropertiesStore.subscribeToChanges({
+      onUpdate: (updatedProp) => {
+        setProperties((prev) =>
+          prev.map((p) => (p.id === updatedProp.id ? updatedProp : p))
+        );
+      },
+    });
+
+    // Subscribe to live incoming tenant inquiries via Supabase Realtime
+    const inquiryChannel = user?.id
+      ? supabaseInquiries.subscribe(user.id, (newInquiry) => {
+          setInquiries((prev) => [newInquiry, ...prev.filter((i) => i.id !== newInquiry.id)]);
+        })
+      : null;
+
     return () => {
       window.removeEventListener('storage', handleSync);
       window.removeEventListener('rc_properties_updated', handleSync);
+      supabasePropertiesStore.unsubscribe(propertyChannel);
+      if (inquiryChannel) inquiryChannel.unsubscribe();
     };
   }, [user]);
 

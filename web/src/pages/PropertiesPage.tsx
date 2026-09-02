@@ -193,9 +193,18 @@ export default function PropertiesPage() {
     const handleSync = () => fetchProperties(filters, page);
     window.addEventListener('rc_properties_updated', handleSync);
     window.addEventListener('storage', handleSync);
+
+    // Subscribe to live property catalog changes via Supabase Realtime
+    const channel = supabasePropertiesStore.subscribeToChanges({
+      onInsert: () => fetchProperties(filters, page),
+      onUpdate: () => fetchProperties(filters, page),
+      onDelete: () => fetchProperties(filters, page),
+    });
+
     return () => {
       window.removeEventListener('rc_properties_updated', handleSync);
       window.removeEventListener('storage', handleSync);
+      supabasePropertiesStore.unsubscribe(channel);
     };
   }, [filters, page, fetchProperties]);
 
