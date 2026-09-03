@@ -113,11 +113,16 @@ export default function AdminDashboardPage() {
 
       const customPropsStr = localStorage.getItem('rc_custom_properties');
       const customProps: Property[] = customPropsStr ? JSON.parse(customPropsStr) : [];
-      const localPending = customProps.filter((p) => p.status === 'pending_review');
+
+      const isPendingStatus = (s?: string) => {
+        if (!s) return false;
+        const norm = s.toLowerCase().trim();
+        return norm === 'pending_review' || norm === 'pending' || norm === 'pending review';
+      };
 
       const pendingMap = new Map<string, Property>();
-      [...cloudPending, ...cloudAll, ...localPending, ...backendPending, ...backendProps].forEach((p) => {
-        if (p && p.id && p.status === 'pending_review') pendingMap.set(p.id, p);
+      [...cloudPending, ...cloudAll, ...customProps, ...backendPending, ...backendProps].forEach((p) => {
+        if (p && p.id && isPendingStatus(p.status)) pendingMap.set(p.id, p);
       });
       setPendingProperties(Array.from(pendingMap.values()));
 
@@ -207,11 +212,39 @@ export default function AdminDashboardPage() {
     window.addEventListener('rc_properties_updated', handleSync);
     window.addEventListener('storage', handleSync);
 
-    // ── Supabase Realtime subscription for instant verification queue updates ──
+    // ── Supabase & Cross-Tab Realtime subscription for instant verification queue updates ──
+    let bc: BroadcastChannel | null = null;
+    if (typeof BroadcastChannel !== 'undefined') {
+      try {
+        bc = new BroadcastChannel('rc_properties_bc');
+        bc.onmessage = (event) => {
+          if (event.data?.type === 'PROPERTY_UPSERTED' && event.data?.property) {
+            const p = event.data.property as Property;
+            const normStatus = p.status?.toLowerCase().trim();
+            const isPending = normStatus === 'pending_review' || normStatus === 'pending' || normStatus === 'pending review';
+
+            if (isPending) {
+              setPendingProperties((prev) => {
+                const without = prev.filter((item) => item.id !== p.id);
+                return [p, ...without];
+              });
+            } else {
+              setPendingProperties((prev) => prev.filter((item) => item.id !== p.id));
+            }
+            setAllProperties((prev) => {
+              const without = prev.filter((item) => item.id !== p.id);
+              return [p, ...without];
+            });
+          }
+        };
+      } catch (e) {}
+    }
+
     const realtimeChannel = supabasePropertiesStore.subscribeToChanges({
       onInsert: (newProp) => {
-        // New property submitted — add to pending queue immediately if pending
-        if (newProp.status === 'pending_review') {
+        const normStatus = newProp.status?.toLowerCase().trim();
+        const isPending = normStatus === 'pending_review' || normStatus === 'pending' || normStatus === 'pending review';
+        if (isPending) {
           setPendingProperties((prev) => {
             const exists = prev.some((p) => p.id === newProp.id);
             return exists ? prev : [newProp, ...prev];
@@ -223,9 +256,10 @@ export default function AdminDashboardPage() {
         });
       },
       onUpdate: (updatedProp) => {
-        // Status changed — update verification queue and all properties live
+        const normStatus = updatedProp.status?.toLowerCase().trim();
+        const isPending = normStatus === 'pending_review' || normStatus === 'pending' || normStatus === 'pending review';
         setPendingProperties((prev) =>
-          updatedProp.status === 'pending_review'
+          isPending
             ? prev.map((p) => (p.id === updatedProp.id ? updatedProp : p))
             : prev.filter((p) => p.id !== updatedProp.id)
         );
@@ -244,6 +278,9 @@ export default function AdminDashboardPage() {
       window.removeEventListener('rc_properties_updated', handleSync);
       window.removeEventListener('storage', handleSync);
       supabasePropertiesStore.unsubscribe(realtimeChannel);
+      if (bc) {
+        try { bc.close(); } catch (e) {}
+      }
     };
   }, []);
 

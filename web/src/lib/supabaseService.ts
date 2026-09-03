@@ -110,10 +110,20 @@ export const supabaseProperties = {
     try {
       const row = propertyToRow(property);
       const { error } = await supabase.from('properties').upsert(row, { onConflict: 'id' });
-      if (error) throw error;
+      if (error) console.warn('[SupabaseService] save DB error:', error);
     } catch (e) {
       console.warn('[SupabaseService] save error:', e);
     }
+
+    // Always broadcast live payload over Supabase Realtime WebSocket
+    try {
+      const channel = supabase.channel('properties_realtime');
+      channel.send({
+        type: 'broadcast',
+        event: 'new_property',
+        payload: { property },
+      });
+    } catch (e) {}
   },
 
   async updateStatus(
@@ -130,10 +140,19 @@ export const supabaseProperties = {
           updated_at: new Date().toISOString(),
         })
         .eq('id', id);
-      if (error) throw error;
+      if (error) console.warn('[SupabaseService] updateStatus DB error:', error);
     } catch (e) {
       console.warn('[SupabaseService] updateStatus error:', e);
     }
+
+    try {
+      const channel = supabase.channel('properties_realtime');
+      channel.send({
+        type: 'broadcast',
+        event: 'update_property',
+        payload: { propertyId: id, status, reason },
+      });
+    } catch (e) {}
   },
 
   /** Subscribe to real-time property changes */
@@ -158,6 +177,16 @@ export const supabaseProperties = {
         'postgres_changes',
         { event: 'DELETE', schema: 'public', table: 'properties' },
         (payload) => payload.old?.id && callbacks.onDelete?.(payload.old.id as string),
+      )
+      .on(
+        'broadcast',
+        { event: 'new_property' },
+        (payload) => payload.payload?.property && callbacks.onInsert?.(payload.payload.property),
+      )
+      .on(
+        'broadcast',
+        { event: 'update_property' },
+        (payload) => payload.payload?.property && callbacks.onUpdate?.(payload.payload.property),
       )
       .subscribe();
   },

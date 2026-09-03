@@ -422,6 +422,15 @@ export default function LandlordDashboardPage() {
         const withoutTarget = prev.filter((p) => p.id !== propId);
         return [savedProp, ...withoutTarget];
       });
+      // Broadcast cross-tab live event
+      if (typeof BroadcastChannel !== 'undefined') {
+        try {
+          const bc = new BroadcastChannel('rc_properties_bc');
+          bc.postMessage({ type: 'PROPERTY_UPSERTED', property: savedProp });
+          bc.close();
+        } catch (e) {}
+      }
+
       notifyRealtimeUpdates();
 
       setShowAddModal(false);
