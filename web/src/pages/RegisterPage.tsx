@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, Mail, Phone, Lock, Building, UserCheck, Eye, EyeOff, Sparkles, ShieldCheck } from 'lucide-react';
+import { User, Mail, Phone, Lock, Building, UserCheck, Eye, EyeOff } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
-import { useAuth, UserRole } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 function getPasswordStrength(pw: string): { label: string; color: string; width: string } {
   if (pw.length === 0) return { label: '', color: '', width: '0%' };
@@ -26,7 +26,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const { register, user, isAuthenticated, setDemoUser } = useAuth();
+  const { register, user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   // Automatically redirect if already logged in
@@ -37,11 +37,6 @@ export default function RegisterPage() {
       else navigate('/dashboard/tenant', { replace: true });
     }
   }, [isAuthenticated, user, navigate]);
-
-  const handleQuickDemo = (selectedRole: UserRole) => {
-    setDemoUser(selectedRole);
-    navigateByRole(selectedRole);
-  };
 
   const pwStrength = getPasswordStrength(password);
 
@@ -255,37 +250,6 @@ export default function RegisterPage() {
               {loading ? 'Creating Account...' : `Register as ${role === 'tenant' ? 'Tenant' : 'Property Owner'}`}
             </Button>
           </form>
-
-          {/* Quick Demo Access Bar */}
-          <div className="mt-6 pt-5 border-t border-zinc-100">
-            <div className="flex items-center gap-1.5 text-[11px] font-bold text-zinc-500 mb-2.5 justify-center">
-              <Sparkles className="h-3.5 w-3.5 text-[#f06023]" />
-              <span>Quick Presentation Demo Access (Instant Registration)</span>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => handleQuickDemo('landlord')}
-                className="py-2 px-2 bg-orange-50 hover:bg-orange-100 text-[#f06023] rounded-xl text-[11px] font-bold transition-all border border-orange-200 flex items-center justify-center gap-1 cursor-pointer"
-              >
-                <User className="h-3.5 w-3.5" /> Property Owner
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickDemo('tenant')}
-                className="py-2 px-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-xl text-[11px] font-bold transition-all border border-zinc-200 flex items-center justify-center gap-1 cursor-pointer"
-              >
-                <User className="h-3.5 w-3.5" /> Tenant
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickDemo('admin')}
-                className="py-2 px-2 bg-zinc-900 hover:bg-black text-white rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer"
-              >
-                <ShieldCheck className="h-3.5 w-3.5" /> Admin
-              </button>
-            </div>
-          </div>
 
           <p className="text-center text-xs text-zinc-500 mt-5">
             Already have an account?{' '}

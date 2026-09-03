@@ -35,7 +35,7 @@ export default function LoginPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resetModalError, setResetModalError] = useState('');
 
-  const { login, sendPasswordReset, user, isAuthenticated, setDemoUser, signInWithGoogle, logout } = useAuth();
+  const { login, sendPasswordReset, user, isAuthenticated, signInWithGoogle, logout } = useAuth();
   const navigate = useNavigate();
 
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -81,13 +81,6 @@ export default function LoginPage() {
     else navigate('/dashboard/tenant');
   };
 
-  // ── Quick Demo Login Bypass for Presentations ───────────────────────────
-  const handleQuickDemoLogin = (role: UserRole) => {
-    setDemoUser(role);
-    navigateByRole(role);
-  };
-  void handleQuickDemoLogin;
-
   // ── Google Sign-In (existing accounts only) ─────────────────────────────
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
@@ -132,7 +125,7 @@ export default function LoginPage() {
       if (code === 'auth/user-not-found' || code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
         setError('Invalid email or password. Please verify your credentials or click "Forgot password?".');
       } else if (code === 'auth/too-many-requests') {
-        setError('Too many failed attempts. Please try again in 5 minutes or use Quick Demo login below.');
+        setError('Too many failed attempts. Please try again in 5 minutes.');
       } else if (err.message) {
         setError(err.message);
       } else {
@@ -172,7 +165,7 @@ export default function LoginPage() {
       if (err.code === 'auth/invalid-phone-number') {
         setError('Invalid phone number format. Use: +256 700 000 000');
       } else if (err.code === 'auth/too-many-requests') {
-        setError('SMS limit reached for this number. Use Email Login or Demo Access below.');
+        setError('SMS limit reached for this number. Please use Email Login or try again later.');
       } else {
         setError(err.message || 'Failed to send SMS code.');
       }

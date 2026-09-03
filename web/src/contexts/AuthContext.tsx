@@ -42,7 +42,6 @@ interface AuthContextType {
   signInWithGoogle: (role?: UserRole, isAdminPortal?: boolean) => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
   logout: () => void;
-  setDemoUser: (role: UserRole) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -248,20 +247,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await sendPasswordResetEmail(auth, email);
   };
 
-  // ── Demo Quick Login Bypass (Instant Fail-Safe for Presentations) ───────
-  const setDemoUser = (role: UserRole) => {
-    const demoProfile: AuthUser = {
-      id: `demo_${role}_123`,
-      full_name: role === 'admin' ? 'System Administrator' : role === 'landlord' ? 'Demo Landlord (Farid)' : 'Demo Tenant (Client)',
-      email: `${role}.demo@rentalconnect.ug`,
-      phone: '+256 700 123 456',
-      role,
-      is_verified: true,
-    };
-    setUser(demoProfile);
-    localStorage.setItem('rc_user', JSON.stringify(demoProfile));
-  };
-
   // ── Logout ──────────────────────────────────────────────────────────────
   const logout = () => {
     try {
@@ -286,7 +271,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signInWithGoogle: signInWithGoogleFn,
         sendPasswordReset,
         logout,
-        setDemoUser,
       }}
     >
       {children}

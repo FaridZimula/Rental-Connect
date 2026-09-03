@@ -263,7 +263,7 @@ export default function CartPage() {
                 <div>
                   {cartProperties.length === 0 ? (
                     <div className="bg-white rounded-3xl p-12 text-center border border-zinc-200 shadow-sm max-w-xl mx-auto">
-                      <div className="h-20 w-20 bg-orange-50 text-[#f06023] rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-200">
+                      <div className="h-20 w-20 bg-[#f06023] text-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                         <ShoppingBag className="h-10 w-10" />
                       </div>
                       <h3 className="text-xl font-bold text-zinc-800">Your Rental Cart is Empty</h3>
