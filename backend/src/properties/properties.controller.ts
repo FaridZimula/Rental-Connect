@@ -27,7 +27,15 @@ export class PropertiesController {
     return this.propertiesService.findAll(query);
   }
 
-  /** Public: single published listing detail (masked) */
+  /** Landlord: view their own listings (includes private fields) */
+  @UseGuards(FirebaseAuthGuard, RolesGuard)
+  @Roles('landlord')
+  @Get('owner/my')
+  myProperties(@CurrentUser() user: { id: string }) {
+    return this.propertiesService.findOwnerProperties(user.id);
+  }
+
+  /** Public: single published listing detail (masked) — must come AFTER static routes */
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.propertiesService.findOne(id);
@@ -39,14 +47,6 @@ export class PropertiesController {
   @Post()
   create(@CurrentUser() user: { id: string }, @Body() dto: CreatePropertyDto) {
     return this.propertiesService.create(user.id, dto);
-  }
-
-  /** Landlord: view their own listings (includes private fields) */
-  @UseGuards(FirebaseAuthGuard, RolesGuard)
-  @Roles('landlord')
-  @Get('owner/my')
-  myProperties(@CurrentUser() user: { id: string }) {
-    return this.propertiesService.findOwnerProperties(user.id);
   }
 
   /** Landlord: edit a listing (triggers re-moderation) */

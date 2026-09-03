@@ -1,6 +1,7 @@
 import { Controller, Post, Get, Patch, Body, Headers, UseGuards, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SyncUserDto } from './dto/sync-user.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { FirebaseAuthGuard } from '../common/guards/firebase-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
@@ -50,9 +51,9 @@ export class AuthController {
   @Patch('profile')
   updateProfile(
     @CurrentUser() user: { id: string },
-    @Body() body: { full_name?: string; phone?: string },
+    @Body() dto: UpdateProfileDto,
   ) {
-    return this.authService.updateProfile(user.id, body);
+    return this.authService.updateProfile(user.id, dto);
   }
 }
 

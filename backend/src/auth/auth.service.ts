@@ -19,15 +19,21 @@ export class AuthService {
    * - If the user already exists (by firebase_uid), returns the existing record.
    * - If the user exists by email but has no firebase_uid (legacy user), links the accounts.
    * - If the user is brand new, creates a new Postgres record.
+   *
+   * SECURITY: The role is always clamped to 'tenant' or 'landlord'.
+   * Admin role can only be assigned directly in the database or via an admin endpoint.
    */
   async syncUser(firebaseUid: string, firebaseEmail: string | undefined, dto: SyncUserDto) {
+    // Defense-in-depth: never allow admin role via sync endpoint
+    const safeRole = dto.role === 'landlord' ? 'landlord' : 'tenant';
+
     // 1. Try to find by firebase_uid first (fast path)
     let user = await this.prisma.user.findUnique({
       where: { firebase_uid: firebaseUid },
     });
 
     if (user) {
-      // Existing user — return their profile
+      // Existing user — return their profile (do NOT overwrite role)
       return this.formatUserResponse(user);
     }
 
@@ -38,7 +44,7 @@ export class AuthService {
       });
 
       if (user) {
-        // Link the Firebase UID to the existing Postgres user
+        // Link the Firebase UID to the existing Postgres user (preserve existing role)
         user = await this.prisma.user.update({
           where: { id: user.id },
           data: { firebase_uid: firebaseUid },
@@ -48,7 +54,7 @@ export class AuthService {
       }
     }
 
-    // 3. Brand new user — create in Postgres
+    // 3. Brand new user — create in Postgres with safe role only
     const email = firebaseEmail || `${firebaseUid}@phone.rentalconnect.ug`;
     user = await this.prisma.user.create({
       data: {
@@ -57,12 +63,12 @@ export class AuthService {
         email,
         phone: dto.phone,
         password_hash: '', // Not used with Firebase Auth
-        role: dto.role || 'tenant',
+        role: safeRole,
         tos_accepted_at: new Date(),
         tos_version: '1.0',
       },
     });
-    this.logger.log(`Created new user ${user.id} for Firebase UID ${firebaseUid}`);
+    this.logger.log(`Created new user ${user.id} (role=${safeRole}) for Firebase UID ${firebaseUid}`);
     return this.formatUserResponse(user);
   }
 

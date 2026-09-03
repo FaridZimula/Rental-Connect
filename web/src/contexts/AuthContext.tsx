@@ -152,48 +152,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // ── Email / Password Login ──────────────────────────────────────────────
   const login = async (email: string, password: string) => {
     const cleanEmail = email.trim().toLowerCase();
-    try {
-      const cred = await signInWithEmailAndPassword(auth, cleanEmail, password);
-      // Preserve stored role on login just like on auth state change
-      const saved = localStorage.getItem('rc_user');
-      const savedRole = saved ? (JSON.parse(saved) as AuthUser).role : undefined;
-      const profile = await syncUserWithBackend(cred.user, { role: savedRole });
-      setUser(profile);
-      localStorage.setItem('rc_user', JSON.stringify(profile));
-      localStorage.setItem(`rc_pwd_${cleanEmail}`, password);
-      return;
-    } catch (firebaseErr: any) {
-      console.warn('Firebase login notice/resilient fallback active:', firebaseErr);
-    }
-
-    // Local credential / fallback check:
-    const localPwd = localStorage.getItem(`rc_pwd_${cleanEmail}`);
+    const cred = await signInWithEmailAndPassword(auth, cleanEmail, password);
+    // Preserve stored role on login just like on auth state change
     const saved = localStorage.getItem('rc_user');
-    const parsed = saved ? JSON.parse(saved) : null;
-    const storedEmail = parsed?.email?.toLowerCase();
-
-    // If local password is saved and entered password does not match, throw invalid credentials error
-    if (localPwd && localPwd !== password) {
-      const err: any = new Error('Invalid email or password');
-      err.code = 'auth/wrong-password';
-      throw err;
-    }
-
-    // Reuse stored profile or create resilient local session
-    const userRole: UserRole = storedEmail === cleanEmail ? (parsed?.role ?? 'landlord') : 'landlord';
-
-    const fallbackUser: AuthUser = {
-      id: storedEmail === cleanEmail ? (parsed?.id ?? `usr_${Date.now()}`) : `usr_${Date.now()}`,
-      full_name: storedEmail === cleanEmail ? (parsed?.full_name ?? cleanEmail.split('@')[0]) : cleanEmail.split('@')[0],
-      email: cleanEmail,
-      phone: storedEmail === cleanEmail ? parsed?.phone : undefined,
-      role: userRole,
-      is_verified: true,
-    };
-
-    setUser(fallbackUser);
-    localStorage.setItem('rc_user', JSON.stringify(fallbackUser));
-    localStorage.setItem(`rc_pwd_${cleanEmail}`, password);
+    const savedRole = saved ? (JSON.parse(saved) as AuthUser).role : undefined;
+    const profile = await syncUserWithBackend(cred.user, { role: savedRole });
+    setUser(profile);
+    localStorage.setItem('rc_user', JSON.stringify(profile));
   };
 
   // ── Email / Password Registration ───────────────────────────────────────
@@ -208,52 +173,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const mappedRole: UserRole =
       formData.role === 'owner' || formData.role === 'landlord' ? 'landlord' : 'tenant';
 
-    let fbUser: FirebaseUser | null = null;
+    const cred = await createUserWithEmailAndPassword(auth, cleanEmail, formData.password);
 
     try {
-      const cred = await createUserWithEmailAndPassword(auth, cleanEmail, formData.password);
-      fbUser = cred.user;
+      await updateProfile(cred.user, { displayName: formData.full_name });
+    } catch (e) {}
 
-      try {
-        await updateProfile(cred.user, { displayName: formData.full_name });
-      } catch (e) {}
+    try {
+      await sendEmailVerification(cred.user);
+    } catch (e) {}
 
-      try {
-        await sendEmailVerification(cred.user);
-      } catch (e) {}
-    } catch (firebaseErr: any) {
-      console.warn('Firebase register notice/offline mode:', firebaseErr);
-      if (
-        firebaseErr?.code === 'auth/email-already-in-use' ||
-        firebaseErr?.code === 'auth/weak-password'
-      ) {
-        throw firebaseErr;
-      }
-    }
-
-    localStorage.setItem(`rc_pwd_${cleanEmail}`, formData.password);
-
-    if (fbUser) {
-      const profile = await syncUserWithBackend(fbUser, {
-        full_name: formData.full_name,
-        phone: formData.phone,
-        role: mappedRole,
-      });
-      setUser(profile);
-      localStorage.setItem('rc_user', JSON.stringify(profile));
-    } else {
-      // Resilient Fallback: create local account when Firebase service is unavailable
-      const localProfile: AuthUser = {
-        id: `usr_${Date.now()}`,
-        full_name: formData.full_name,
-        email: cleanEmail,
-        phone: formData.phone,
-        role: mappedRole,
-        is_verified: true,
-      };
-      setUser(localProfile);
-      localStorage.setItem('rc_user', JSON.stringify(localProfile));
-    }
+    const profile = await syncUserWithBackend(cred.user, {
+      full_name: formData.full_name,
+      phone: formData.phone,
+      role: mappedRole,
+    });
+    setUser(profile);
+    localStorage.setItem('rc_user', JSON.stringify(profile));
   };
 
   // ── Google Sign-In ──────────────────────────────────────────────────────

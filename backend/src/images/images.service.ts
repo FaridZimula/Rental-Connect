@@ -1,19 +1,35 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, OnModuleInit, Logger } from '@nestjs/common';
 import { v2 as cloudinary } from 'cloudinary';
 import { PrismaService } from '../prisma/prisma.service';
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
 
 const WATERMARK_TEXT = 'RentalConnect';
 
 @Injectable()
-export class ImagesService {
+export class ImagesService implements OnModuleInit {
+  private readonly logger = new Logger(ImagesService.name);
+
   constructor(private prisma: PrismaService) {}
 
+  onModuleInit() {
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const apiKey = process.env.CLOUDINARY_API_KEY;
+    const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+    if (!cloudName || !apiKey || !apiSecret) {
+      this.logger.warn(
+        'Cloudinary credentials not fully configured. Image uploads will fail. ' +
+        'Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET env vars.',
+      );
+      return;
+    }
+
+    cloudinary.config({
+      cloud_name: cloudName,
+      api_key: apiKey,
+      api_secret: apiSecret,
+    });
+    this.logger.log('Cloudinary configured successfully');
+  }
   async uploadPropertyImage(
     propertyId: string,
     ownerId: string,
