@@ -678,7 +678,7 @@ export default function LandlordDashboardPage() {
             </div>
           ) : (
             /* Profile Tab */
-            <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm max-w-xl">
+            <div className="bg-white border border-zinc-200 rounded-3xl p-8 shadow-sm max-w-xl mx-auto">
               <h3 className="text-lg font-bold text-zinc-900 mb-4 flex items-center gap-2">
                 <User className="h-5 w-5 text-[#f06023]" /> Edit Property Owner / Broker Profile
               </h3>

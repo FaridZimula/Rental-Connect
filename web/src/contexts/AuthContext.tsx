@@ -54,12 +54,17 @@ async function syncUserWithBackend(
   firebaseUser: FirebaseUser,
   extra?: { full_name?: string; phone?: string; role?: string },
 ): Promise<AuthUser> {
-  const normalizedRole: UserRole =
-    extra?.role === 'owner' || extra?.role === 'landlord'
-      ? 'landlord'
-      : extra?.role === 'admin'
-      ? 'admin'
-      : 'tenant';
+  const cleanEmail = (firebaseUser.email || '').toLowerCase().trim();
+  const registeredOwnersStr = localStorage.getItem('rc_registered_owners');
+  const registeredOwners: any[] = registeredOwnersStr ? JSON.parse(registeredOwnersStr) : [];
+  const isRegisteredOwner = registeredOwners.some((o) => o.email?.toLowerCase().trim() === cleanEmail);
+  const isAdmin = ['faridzimula602@gmail.com', 'mukiibirhines2001@gmail.com', 'robtxpro002@gmail.com', 'mukiibirobert002@gmail.com'].includes(cleanEmail) || extra?.role === 'admin';
+
+  const normalizedRole: UserRole = isAdmin
+    ? 'admin'
+    : (isRegisteredOwner || extra?.role === 'landlord' || extra?.role === 'owner')
+    ? 'landlord'
+    : (extra?.role === 'tenant' ? 'tenant' : 'landlord');
 
   try {
     const idToken = await firebaseUser.getIdToken();
