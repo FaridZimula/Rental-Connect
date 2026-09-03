@@ -186,15 +186,7 @@ const Navbar = () => {
                     <User className="h-4 w-4 text-[#f06023]" />
                     Property Owner Console
                   </NavLink>
-                ) : (
-                  <NavLink
-                    to="/cart"
-                    className="bg-orange-50 hover:bg-orange-100 text-[#f06023] border border-orange-200 text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-2"
-                  >
-                    <ShoppingBag className="h-4 w-4 text-[#f06023]" />
-                    Rental Cart ({cartCount})
-                  </NavLink>
-                )}
+                ) : null}
                 <button
                   onClick={logout}
                   className="p-2 text-zinc-500 hover:text-red-600 transition-colors"

@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import type { Property, Inquiry, ListingReport, AuditLog } from '../types';
+import type { Property, Inquiry } from '../types';
 
 // Helper to map DB row to Property domain type
 export function rowToProperty(row: any): Property {

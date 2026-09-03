@@ -106,6 +106,11 @@ export default function AdminDashboardPage() {
         backendPending = pendingRes.value;
       }
 
+      // Aggregate All Properties (API + Cloud + Custom Local + Mock Data)
+      let backendProps: Property[] = [];
+      if (propertiesRes.status === 'fulfilled' && Array.isArray(propertiesRes.value?.data)) backendProps = propertiesRes.value.data;
+      else if (propertiesRes.status === 'fulfilled' && Array.isArray(propertiesRes.value)) backendProps = propertiesRes.value;
+
       const customPropsStr = localStorage.getItem('rc_custom_properties');
       const customProps: Property[] = customPropsStr ? JSON.parse(customPropsStr) : [];
       const localPending = customProps.filter((p) => p.status === 'pending_review');
@@ -115,11 +120,6 @@ export default function AdminDashboardPage() {
         if (p && p.id && p.status === 'pending_review') pendingMap.set(p.id, p);
       });
       setPendingProperties(Array.from(pendingMap.values()));
-
-      // Aggregate All Properties (API + Cloud + Custom Local + Mock Data)
-      let backendProps: Property[] = [];
-      if (propertiesRes.status === 'fulfilled' && Array.isArray(propertiesRes.value?.data)) backendProps = propertiesRes.value.data;
-      else if (propertiesRes.status === 'fulfilled' && Array.isArray(propertiesRes.value)) backendProps = propertiesRes.value;
 
       const propsMap = new Map<string, Property>();
       [...cloudAll, ...customProps, ...backendProps, ...mockProperties].forEach((p) => {
