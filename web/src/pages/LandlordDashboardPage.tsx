@@ -592,8 +592,8 @@ export default function LandlordDashboardPage() {
                           <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full text-white shadow-sm ${p.is_available ? 'bg-zinc-900' : 'bg-zinc-500'}`}>
                             {p.is_available ? 'Available' : 'Marked Occupied'}
                           </span>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-50 text-[#f06023] border border-orange-200 shadow-sm capitalize flex items-center gap-1">
-                            <Tag className="h-3 w-3 text-[#f06023]" /> {TYPE_LABELS[p.property_type] || p.property_type}
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f06023] text-white border border-[#f06023] shadow-sm capitalize flex items-center gap-1">
+                            <Tag className="h-3 w-3 text-white" /> {TYPE_LABELS[p.property_type] || p.property_type}
                           </span>
                           <span className="text-[10px] font-semibold text-zinc-500 flex items-center gap-1 ml-0.5">
                             <Calendar className="h-3 w-3 text-zinc-400" /> {formatDatePosted(p.created_at)}
@@ -799,39 +799,285 @@ export default function LandlordDashboardPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-700 mb-1">Price (UGX)</label>
-                  <input
-                    type="number"
-                    required
-                    placeholder="800000"
-                    className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                  />
+              {/* Dynamic Category-Based Details Grid */}
+              {['apartment', 'house', 'studio', 'hostel'].includes(propertyType) && (
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Price (UGX/mo)</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="800000"
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Bedrooms</label>
+                    <input
+                      type="number"
+                      required
+                      min={0}
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                      value={bedrooms}
+                      onChange={(e) => setBedrooms(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Bathrooms</label>
+                    <input
+                      type="number"
+                      required
+                      min={0}
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                      value={bathrooms}
+                      onChange={(e) => setBathrooms(e.target.value)}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-700 mb-1">Bedrooms</label>
-                  <input
-                    type="number"
-                    required
-                    className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
-                    value={bedrooms}
-                    onChange={(e) => setBedrooms(e.target.value)}
-                  />
+              )}
+
+              {propertyType === 'commercial' && (
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Rent Rate (UGX)</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="1500000"
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Floor Area (Sqft)</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 1500"
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Washrooms</label>
+                    <input
+                      type="number"
+                      min={0}
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                      value={bathrooms}
+                      onChange={(e) => setBathrooms(e.target.value)}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-700 mb-1">Bathrooms</label>
-                  <input
-                    type="number"
-                    required
-                    className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
-                    value={bathrooms}
-                    onChange={(e) => setBathrooms(e.target.value)}
-                  />
+              )}
+
+              {propertyType === 'land' && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Price / Lease (UGX)</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="5000000"
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Plot Size (Acres / Decimals / Sqft)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 50x100 ft or 2 Acres"
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {propertyType === 'vehicle' && (
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Rental Rate (UGX/day)</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="150000"
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Seating Capacity</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 5 or 7 seats"
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Fuel / Transmission</label>
+                    <select className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]">
+                      <option>Automatic Petrol</option>
+                      <option>Manual Diesel</option>
+                      <option>Automatic Hybrid</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {propertyType === 'it_hardware' && (
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Rental Rate (UGX)</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="50000"
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Available Quantity</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 10 Units"
+                      defaultValue={1}
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Tech Specs (RAM / CPU)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Core i7, 16GB RAM, 512GB SSD"
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {['machinery', 'agro_machinery'].includes(propertyType) && (
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Hire Rate (UGX/day)</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="350000"
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Capacity / HP</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 75 HP or 20 Ton"
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Operator Included</label>
+                    <select className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]">
+                      <option>Yes (Professional Operator Included)</option>
+                      <option>No (Self-Driven / Equipment Only)</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {propertyType === 'event_equipment' && (
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Hire Rate (UGX/day)</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="200000"
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Equipment Quantity</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Full Sound Package / 200 Chairs"
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Transport & Sound Tech</label>
+                    <select className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]">
+                      <option>Includes Setup & Engineer</option>
+                      <option>Equipment Dry-Hire Only</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {propertyType === 'event_venue' && (
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Venue Rate (UGX/day)</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="1200000"
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Guest Capacity</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 500 Guests"
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Parking Capacity</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 100 Cars"
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {!['apartment', 'house', 'studio', 'hostel', 'commercial', 'land', 'vehicle', 'it_hardware', 'machinery', 'agro_machinery', 'event_equipment', 'event_venue'].includes(propertyType) && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Rental Rate (UGX)</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="100000"
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Quantity / Unit Capacity</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Available Units or Specs"
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                    />
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="block text-xs font-semibold text-zinc-700 mb-1">Display Zone / Neighborhood</label>
@@ -1033,6 +1279,181 @@ export default function LandlordDashboardPage() {
               <Button variant="primary" fullWidth type="submit" disabled={responding}>
                 {responding ? 'Sending...' : 'Send Reply'}
               </Button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Subscription Upgrade & Payment Plans Modal */}
+      {showUpgradeModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto border border-zinc-100">
+            <button
+              onClick={() => setShowUpgradeModal(false)}
+              className="absolute top-5 right-5 text-zinc-400 hover:text-zinc-600 p-1 rounded-full"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="text-center mb-6">
+              <div className="h-14 w-14 rounded-full border-2 border-[#f06023] bg-[#f06023] text-white flex items-center justify-center mx-auto mb-3 shadow-md">
+                <ShieldCheck className="h-7 w-7 text-white" />
+              </div>
+              <h3 className="text-xl font-extrabold text-zinc-900">Upgrade Subscription Plan</h3>
+              <p className="text-xs text-zinc-500 mt-1">
+                Unlock UNLIMITED photos, priority listing placement, and direct tenant leads
+              </p>
+            </div>
+
+            {paymentSuccessMsg && (
+              <div className="bg-emerald-50 text-emerald-800 border border-emerald-200 p-3.5 rounded-2xl text-xs font-bold mb-4 flex items-center gap-2">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                <span>{paymentSuccessMsg}</span>
+              </div>
+            )}
+
+            {/* Plan Selector Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+              {/* Landlord Standard */}
+              <div
+                onClick={() => setSelectedPlanForPayment('standard')}
+                className={`p-4 rounded-2xl border-2 transition-all cursor-pointer relative ${
+                  selectedPlanForPayment === 'standard'
+                    ? 'border-[#f06023] bg-orange-50/40 shadow-md'
+                    : 'border-zinc-200 bg-white hover:border-zinc-300'
+                }`}
+              >
+                {selectedPlanForPayment === 'standard' && (
+                  <span className="absolute top-2.5 right-2.5 bg-[#f06023] text-white p-0.5 rounded-full">
+                    <Check className="h-3 w-3" />
+                  </span>
+                )}
+                <h4 className="font-bold text-zinc-900 text-sm">Landlord Standard</h4>
+                <p className="text-lg font-extrabold text-[#f06023] my-1">
+                  UGX 45,000 <span className="text-xs text-zinc-400 font-normal">/mo</span>
+                </p>
+                <ul className="text-[11px] text-zinc-600 space-y-1 mt-2">
+                  <li className="flex items-center gap-1">✓ <b>UNLIMITED Photos</b> per property</li>
+                  <li className="flex items-center gap-1">✓ Verified Landlord Badge</li>
+                  <li className="flex items-center gap-1">✓ Top Search Placement</li>
+                </ul>
+              </div>
+
+              {/* Pro Agency */}
+              <div
+                onClick={() => setSelectedPlanForPayment('agency')}
+                className={`p-4 rounded-2xl border-2 transition-all cursor-pointer relative ${
+                  selectedPlanForPayment === 'agency'
+                    ? 'border-[#f06023] bg-orange-50/40 shadow-md'
+                    : 'border-zinc-200 bg-white hover:border-zinc-300'
+                }`}
+              >
+                <span className="absolute top-2 right-2 bg-zinc-900 text-white text-[9px] font-extrabold px-2 py-0.5 rounded-full">
+                  MOST POPULAR
+                </span>
+                <h4 className="font-bold text-zinc-900 text-sm">Pro Agency / Broker</h4>
+                <p className="text-lg font-extrabold text-[#f06023] my-1">
+                  UGX 80,000 <span className="text-xs text-zinc-400 font-normal">/mo</span>
+                </p>
+                <ul className="text-[11px] text-zinc-600 space-y-1 mt-2">
+                  <li className="flex items-center gap-1">✓ <b>UNLIMITED Listings & Photos</b></li>
+                  <li className="flex items-center gap-1">✓ 30-Day Featured Badge</li>
+                  <li className="flex items-center gap-1">✓ Instant SMS & WhatsApp Leads</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Payment Method Selection */}
+            <form onSubmit={handleCompleteUpgradePayment} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-zinc-800 mb-2">Select Payment Method</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('momo')}
+                    className={`p-3 rounded-xl border-2 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-all ${
+                      paymentMethod === 'momo'
+                        ? 'border-[#f06023] bg-orange-50/50 text-[#f06023]'
+                        : 'border-zinc-200 text-zinc-600 hover:border-zinc-300'
+                    }`}
+                  >
+                    <Smartphone className="h-4 w-4" /> MTN / Airtel MoMo
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('card')}
+                    className={`p-3 rounded-xl border-2 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-all ${
+                      paymentMethod === 'card'
+                        ? 'border-[#f06023] bg-orange-50/50 text-[#f06023]'
+                        : 'border-zinc-200 text-zinc-600 hover:border-zinc-300'
+                    }`}
+                  >
+                    <CreditCard className="h-4 w-4" /> Credit / Debit Card
+                  </button>
+                </div>
+              </div>
+
+              {paymentMethod === 'momo' ? (
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                    Mobile Money Phone Number (MTN / Airtel Uganda)
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="0770 000 000 or 0700 000 000"
+                    className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                    value={paymentPhone}
+                    onChange={(e) => setPaymentPhone(e.target.value)}
+                  />
+                  <p className="text-[11px] text-zinc-400 mt-1">
+                    A prompt will be sent to your phone to approve the payment of UGX {selectedPlanForPayment === 'standard' ? '45,000' : '80,000'}.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">Card Number</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="4000 1234 5678 9010"
+                      className="w-full p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="text"
+                      required
+                      placeholder="MM/YY"
+                      className="p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                    />
+                    <input
+                      type="password"
+                      required
+                      maxLength={4}
+                      placeholder="CVV"
+                      className="p-3 border border-zinc-300 rounded-xl text-sm focus:outline-none focus:border-[#f06023]"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-2 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowUpgradeModal(false)}
+                  className="px-4 py-2.5 rounded-xl border border-zinc-300 text-xs font-bold text-zinc-700 hover:bg-zinc-50"
+                >
+                  Cancel
+                </button>
+                <Button variant="primary" type="submit" disabled={processingPayment}>
+                  {processingPayment
+                    ? 'Processing Payment...'
+                    : `Pay UGX ${selectedPlanForPayment === 'standard' ? '45,000' : '80,000'} & Upgrade`}
+                </Button>
+              </div>
             </form>
           </div>
         </div>

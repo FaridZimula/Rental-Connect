@@ -111,7 +111,7 @@ export default function AdminDashboardPage() {
       const localPending = customProps.filter((p) => p.status === 'pending_review');
 
       const pendingMap = new Map<string, Property>();
-      [...cloudPending, ...localPending, ...backendPending].forEach((p) => {
+      [...cloudPending, ...cloudAll, ...localPending, ...backendPending, ...backendProps].forEach((p) => {
         if (p && p.id && p.status === 'pending_review') pendingMap.set(p.id, p);
       });
       setPendingProperties(Array.from(pendingMap.values()));

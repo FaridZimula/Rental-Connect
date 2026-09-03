@@ -33,9 +33,10 @@ export function rowToProperty(row: any): Property {
 
 // Helper to map Property domain type to DB row
 export function propertyToRow(property: Property): Record<string, any> {
+  const isUUID = property.owner_id && /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(property.owner_id);
   return {
     id: property.id,
-    owner_id: property.owner_id || null,
+    owner_id: isUUID ? property.owner_id : null,
     owner_email: property.owner?.email || null,
     owner_name: property.owner?.full_name || null,
     owner_phone: property.owner?.phone || null,
