@@ -82,10 +82,17 @@ export const supabaseProperties = {
       const { data, error } = await supabase
         .from('properties')
         .select('*')
-        .eq('status', 'pending_review')
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false });
       if (error) throw error;
-      return (data || []).map(rowToProperty);
+
+      if (data && Array.isArray(data)) {
+        const pendingRows = data.filter((row) => {
+          const s = row.status?.toLowerCase().trim();
+          return s === 'pending_review' || s === 'pending' || s === 'pending review';
+        });
+        return pendingRows.map(rowToProperty);
+      }
+      return [];
     } catch (e) {
       console.warn('[SupabaseService] getPending error:', e);
       return [];

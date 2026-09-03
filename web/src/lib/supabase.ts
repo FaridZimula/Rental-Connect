@@ -2,12 +2,18 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
 import type { Profile, Hotel, Room, Booking, Review, Message } from './types';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder-project.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-anon-key';
+const realUrl = 'https://hxajngbvozjogbcxtnxj.supabase.co';
+const realAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh4YWpuZ2J2b3pqb2diY3h0bnhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzNjI0NzcsImV4cCI6MjEwMzkzODQ3N30.YHZp8g37gbs0oNAv_7dlsJ5A9oqTGRVmclIefS9zIyU';
 
-if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-  console.warn('[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Operating in fallback mode.');
-}
+const supabaseUrl =
+  import.meta.env.VITE_SUPABASE_URL && !import.meta.env.VITE_SUPABASE_URL.includes('placeholder')
+    ? import.meta.env.VITE_SUPABASE_URL
+    : realUrl;
+
+const supabaseAnonKey =
+  import.meta.env.VITE_SUPABASE_ANON_KEY && !import.meta.env.VITE_SUPABASE_ANON_KEY.includes('placeholder')
+    ? import.meta.env.VITE_SUPABASE_ANON_KEY
+    : realAnonKey;
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 
