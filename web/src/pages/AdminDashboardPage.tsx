@@ -3,7 +3,7 @@ import {
   ShieldCheck, CheckCircle2, XCircle, Users, Flag, Activity, 
   BarChart3, UserPlus, Shield, X, Building2, 
   Tag, Crown, Search, Filter, Phone, TrendingUp, 
-  MessageSquare, Bell
+  MessageSquare, Bell, Mail, Clock, MapPin, Home
 } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
@@ -745,40 +745,131 @@ export default function AdminDashboardPage() {
                       <p className="text-zinc-500 text-xs mt-1">No property listings are currently waiting for admin approval.</p>
                     </div>
                   ) : (
-                    pendingProperties.map((p) => (
-                      <div key={p.id} className="bg-white border border-zinc-200 rounded-2xl p-5 shadow-sm space-y-3">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          <div>
-                            <span className="bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-200 uppercase">
-                              Pending Review
-                            </span>
-                            <h3 className="font-bold text-zinc-900 text-base mt-1">{p.title}</h3>
-                            <p className="text-xs text-zinc-500">
-                              Zone: {p.display_zone} • Price: UGX {Number(p.price).toLocaleString()} • Owner: {p.owner?.full_name} ({p.owner?.email})
-                            </p>
-                          </div>
+                    pendingProperties.map((p) => {
+                      const thumbnail = p.images?.[0]?.image_url || 'https://images.pexels.com/photos/1918291/pexels-photo-1918291.jpeg?auto=compress&cs=tinysrgb&w=400';
+                      const postedAgo = p.created_at
+                        ? (() => {
+                            const diff = Date.now() - new Date(p.created_at).getTime();
+                            const mins = Math.floor(diff / 60000);
+                            const hrs = Math.floor(mins / 60);
+                            const days = Math.floor(hrs / 24);
+                            if (days > 0) return `${days}d ago`;
+                            if (hrs > 0) return `${hrs}h ago`;
+                            if (mins > 0) return `${mins}m ago`;
+                            return 'Just now';
+                          })()
+                        : '';
+                      const propTypeLabel = p.property_type
+                        ? p.property_type.charAt(0).toUpperCase() + p.property_type.slice(1).replace(/_/g, ' ')
+                        : 'Property';
 
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleApprove(p.id)}
-                              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1"
-                            >
-                              <CheckCircle2 className="h-4 w-4" /> Approve
-                            </button>
-                            <button
-                              onClick={() => setActionTarget({ id: p.id, type: 'reject' })}
-                              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1"
-                            >
-                              <XCircle className="h-4 w-4" /> Reject
-                            </button>
+                      return (
+                        <div key={p.id} className="bg-white border border-zinc-200 rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                          <div className="flex flex-col sm:flex-row">
+                            {/* Thumbnail */}
+                            <div className="sm:w-36 sm:min-w-36 h-36 sm:h-auto relative flex-shrink-0">
+                              <img
+                                src={thumbnail}
+                                alt={p.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.pexels.com/photos/1918291/pexels-photo-1918291.jpeg?auto=compress&cs=tinysrgb&w=400'; }}
+                              />
+                              {/* Image count badge */}
+                              {(p.images?.length ?? 0) > 1 && (
+                                <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md">
+                                  +{(p.images?.length ?? 0) - 1} photos
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex-1 p-4 flex flex-col gap-3">
+                              {/* Top row: badges + timestamp */}
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="bg-amber-50 text-amber-700 text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-amber-300 uppercase tracking-wide">
+                                  Pending Review
+                                </span>
+                                <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-200 uppercase">
+                                  Available
+                                </span>
+                                <span className="bg-[#fff0e8] text-[#f06023] text-[10px] font-bold px-2.5 py-1 rounded-full border border-[#f06023]/20 flex items-center gap-1">
+                                  <Tag className="h-2.5 w-2.5" />{propTypeLabel}
+                                </span>
+                                {postedAgo && (
+                                  <span className="text-zinc-400 text-[10px] flex items-center gap-1 ml-auto">
+                                    <Clock className="h-3 w-3" /> Posted {postedAgo}
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Title + location + price */}
+                              <div>
+                                <h3 className="font-bold text-zinc-900 text-base leading-tight">{p.title}</h3>
+                                <p className="text-xs text-zinc-500 mt-0.5 flex items-center gap-1">
+                                  <MapPin className="h-3 w-3 text-zinc-400" />
+                                  {p.display_zone} • <span className="font-semibold text-zinc-700">UGX {Number(p.price).toLocaleString()}/mo</span>
+                                  {p.bedrooms > 0 && <> • <Home className="h-3 w-3 ml-1" /> {p.bedrooms} bed</>}
+                                </p>
+                              </div>
+
+                              {/* Description */}
+                              {p.description && (
+                                <p className="text-xs text-zinc-500 bg-zinc-50 px-3 py-2 rounded-xl border border-zinc-100 line-clamp-2">
+                                  {p.description}
+                                </p>
+                              )}
+
+                              {/* Owner info row + action buttons */}
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-zinc-100 mt-auto">
+                                {/* Owner */}
+                                <div className="flex items-center gap-2">
+                                  <div className="h-8 w-8 rounded-full bg-[#f06023]/10 border border-[#f06023]/20 flex items-center justify-center text-[#f06023] font-extrabold text-sm flex-shrink-0">
+                                    {(p.owner?.full_name || p.owner?.email || 'O').charAt(0).toUpperCase()}
+                                  </div>
+                                  <div>
+                                    <p className="text-xs font-semibold text-zinc-800 leading-tight">{p.owner?.full_name || 'Property Owner'}</p>
+                                    <p className="text-[10px] text-zinc-400 leading-tight">{p.owner?.email || 'No email'}</p>
+                                  </div>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  {/* Contact Owner — orange */}
+                                  {p.owner?.email && (
+                                    <a
+                                      href={`mailto:${p.owner.email}?subject=Your Property Listing "${encodeURIComponent(p.title)}" – Rental Connect Admin&body=Hi ${encodeURIComponent(p.owner?.full_name || 'there')},%0A%0AWe have reviewed your property listing "${encodeURIComponent(p.title)}" and would like to reach out regarding the verification process.%0A%0ARegards,%0ARental Connect Admin Team`}
+                                      className="px-3.5 py-2 bg-[#f06023] hover:bg-[#d94b12] text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+                                    >
+                                      <Mail className="h-3.5 w-3.5" /> Contact Owner
+                                    </a>
+                                  )}
+                                  {p.owner?.phone && (
+                                    <a
+                                      href={`tel:${p.owner.phone}`}
+                                      className="px-3 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5"
+                                    >
+                                      <Phone className="h-3.5 w-3.5" />
+                                    </a>
+                                  )}
+                                  <button
+                                    onClick={() => handleApprove(p.id)}
+                                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+                                  >
+                                    <CheckCircle2 className="h-3.5 w-3.5" /> Approve
+                                  </button>
+                                  <button
+                                    onClick={() => setActionTarget({ id: p.id, type: 'reject' })}
+                                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+                                  >
+                                    <XCircle className="h-3.5 w-3.5" /> Reject
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
-
-                        <p className="text-xs text-zinc-600 bg-zinc-50 p-3 rounded-xl border border-zinc-200/60 line-clamp-3">
-                          {p.description}
-                        </p>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               )}
