@@ -1,11 +1,23 @@
 import axios from 'axios';
 import { auth } from './firebase';
 
-export const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+// In production (Vercel), if VITE_API_URL is not set or still points to localhost,
+// we skip backend calls entirely — Supabase is the primary data source.
+const rawApiUrl = import.meta.env.VITE_API_URL || '';
+const isLocalhost = rawApiUrl.includes('localhost') || rawApiUrl.includes('127.0.0.1');
+const isProduction = import.meta.env.PROD;
+
+// Use the configured URL; if it's localhost in prod, leave blank so requests fail fast
+export const API_BASE = rawApiUrl && !(isProduction && isLocalhost)
+  ? rawApiUrl
+  : isProduction
+    ? '' // No backend configured — all adminApi/propertiesApi calls will fail gracefully via Promise.allSettled
+    : 'http://localhost:3001/api';
 
 export const api = axios.create({
   baseURL: API_BASE,
   withCredentials: false,
+  timeout: 8000, // 8s timeout so failed backend calls don't hang the admin dashboard
 });
 
 // Attach fresh Firebase ID token on every request

@@ -79,25 +79,35 @@ export const supabaseProperties = {
 
   async getPending(): Promise<Property[]> {
     try {
+      // Filter server-side for all variants of "pending" status
       const { data, error } = await supabase
         .from('properties')
         .select('*')
+        .in('status', ['pending_review', 'pending', 'pending review'])
         .order('created_at', { ascending: false });
-      if (error) throw error;
 
-      if (data && Array.isArray(data)) {
-        const pendingRows = data.filter((row) => {
-          const s = row.status?.toLowerCase().trim();
-          return s === 'pending_review' || s === 'pending' || s === 'pending review';
-        });
-        return pendingRows.map(rowToProperty);
+      if (error) {
+        console.warn('[SupabaseService] getPending DB error (RLS may be blocking anon reads):', error.message);
+        // Fallback: fetch all and filter client-side
+        const fallback = await supabase.from('properties').select('*').order('created_at', { ascending: false });
+        if (fallback.data) {
+          return fallback.data
+            .filter((r) => {
+              const s = r.status?.toLowerCase().trim();
+              return s === 'pending_review' || s === 'pending' || s === 'pending review';
+            })
+            .map(rowToProperty);
+        }
+        return [];
       }
-      return [];
+
+      return (data || []).map(rowToProperty);
     } catch (e) {
       console.warn('[SupabaseService] getPending error:', e);
       return [];
     }
   },
+
 
   async getAll(): Promise<Property[]> {
     try {
