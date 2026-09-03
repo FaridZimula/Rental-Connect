@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Building2, Plus, MessageSquare, Trash2, Eye, EyeOff, X, Edit2, User, Image as ImageIcon, Upload, Sparkles, AlertCircle, Calendar, Tag } from 'lucide-react';
+import { Building2, Plus, MessageSquare, Trash2, Eye, EyeOff, X, Edit2, User, Image as ImageIcon, Upload, Sparkles, AlertCircle, Calendar, Tag, ShieldCheck, CheckCircle2, CreditCard, Smartphone, Check } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import { useAuth } from '../contexts/AuthContext';
@@ -90,7 +90,32 @@ export default function LandlordDashboardPage() {
     return (localStorage.getItem('rc_landlord_plan') as any) || 'basic';
   });
 
+  // Upgrade Payment Modal State
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<'standard' | 'agency'>('standard');
+  const [paymentMethod, setPaymentMethod] = useState<'momo' | 'card'>('momo');
+  const [paymentPhone, setPaymentPhone] = useState(user?.phone || '');
+  const [processingPayment, setProcessingPayment] = useState(false);
+  const [paymentSuccessMsg, setPaymentSuccessMsg] = useState('');
+
   const maxPhotosAllowed = userPlan === 'basic' ? 5 : 999;
+
+  const handleCompleteUpgradePayment = (e: React.FormEvent) => {
+    e.preventDefault();
+    setProcessingPayment(true);
+    setPaymentSuccessMsg('');
+    setTimeout(() => {
+      setUserPlan(selectedPlanForPayment);
+      localStorage.setItem('rc_landlord_plan', selectedPlanForPayment);
+      setPhotoError('');
+      setProcessingPayment(false);
+      setPaymentSuccessMsg(`Payment Successful! Your plan has been upgraded to ${selectedPlanForPayment === 'standard' ? 'Unlimited Standard' : 'Pro Agency Unlimited'}.`);
+      setTimeout(() => {
+        setShowUpgradeModal(false);
+        setPaymentSuccessMsg('');
+      }, 1500);
+    }, 1200);
+  };
 
   const handleAddPhotoUrl = () => {
     if (!newPhotoUrl.trim()) return;
@@ -839,20 +864,19 @@ export default function LandlordDashboardPage() {
                     <ImageIcon className="h-4 w-4 text-[#f06023]" /> Photos & Media Gallery
                   </label>
                   <div className="flex items-center gap-2">
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                      userPlan === 'basic' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                    }`}>
-                      {userPlan === 'basic'
-                        ? `${propertyPhotos.length}/5 Photos (Basic)`
-                        : `${propertyPhotos.length} Photos (Unlimited Pro)`}
+                    <span className="text-xs text-zinc-500 font-medium">
+                      ({userPlan === 'basic' ? `${propertyPhotos.length}/5 Photos` : `${propertyPhotos.length} Photos`})
                     </span>
                     {userPlan === 'basic' && (
                       <button
                         type="button"
-                        onClick={() => handleUpgradePlan('standard')}
-                        className="text-[10px] font-bold text-[#f06023] hover:underline flex items-center gap-1 cursor-pointer"
+                        onClick={() => {
+                          setSelectedPlanForPayment('standard');
+                          setShowUpgradeModal(true);
+                        }}
+                        className="text-[10px] font-bold text-[#f06023] hover:underline cursor-pointer"
                       >
-                        <Sparkles className="h-3 w-3" /> Upgrade to Unlimited
+                        Upgrade to Unlimited
                       </button>
                     )}
                   </div>
@@ -866,7 +890,10 @@ export default function LandlordDashboardPage() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => handleUpgradePlan('standard')}
+                      onClick={() => {
+                        setSelectedPlanForPayment('standard');
+                        setShowUpgradeModal(true);
+                      }}
                       className="px-2.5 py-1 bg-[#f06023] text-white rounded-lg text-[10px] font-bold shrink-0 hover:bg-[#d94b12] cursor-pointer"
                     >
                       Upgrade Plan
